@@ -1,5 +1,5 @@
-const SUPABASE_URL = "SUA_URL_AQUI";
-const SUPABASE_KEY = "SUA_CHAVE_ANON_AQUI";
+const SUPABASE_URL = "https://pcsjhrayvxxyhphdzjlv.supabase.co";
+const SUPABASE_KEY = "sb_publishable_oirhV7wk9tB9JNBuLuzCCQ_SomAepLe";
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 document.getElementById('formCadastro').addEventListener('submit', async (e) => {
