@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="sites.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="sites.js" defer></script>
+
+  <title>Sites - Readeriso</title>
+</head>
+
+<body>
+
+  <header>
+    <nav aria-label="Menu Explorar">
+      <div class="logo">Explore o Readeriso</div>
+
+      <ul>
+        <li><a href="perfil.html">Perfil</a></li>
+        <li><a href="biblioteca.html">Biblioteca</a></li>
+        <li><a href="escritor.html">Escrever</a></li>
+        <li><a href="../explorar.html">Explorar</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+
+    <section class="titulo">
+      <h1>Sites</h1>
+      <p>Encontre plataformas para ler, descobrir e compartilhar histórias.</p>
+
+    </section>
+
+    <section class="lista-sites">
+
+      <div class="accordion" id="accordionSites">
+
+        <div class="accordion-item categoria">
+          <h2 class="accordion-header">
+            <button
+              class="accordion-button"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#livros"
+            >
+              📚 Livros e ebooks
+            </button>
+          </h2>
+
+          <div
+            id="livros"
+            class="accordion-collapse collapse show"
+            data-bs-parent="#accordionSites"
+          >
+            <div class="accordion-body">
+              <div class="sites-grid">
+
+                <article class="site-card" data-nome="Amazon Kindle livros ebooks">
+                  <img src="https://www.google.com/s2/favicons?domain=amazon.com.br&sz=128" alt="Logo Amazon Kindle">
+                  <h3>Amazon Kindle</h3>
+                  <p>Livros digitais e ebooks da Amazon.</p>
+                  <a href="https://www.amazon.com.br/kindle-dbs/hub" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+                <article class="site-card" data-nome="Google Play Livros">
+                  <img src="https://www.google.com/s2/favicons?domain=play.google.com&sz=128" alt="Logo Google Play Livros">
+                  <h3>Google Play Livros</h3>
+                  <p>Compre e leia livros digitais pelo Google.</p>
+                  <a href="https://play.google.com/store/books" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+                <article class="site-card" data-nome="Kobo">
+                  <img src="https://www.google.com/s2/favicons?domain=kobo.com&sz=128" alt="Logo Kobo">
+                  <h3>Kobo</h3>
+                  <p>Livros digitais e ebooks para leitura.</p>
+                  <a href="https://www.kobo.com" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+                <article class="site-card" data-nome="MEC Livros Ministério da Educação">
+                  <img src="https://www.google.com/s2/favicons?domain=meclivros.mec.gov.br&sz=128" alt="Logo MEC Livros">
+                  <h3>MEC Livros</h3>
+                  <p>Acervo de livros e conteúdos educacionais.</p>
+                  <a href="https://meclivros.mec.gov.br/" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+                <article class="site-card" data-nome="Fliptru livros histórias">
+                  <img src="https://www.google.com/s2/favicons?domain=fliptru.com.br&sz=128" alt="Logo Fliptru">
+                  <h3>Fliptru</h3>
+                  <p>Plataforma brasileira para ler e publicar histórias.</p>
+                  <a href="https://fliptru.com.br/" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+                <article class="site-card" data-nome="Domínio Público">
+                  <img src="https://www.google.com/s2/favicons?domain=dominiopublico.gov.br&sz=128" alt="Logo Domínio Público">
+                  <h3>Domínio Público</h3>
+                  <p>Biblioteca digital pública do Brasil.</p>
+                  <a href="https://www.dominiopublico.gov.br" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+                <article class="site-card" data-nome="Project Gutenberg">
+                  <img src="https://www.google.com/s2/favicons?domain=gutenberg.org&sz=128" alt="Logo Project Gutenberg">
+                  <h3>Project Gutenberg</h3>
+                  <p>Grande acervo de ebooks gratuitos.</p>
+                  <a href="https://www.gutenberg.org" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+                <article class="site-card" data-nome="Open Library">
+                  <img src="https://www.google.com/s2/favicons?domain=openlibrary.org&sz=128" alt="Logo Open Library">
+                  <h3>Open Library</h3>
+                  <p>Catálogo digital com milhões de livros.</p>
+                  <a href="https://openlibrary.org" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+                <article class="site-card" data-nome="LibriVox">
+                  <img src="https://www.google.com/s2/favicons?domain=librivox.org&sz=128" alt="Logo LibriVox">
+                  <h3>LibriVox</h3>
+                  <p>Audiolivros gratuitos em domínio público.</p>
+                  <a href="https://librivox.org" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+                <article class="site-card" data-nome="Standard Ebooks">
+                  <img src="https://www.google.com/s2/favicons?domain=standardebooks.org&sz=128" alt="Logo Standard Ebooks">
+                  <h3>Standard Ebooks</h3>
+                  <p>Ebooks gratuitos com formatação de qualidade.</p>
+                  <a href="https://standardebooks.org" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+                <article class="site-card" data-nome="ManyBooks">
+                  <img src="https://www.google.com/s2/favicons?domain=manybooks.net&sz=128" alt="Logo ManyBooks">
+                  <h3>ManyBooks</h3>
+                  <p>Catálogo de livros digitais gratuitos e pagos.</p>
+                  <a href="https://manybooks.net" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+                <article class="site-card" data-nome="Biblioteca Brasiliana USP">
+                  <img src="https://www.google.com/s2/favicons?domain=brasiliana.usp.br&sz=128" alt="Logo Biblioteca Brasiliana USP">
+                  <h3>Biblioteca Brasiliana USP</h3>
+                  <p>Acervo digital da Universidade de São Paulo.</p>
+                  <a href="https://www.brasiliana.usp.br" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+                <article class="site-card" data-nome="Bibvirt">
+                  <img src="https://www.google.com/s2/favicons?domain=bibvirt.futuro.usp.br&sz=128" alt="Logo Bibvirt">
+                  <h3>Bibvirt</h3>
+                  <p>Biblioteca virtual com conteúdos digitais.</p>
+                  <a href="http://www.bibvirt.futuro.usp.br" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+                <article class="site-card" data-nome="Skoob">
+                  <img src="https://www.google.com/s2/favicons?domain=skoob.com.br&sz=128" alt="Logo Skoob">
+                  <h3>Skoob</h3>
+                  <p>Rede social para leitores e amantes de livros.</p>
+                  <a href="https://www.skoob.com.br" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item categoria">
+          <h2 class="accordion-header">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#mangas"
+            >
+              📖 Mangás, quadrinhos e webtoons
+            </button>
+          </h2>
+
+          <div
+            id="mangas"
+            class="accordion-collapse collapse"
+            data-bs-parent="#accordionSites"
+          >
+            <div class="accordion-body">
+              <div class="sites-grid">
+
+                <article class="site-card" data-nome="Manga Plus">
+                  <img src="https://www.google.com/s2/favicons?domain=mangaplus.shueisha.co.jp&sz=128" alt="Logo Manga Plus">
+                  <h3>Manga Plus</h3>
+                  <p>Leia mangás publicados pela Shueisha.</p>
+                  <a href="https://mangaplus.shueisha.co.jp" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+                <article class="site-card" data-nome="MangaDex">
+                  <img src="https://www.google.com/s2/favicons?domain=mangadex.org&sz=128" alt="Logo LINE Webtoon">
+                  <h3>MangaDex</h3>
+                  <p>Plataforma de diversos mangas, com diversas lingua e obras.</p>
+                  <a href="https://www.webtoons.com" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+                
+                <article class="site-card" data-nome="LINE Webtoon">
+                  <img src="https://www.google.com/s2/favicons?domain=webtoons.com&sz=128" alt="Logo LINE Webtoon">
+                  <h3>LINE Webtoon</h3>
+                  <p>Grande plataforma de webtoons e quadrinhos.</p>
+                  <a href="https://www.webtoons.com" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+                <article class="site-card" data-nome="Tapas">
+                  <img src="https://www.google.com/s2/favicons?domain=tapas.io&sz=128" alt="Logo Tapas">
+                  <h3>Tapas</h3>
+                  <p>Webcomics, novels e histórias independentes.</p>
+                  <a href="https://tapas.io" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+                <article class="site-card" data-nome="Crunchyroll Manga">
+                  <img src="https://www.google.com/s2/favicons?domain=crunchyroll.com&sz=128" alt="Logo Crunchyroll Manga">
+                  <h3>Crunchyroll Manga</h3>
+                  <p>Catálogo de mangás da Crunchyroll.</p>
+                  <a href="https://www.crunchyroll.com/comics/manga" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+                <article class="site-card" data-nome="Viz Manga">
+                  <img src="https://www.google.com/s2/favicons?domain=viz.com&sz=128" alt="Logo Viz Manga">
+                  <h3>Viz Manga</h3>
+                  <p>Biblioteca digital de mangás da VIZ.</p>
+                  <a href="https://www.viz.com/read" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+                <article class="site-card" data-nome="Comixology Amazon">
+                  <img src="https://www.google.com/s2/favicons?domain=amazon.com&sz=128" alt="Logo Comixology">
+                  <h3>Comixology</h3>
+                  <p>Plataforma de quadrinhos da Amazon.</p>
+                  <a href="https://www.amazon.com/comixology" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item categoria">
+          <h2 class="accordion-header">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#noticias"
+            >
+              📰 Notícias e artigos
+            </button>
+          </h2>
+
+          <div
+            id="noticias"
+            class="accordion-collapse collapse"
+            data-bs-parent="#accordionSites"
+          >
+            <div class="accordion-body">
+              <div class="sites-grid">
+
+                <article class="site-card" data-nome="Google Notícias">
+                  <img src="https://www.google.com/s2/favicons?domain=news.google.com&sz=128" alt="Logo Google Notícias">
+                  <h3>Google Notícias</h3>
+                  <p>Agregador de notícias de diferentes fontes.</p>
+                  <a href="https://news.google.com" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+                <article class="site-card" data-nome="Feedly">
+                  <img src="https://www.google.com/s2/favicons?domain=feedly.com&sz=128" alt="Logo Feedly">
+                  <h3>Feedly</h3>
+                  <p>Organize notícias e conteúdos em um só lugar.</p>
+                  <a href="https://feedly.com" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+                <article class="site-card" data-nome="Flipboard">
+                  <img src="https://www.google.com/s2/favicons?domain=flipboard.com&sz=128" alt="Logo Flipboard">
+                  <h3>Flipboard</h3>
+                  <p>Descubra notícias e artigos personalizados.</p>
+                  <a href="https://flipboard.com" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+                <article class="site-card" data-nome="Pocket">
+                  <img src="https://www.google.com/s2/favicons?domain=getpocket.com&sz=128" alt="Logo Pocket">
+                  <h3>Pocket</h3>
+                  <p>Salve artigos e conteúdos para ler depois.</p>
+                  <a href="https://getpocket.com" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+                <article class="site-card" data-nome="G1">
+                  <img src="https://www.google.com/s2/favicons?domain=g1.globo.com&sz=128" alt="Logo G1">
+                  <h3>G1</h3>
+                  <p>Portal de notícias do Brasil e do mundo.</p>
+                  <a href="https://g1.globo.com" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+                <article class="site-card" data-nome="Folha">
+                  <img src="https://www.google.com/s2/favicons?domain=folha.uol.com.br&sz=128" alt="Logo Folha">
+                  <h3>Folha de S.Paulo</h3>
+                  <p>Notícias, análises e artigos.</p>
+                  <a href="https://www.folha.uol.com.br" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+                <article class="site-card" data-nome="UOL">
+                  <img src="https://www.google.com/s2/favicons?domain=uol.com.br&sz=128" alt="Logo UOL">
+                  <h3>UOL</h3>
+                  <p>Portal com notícias, informações e conteúdos.</p>
+                  <a href="https://www.uol.com.br" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+                <article class="site-card" data-nome="BBC Brasil">
+                  <img src="https://www.google.com/s2/favicons?domain=bbc.com&sz=128" alt="Logo BBC Brasil">
+                  <h3>BBC Brasil</h3>
+                  <p>Notícias e reportagens em português.</p>
+                  <a href="https://www.bbc.com/portuguese" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+                <article class="site-card" data-nome="Medium">
+                  <img src="https://www.google.com/s2/favicons?domain=medium.com&sz=128" alt="Logo Medium">
+                  <h3>Medium</h3>
+                  <p>Artigos, histórias e textos de diversos autores.</p>
+                  <a href="https://medium.com" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item categoria">
+          <h2 class="accordion-header">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#fanfics"
+            >
+              ✍️ Fanfics
+            </button>
+          </h2>
+
+          <div
+            id="fanfics"
+            class="accordion-collapse collapse"
+            data-bs-parent="#accordionSites"
+          >
+            <div class="accordion-body">
+              <div class="sites-grid">
+
+                <article class="site-card" data-nome="Archive of Our Own AO3">
+                  <img src="https://www.google.com/s2/favicons?domain=archiveofourown.org&sz=128" alt="Logo Archive of Our Own">
+                  <h3>Archive of Our Own</h3>
+                  <p>Grande arquivo de fanfics e obras de fãs.</p>
+                  <a href="https://archiveofourown.org" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+                <article class="site-card" data-nome="Wattpad">
+                  <img src="https://www.google.com/s2/favicons?domain=wattpad.com&sz=128" alt="Logo Wattpad">
+                  <h3>Wattpad</h3>
+                  <p>Plataforma para ler e publicar histórias.</p>
+                  <a href="https://www.wattpad.com" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+                <article class="site-card" data-nome="Spirit Fanfics e Histórias">
+                  <img src="https://www.google.com/s2/favicons?domain=spiritfanfiction.com&sz=128" alt="Logo Spirit Fanfics">
+                  <h3>Spirit Fanfics</h3>
+                  <p>Plataforma brasileira de fanfics e histórias.</p>
+                  <a href="https://spiritfanfiction.com" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+                <article class="site-card" data-nome="FanFiction.net">
+                  <img src="https://www.google.com/s2/favicons?domain=fanfiction.net&sz=128" alt="Logo FanFiction.net">
+                  <h3>FanFiction.net</h3>
+                  <p>Comunidade para publicação e leitura de fanfics.</p>
+                  <a href="https://www.fanfiction.net" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+                <article class="site-card" data-nome="Social Spirit">
+                  <img src="https://www.google.com/s2/favicons?domain=socialspirit.com.br&sz=128" alt="Logo Social Spirit">
+                  <h3>Social Spirit</h3>
+                  <p>Plataforma brasileira de histórias e fanfics.</p>
+                  <a href="https://socialspirit.com.br" target="_blank" rel="noopener noreferrer">Acessar</a>
+                </article>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <p id="nenhumResultado">Nenhum site encontrado.</p>
+
+    </section>
+
+  </main>
+
+</body>
+</html>

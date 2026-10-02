@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="escritor.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="escritor.js" defer></script>
+
+  <title>Escritor - Readeriso</title>
+</head>
+<body>
+  <header id="escritor">
+    <nav aria-label="Inicio Escritor">
+      <div class="logo">Explore o Readeriso</div>
+
+      <ul>
+        <li><a href="">Perfil</a></li>
+        <li><a href="">Explorar</a></li>
+        <li><a href="">Biblioteca</a></li>
+        <li><a href="">Sites</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  
+  <main>
+<!--Parte de introdução da aba -->
+    
+    <section class="introducao">
+      <h1>Escreva e crie suas próprias histórias!</h1>
+  
+      <h2>Como funciona?</h2>
+  
+      <p>
+        <strong> 
+        Solte sua imaginação e crie histórias, contos ou fanfics
+        como você pensar. A escrita é, e sempre será, uma das
+        melhores formas de se expressar.
+        </strong>
+      </p>
+  
+      <button
+  type="button"
+  data-bs-toggle="modal"
+  data-bs-target="#modalNovaHistoria">
+  Criar nova história
+      </button>
+    </section>
+
+<!-- Parte aonde ficaria os livros escritos
+    pela pessoa-->
+    
+    <section class="meus-livros">
+      <h2>Meus livros</h2>
+    
+      <div class="livros-secao">
+        <h3>Rascunhos</h3>
+    
+        <div class="lista-livros">
+          <article class="livro">
+            <div class="capa">
+              <span>CAPA</span>
+            </div>
+    
+            <h4>Meu primeiro livro</h4>
+            <p>Rascunho</p>
+          </article>
+    
+          <article class="livro">
+            <div class="capa">
+              <span>CAPA</span>
+            </div>
+    
+            <h4>Minha história</h4>
+            <p>Rascunho</p>
+          </article>
+        </div>
+      </div>
+    
+      <div class="livros-secao">
+        <h3>Publicados</h3>
+    
+        <div class="lista-livros">
+          <article class="livro">
+            <div class="capa">
+              <span>CAPA</span>
+            </div>
+    
+            <h4>Uma nova aventura</h4>
+            <p>Publicado</p>
+          </article>
+        </div>
+      </div>
+    </section>
+    
+  </main>
+  
+<!-- Modal -->
+
+  <div class="modal fade" id="modalNovaHistoria" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h2 class="modal-title">Criar nova história</h2>
+
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Fechar"
+        ></button>
+      </div>
+
+      <div class="modal-body">
+
+        <label for="titulo">Título</label>
+        <input
+          type="text"
+          id="titulo"
+          placeholder="Digite o título da história"
+        >
+
+        <label for="descricao">Descrição</label>
+        <textarea
+          id="descricao"
+          placeholder="Sobre o que é sua história?"
+        ></textarea>
+
+        <label for="genero">Gênero</label>
+        <select id="genero">
+          <option value="">Selecione um gênero</option>
+          <option value="fantasia">Fantasia</option>
+          <option value="romance">Romance</option>
+          <option value="aventura">Aventura</option>
+          <option value="terror">Terror</option>
+          <option value="ficcao">Ficção</option>
+          <option value="outro">Outro</option>
+        </select>
+
+      </div>
+
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn-cancelar"
+          data-bs-dismiss="modal"
+        >
+          Cancelar
+        </button>
+
+        <button type="button" class="btn-criar">
+          Criar história
+        </button>
+      </div>
+
+    </div>
+  </div>
+  </div>
+  
+  
+  <footer></footer>
+</body>
+</html>
