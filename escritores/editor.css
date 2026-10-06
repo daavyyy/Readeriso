@@ -1,0 +1,627 @@
+/* Parte 1 - Configurações gerais */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #0a0a0a;
+  color: #ffffff;
+  overflow-x: hidden;
+}
+
+
+/* Parte 2 - Header */
+header {
+  width: 100%;
+  background-color: #080808;
+  border-bottom: 1px solid #3a0000;
+}
+
+nav {
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 5%;
+  background-color: #151515;
+  border-bottom: 1px solid #e50914;
+}
+
+.logo {
+  color: #ffffff;
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+nav ul {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+nav a {
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: 0.3s;
+}
+
+nav a:hover {
+  color: #e50914;
+}
+
+
+/* Parte 3 - Área principal */
+main {
+  width: 90%;
+  max-width: 1200px;
+  margin: 50px auto;
+}
+
+
+/* Parte 4 - Informações da história */
+.informacoes-historia {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  margin-bottom: 40px;
+  padding: 25px;
+  background-color: #111111;
+  border: 1px solid #3a0000;
+  border-radius: 12px;
+}
+
+.capa-historia {
+  width: 110px;
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background-color: #1c1c1c;
+  border: 1px solid #3a0000;
+  border-radius: 7px;
+  color: #777777;
+}
+
+.dados-historia {
+  flex: 1;
+}
+
+.dados-historia h1 {
+  margin-bottom: 10px;
+  color: #ffffff;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.dados-historia p {
+  max-width: 700px;
+  margin-bottom: 15px;
+  color: #aaaaaa;
+  line-height: 1.6;
+}
+
+.etiquetas span {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 5px 11px;
+  background-color: #1a1a1a;
+  border: 1px solid #3a0000;
+  border-radius: 20px;
+  color: #ff4d4d;
+  font-size: 0.8rem;
+}
+
+.btn-configuracoes {
+  padding: 10px 16px;
+  background-color: transparent;
+  border: 1px solid #555555;
+  border-radius: 6px;
+  color: #ffffff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-configuracoes:hover {
+  background-color: #1a1a1a;
+  border-color: #777777;
+}
+
+
+/* Parte 5 - Área do editor */
+.area-editor {
+  display: grid;
+  grid-template-columns: 230px 1fr;
+  min-height: 650px;
+  background-color: #111111;
+  border: 1px solid #3a0000;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+
+/* Parte 6 - Lista de capítulos */
+.capitulos {
+  background-color: #0d0d0d;
+  border-right: 1px solid #3a0000;
+}
+
+.capitulos-cabecalho {
+  min-height: 65px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px;
+  border-bottom: 1px solid #3a0000;
+}
+
+.capitulos-cabecalho h2 {
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.btn-adicionar {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #555555;
+  border-radius: 6px;
+  background-color: transparent;
+  color: #ffffff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-adicionar:hover {
+  background-color: #e50914;
+  border-color: #e50914;
+}
+
+.lista-capitulos {
+  padding: 10px;
+}
+
+.capitulo {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 5px;
+  padding: 12px;
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: #ffffff;
+  text-align: left;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.capitulo span {
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.capitulo small {
+  margin-top: 4px;
+  color: #777777;
+  font-size: 0.8rem;
+}
+
+.capitulo:hover {
+  background-color: #1a1a1a;
+}
+
+.capitulo.ativo {
+  background-color: #1a1a1a;
+  border-color: #3a0000;
+}
+
+.capitulo.ativo span {
+  color: #ff4d4d;
+}
+
+
+/* Parte 7 - Área de escrita */
+.escrita {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* Parte 8 - Cabeçalho do capítulo */
+.cabecalho-capitulo {
+  padding: 25px 30px 15px;
+}
+
+.cabecalho-capitulo > span {
+  display: block;
+  margin-bottom: 10px;
+  color: #ff4d4d;
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+#tituloCapitulo {
+  width: 100%;
+  padding: 10px 0;
+  background-color: transparent;
+  border: none;
+  border-bottom: 1px solid #3a0000;
+  outline: none;
+  color: #ffffff;
+  font-size: 1.7rem;
+  font-weight: bold;
+}
+
+#tituloCapitulo::placeholder {
+  color: #666666;
+}
+
+#tituloCapitulo:focus {
+  border-bottom-color: #e50914;
+}
+
+
+/* Parte 9 - Barra de ferramentas */
+.barra-ferramentas {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 10px 30px;
+  background-color: #0d0d0d;
+  border-top: 1px solid #3a0000;
+  border-bottom: 1px solid #3a0000;
+}
+
+.barra-ferramentas button {
+  min-width: 34px;
+  height: 34px;
+  padding: 5px 9px;
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  color: #ffffff;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.barra-ferramentas button:hover {
+  background-color: #1a1a1a;
+  border-color: #3a0000;
+  color: #ff4d4d;
+}
+
+.separador {
+  width: 1px;
+  height: 25px;
+  margin: 0 5px;
+  background-color: #3a0000;
+}
+
+
+/* Parte 10 - Área de texto */
+.area-texto {
+  flex: 1;
+  padding: 20px 30px;
+}
+
+#textoCapitulo {
+  width: 100%;
+  height: 100%;
+  min-height: 430px;
+  padding: 10px;
+  resize: vertical;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.1rem;
+  line-height: 1.9;
+}
+
+#textoCapitulo::placeholder {
+  color: #555555;
+}
+
+#textoCapitulo:focus {
+  outline: none;
+}
+
+
+/* Parte 11 - Informações do editor */
+.informacoes-editor {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 30px;
+  background-color: #0d0d0d;
+  border-top: 1px solid #3a0000;
+  color: #777777;
+  font-size: 0.8rem;
+}
+
+.status-salvamento {
+  color: #888888;
+}
+
+
+/* Parte 12 - Controles */
+.controles {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-top: 25px;
+}
+
+.acoes {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-novo-capitulo,
+.btn-salvar,
+.btn-visualizar,
+.btn-publicar {
+  padding: 11px 18px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-novo-capitulo {
+  background-color: transparent;
+  border: 1px solid #555555;
+  color: #ffffff;
+}
+
+.btn-novo-capitulo:hover {
+  background-color: #1a1a1a;
+  border-color: #777777;
+}
+
+.btn-salvar {
+  background-color: #1a1a1a;
+  border: 1px solid #555555;
+  color: #ffffff;
+}
+
+.btn-salvar:hover {
+  background-color: #252525;
+  border-color: #888888;
+}
+
+.btn-visualizar {
+  background-color: #1a1a1a;
+  border: 1px solid #555555;
+  color: #ffffff;
+}
+
+.btn-visualizar:hover {
+  background-color: #252525;
+  border-color: #888888;
+}
+
+.btn-publicar {
+  background-color: #e50914;
+  border: 1px solid #e50914;
+  color: #ffffff;
+}
+
+.btn-publicar:hover {
+  background-color: #b20710;
+  border-color: #b20710;
+}
+
+
+/* Parte 13 - Footer */
+footer {
+  width: 100%;
+  margin-top: 70px;
+  padding: 25px;
+  background-color: #080808;
+  border-top: 1px solid #3a0000;
+  text-align: center;
+}
+
+footer p {
+  color: #666666;
+  font-size: 0.85rem;
+}
+
+
+/* Parte 14 - Responsividade */
+@media (max-width: 800px) {
+
+  .area-editor {
+    grid-template-columns: 1fr;
+  }
+
+  .capitulos {
+    border-right: none;
+    border-bottom: 1px solid #3a0000;
+  }
+
+  .lista-capitulos {
+    display: flex;
+    gap: 5px;
+    overflow-x: auto;
+  }
+
+  .capitulo {
+    min-width: 160px;
+    margin-bottom: 0;
+  }
+
+  .informacoes-historia {
+    flex-wrap: wrap;
+  }
+
+  .btn-configuracoes {
+    margin-left: 135px;
+  }
+}
+
+
+/* Parte 15 - Celulares */
+@media (max-width: 600px) {
+
+  nav {
+    min-height: 70px;
+    flex-direction: column;
+    justify-content: center;
+    gap: 15px;
+    padding: 20px;
+  }
+
+  .logo {
+    font-size: 1.2rem;
+    text-align: center;
+  }
+
+  nav ul {
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  nav a {
+    font-size: 0.9rem;
+  }
+
+  main {
+    width: 94%;
+    margin: 35px auto;
+  }
+
+  .informacoes-historia {
+    align-items: flex-start;
+    padding: 20px;
+  }
+
+  .capa-historia {
+    width: 90px;
+    height: 125px;
+  }
+
+  .dados-historia h1 {
+    font-size: 1.6rem;
+  }
+
+  .dados-historia p {
+    font-size: 0.9rem;
+  }
+
+  .btn-configuracoes {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .cabecalho-capitulo {
+    padding: 20px;
+  }
+
+  .barra-ferramentas {
+    padding: 10px 20px;
+  }
+
+  .area-texto {
+    padding: 15px 20px;
+  }
+
+  #textoCapitulo {
+    min-height: 400px;
+    font-size: 1rem;
+  }
+
+  .informacoes-editor {
+    padding: 10px 20px;
+  }
+
+  .controles {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .acoes {
+    display: flex;
+  }
+
+  .btn-novo-capitulo,
+  .btn-salvar,
+  .btn-visualizar,
+  .btn-publicar {
+    flex: 1;
+  }
+}
+
+
+/* Parte 16 - Celulares menores */
+@media (max-width: 400px) {
+
+  main {
+    width: 95%;
+  }
+
+  .informacoes-historia {
+    gap: 15px;
+  }
+
+  .capa-historia {
+    width: 75px;
+    height: 105px;
+  }
+
+  .dados-historia h1 {
+    font-size: 1.4rem;
+  }
+
+  .barra-ferramentas {
+    gap: 2px;
+    padding: 8px 10px;
+  }
+
+  .barra-ferramentas button {
+    min-width: 30px;
+    padding: 4px 7px;
+  }
+
+  .separador {
+    margin: 0 2px;
+  }
+
+  .capitulo {
+    min-width: 140px;
+  }
+
+  .acoes {
+    flex-direction: column;
+  }
+
+  .btn-novo-capitulo,
+  .btn-salvar,
+  .btn-visualizar,
+  .btn-publicar {
+    width: 100%;
+  }
+}

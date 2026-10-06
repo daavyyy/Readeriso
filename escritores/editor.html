@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="editor.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+  <title>Editor - Readeriso</title>
+</head>
+
+<body>
+
+  <!-- Parte 1 - Header -->
+  <header id="editor">
+    <nav aria-label="Menu do editor">
+
+      <div class="logo">
+        Readeriso
+      </div>
+
+      <ul>
+        <li><a href="">Meus livros</a></li>
+        <li><a href="">Explorar</a></li>
+        <li><a href="">Perfil</a></li>
+      </ul>
+
+    </nav>
+  </header>
+
+
+  <!-- Parte 2 - Área principal -->
+  <main>
+
+    <!-- Parte 3 - Informações da história -->
+    <section class="informacoes-historia">
+
+      <div class="capa-historia">
+        <span>CAPA</span>
+      </div>
+
+      <div class="dados-historia">
+
+        <h1>Minha grande aventura</h1>
+
+        <p>
+          Uma aventura cheia de mistérios e descobertas.
+        </p>
+
+        <div class="etiquetas">
+          <span>Fantasia</span>
+          <span>Rascunho</span>
+        </div>
+
+      </div>
+
+      <button type="button" class="btn-configuracoes">
+        Configurações
+      </button>
+
+    </section>
+
+
+    <!-- Parte 4 - Área do editor -->
+    <section class="area-editor">
+
+      <!-- Parte 5 - Lista de capítulos -->
+      <aside class="capitulos">
+
+        <div class="capitulos-cabecalho">
+
+          <h2>Capítulos</h2>
+
+          <button type="button" class="btn-adicionar">
+            +
+          </button>
+
+        </div>
+
+        <div class="lista-capitulos">
+
+          <button type="button" class="capitulo ativo">
+            <span>Capítulo 1</span>
+            <small>O começo</small>
+          </button>
+
+          <button type="button" class="capitulo">
+            <span>Capítulo 2</span>
+            <small>A descoberta</small>
+          </button>
+
+          <button type="button" class="capitulo">
+            <span>Capítulo 3</span>
+            <small>O caminho</small>
+          </button>
+
+        </div>
+
+      </aside>
+
+
+      <!-- Parte 6 - Área de escrita -->
+      <section class="escrita">
+
+        <!-- Parte 7 - Cabeçalho do capítulo -->
+        <div class="cabecalho-capitulo">
+
+          <span>Capítulo 1</span>
+
+          <input
+            type="text"
+            id="tituloCapitulo"
+            placeholder="Título do capítulo"
+            value="O começo"
+          >
+
+        </div>
+
+
+        <!-- Parte 8 - Barra de ferramentas -->
+        <div class="barra-ferramentas">
+
+          <button type="button" title="Negrito">
+            <strong>B</strong>
+          </button>
+
+          <button type="button" title="Itálico">
+            <em>I</em>
+          </button>
+
+          <button type="button" title="Sublinhado">
+            <u>U</u>
+          </button>
+
+          <span class="separador"></span>
+
+          <button type="button" title="Título">
+            H
+          </button>
+
+          <button type="button" title="Lista">
+            ☷
+          </button>
+
+          <button type="button" title="Citação">
+            “
+          </button>
+
+          <span class="separador"></span>
+
+          <button type="button" title="Alinhar à esquerda">
+            ≡
+          </button>
+
+          <button type="button" title="Centralizar">
+            ≡
+          </button>
+
+          <button type="button" title="Alinhar à direita">
+            ≡
+          </button>
+
+        </div>
+
+
+        <!-- Parte 9 - Área onde o texto será escrito -->
+        <div class="area-texto">
+
+          <textarea
+            id="textoCapitulo"
+            placeholder="Comece a escrever sua história..."
+          ></textarea>
+
+        </div>
+
+
+        <!-- Parte 10 - Informações do editor -->
+        <div class="informacoes-editor">
+
+          <span>0 palavras</span>
+
+          <span class="status-salvamento">
+            ● Alterações não salvas
+          </span>
+
+        </div>
+
+      </section>
+
+    </section>
+
+
+    <!-- Parte 11 - Controles -->
+    <section class="controles">
+
+      <button type="button" class="btn-novo-capitulo">
+        + Novo capítulo
+      </button>
+
+      <div class="acoes">
+
+        <button type="button" class="btn-salvar">
+          Salvar rascunho
+        </button>
+
+        <button type="button" class="btn-visualizar">
+          Visualizar
+        </button>
+
+        <button type="button" class="btn-publicar">
+          Publicar
+        </button>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- Parte 12 - Rodapé -->
+  <footer>
+
+    <p>
+      © 2026 Readeriso. Todos os direitos reservados.
+    </p>
+
+  </footer>
+
+
+</body>
+</html>

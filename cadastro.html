@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="cadastro.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="cadastro.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+  <title>Cadastro - Readeriso</title>
+</head>
+<body>
+  <header>
+    <h1>Readeriso</h1>
+  </header>
+
+  <main>
+    <section>
+      <h2>Cadastro</h2>
+      <form id="formCadastro">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="exemplo123@gmail.com" required>
+        <label for="usuario">Usuário</label>
+        <input type="text" id="usuario" placeholder="novo_usuario123456" required>
+        <label for="senha">Senha</label>
+        <input type="password" id="senha" placeholder="senha12345678" required>
+        <button type="submit">Entrar</button>
+      </form>
+    </section>
+  </main>
+</body>
+</html>
