@@ -386,3 +386,101 @@ main {
     width: 12%;
   }
 }
+
+/* Footer */
+/* Parte 1 - Footer */
+.footer {
+  width: 100%;
+  margin-top: 70px;
+  padding: 50px 5% 20px;
+  background-color: #080808;
+  border-top: 1px solid #252525;
+}
+
+/* Parte 2 - Conteúdo */
+.footer-conteudo {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  gap: 50px;
+}
+
+/* Parte 3 - Marca */
+.footer-marca {
+  max-width: 350px;
+}
+
+.footer-marca h2 {
+  margin-bottom: 10px;
+  color: #ffffff;
+  font-size: 1.5rem;
+}
+
+.footer-marca p {
+  color: #777777;
+  font-size: 0.9rem;
+}
+
+/* Parte 4 - Colunas */
+.footer-coluna {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 150px;
+}
+
+.footer-coluna h3 {
+  margin-bottom: 8px;
+  color: #ffffff;
+  font-size: 1rem;
+}
+
+.footer-coluna a {
+  color: #777777;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: 0.3s;
+}
+
+.footer-coluna a:hover {
+  color: #e50914;
+}
+
+/* Parte 5 - Parte inferior */
+.footer-bottom {
+  max-width: 1200px;
+  margin: 40px auto 0;
+  padding-top: 20px;
+  border-top: 1px solid #252525;
+  text-align: center;
+}
+
+.footer-bottom p {
+  color: #555555;
+  font-size: 0.8rem;
+}
+
+/* Parte 6 - Responsividade */
+@media (max-width: 600px) {
+  .footer {
+    padding: 40px 7% 20px;
+  }
+
+  .footer-conteudo {
+    flex-direction: column;
+    gap: 30px;
+  }
+
+  .footer-marca {
+    max-width: 100%;
+  }
+
+  .footer-coluna {
+    min-width: 0;
+  }
+
+  .footer-bottom {
+    margin-top: 30px;
+  }
+}
