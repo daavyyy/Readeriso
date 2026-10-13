@@ -1,3 +1,4 @@
+
 document.getElementById("formLogin").addEventListener("submit", function(event) {
   event.preventDefault();
 
@@ -5,9 +6,9 @@ document.getElementById("formLogin").addEventListener("submit", function(event) 
   const senha = document.getElementById("senha").value;
 
   if (email === "readeriso@gmail.com" && senha === "123456") {
-    localStorage.setItem("logado", "true");
+    localStorage.setItem("readerisoLogado", "true");
 
-    window.location.href = "exploracao/explorar.html";
+    window.location.href = "explorar.html";
   } else {
     alert("Email ou senha incorretos!");
   }

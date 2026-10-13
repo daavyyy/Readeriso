@@ -1,97 +1,238 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-
+<!DOCTYPE html><html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0a">
+  <meta name="description" content="Leia, escreva e compartilhe histórias no Readeriso.">  <title>Readeriso | Home</title>
   <link rel="stylesheet" href="home.css">
-  <title>Readeriso</title>
+  <script src="home.js" defer></script>
 </head>
+<body>  
+  
+  <header id="inicio">
+    <nav class="navbar">
+      <a href="home.html" class="logo">Readeriso<span>.</span></a>  <ul class="menu">
+    <li><a href="home.html" class="link-ativo">Início</a></li>
+    <li><a href="explorar.html">Explorar</a></li>
+    <li><a href="#conheca">Sobre</a></li>
+    <li><a href="login.html" class="btn-entrar">Entrar</a></li>
+  </ul>
+</nav>
 
-<body>
+  </header>  
+  <main>
+    <section class="hero">
+  <p class="sobretitulo">UM UNIVERSO DE POSSIBILIDADES</p>
 
-  <header id="home">
+  <h1>Leia.<br><span>Escreva.</span><br>Compartilhe.</h1>
 
-    <nav aria-label="Menu principal">
+  <p class="hero-descricao">
+    Descubra histórias, explore novos mundos e transforme suas
+    ideias em algo que outras pessoas possam ler.
+  </p>
 
-      <div class="logo">
-        Explorando a literatura!
-      </div>
+  <div class="hero-acoes">
+    <a href="explorar.html" class="btn-principal">
+      Explorar histórias ↗
+    </a>
 
-      <ul>
-        <li><a href="#home">Home</a></li>
-        <li><a href="#sobre">Sobre</a></li>
-        <li><a href="cadastro.html">Cadastro</a></li>
-        <li><a href="login.html">Login</a></li>
-      </ul>
-
-    </nav>
-
-    <div class="hero">
-
-      <h1>Bem-vindos ao Readeriso!</h1>
-
-      <p>
-        Conheça e escreva histórias totalmente gratuitamente!
-      </p>
-
-      <div class="botoes">
-        <a href="#sobre" class="btn">Sobre nós</a>
-        <a href="login.html" class="btn">Faça Login!</a>
-      </div>
-
-    </div>
-
-  </header>
-
-
-  <section id="sobre">
-
-    <h2>O que é o Readeriso?</h2>
-
-    <p>
-      O Readeriso é uma plataforma criada para pessoas que amam
-      literatura, permitindo que leitores descubram novas histórias
-      e escritores compartilhem suas próprias criações.
-    </p>
-
-  </section>
-
-
-  <div class="publico">
-
-    <section id="leitores">
-
-      <details>
-
-        <summary>LEITORES</summary>
-
-        <p>
-          Descubra novas histórias, conheça diferentes autores e
-          encontre livros que combinam com você.
-        </p>
-
-      </details>
-
-    </section>
-
-
-    <section id="escritores">
-
-      <details>
-
-        <summary>ESCRITORES</summary>
-
-        <p>
-          Transforme suas ideias em histórias, escreva seus capítulos
-          e compartilhe suas criações com outros leitores.
-        </p>
-
-      </details>
-
-    </section>
-
+    <a href="javascript:void(0)" class="btn-secundario" id="btnEscrever">
+      Começar a escrever
+    </a>
   </div>
 
+  <p class="hero-indicador">
+    <span></span> Um espaço para leitores e escritores
+  </p>
+</section>
+
+<section class="secao historias" id="historias">
+  <div class="secao-cabecalho">
+    <div>
+      <p class="sobretitulo">DESCUBRA NOVOS MUNDOS</p>
+      <h2>Histórias em destaque<span>.</span></h2>
+      <p class="secao-descricao">
+        Uma seleção de histórias para sua próxima leitura.
+      </p>
+    </div>
+
+    <a href="explorar.html" class="link-ver-todas">
+      Ver todas ↗
+    </a>
+  </div>
+
+  <div class="lista-historias" id="listaHistorias">
+    <article class="card-historia">
+      <p class="genero">FANTASIA</p>
+      <h3>O Último Reino</h3>
+      <p class="descricao-historia">
+        Um reino à beira do fim guarda um segredo esquecido.
+      </p>
+      <p class="autor-historia">Autor de exemplo</p>
+      <span class="aviso-demo">Obra demonstrativa</span>
+    </article>
+
+    <article class="card-historia">
+      <p class="genero">MISTÉRIO</p>
+      <h3>Ecos na Escuridão</h3>
+      <p class="descricao-historia">
+        Uma carta anônima dá início a um enigma inesperado.
+      </p>
+      <p class="autor-historia">Autora de exemplo</p>
+      <span class="aviso-demo">Obra demonstrativa</span>
+    </article>
+
+    <article class="card-historia">
+      <p class="genero">ROMANCE</p>
+      <h3>Entre Linhas</h3>
+      <p class="descricao-historia">
+        Duas pessoas descobrem o que nunca conseguiram dizer.
+      </p>
+      <p class="autor-historia">Autor de exemplo</p>
+      <span class="aviso-demo">Obra demonstrativa</span>
+    </article>
+  </div>
+</section>
+
+<section class="secao conheca" id="conheca">
+  <div class="secao-cabecalho conheca-intro">
+    <div>
+      <p class="sobretitulo">CONHEÇA A PLATAFORMA</p>
+      <h2>Um lugar para dar vida às histórias<span>.</span></h2>
+    </div>
+
+    <p class="secao-descricao">
+      Explore leituras, conheça autores e transforme suas ideias
+      em histórias.
+    </p>
+  </div>
+
+  <div class="carrossel">
+    <div class="carrossel-janela">
+      <div class="carrossel-conteudo" id="carrosselConteudo">
+
+        <article class="slide">
+          <div class="print-placeholder">
+            <span class="print-numero">01 / 03</span>
+            <span class="icone-print">▧</span>
+            <p>Print da página Explorar</p>
+            <small>Imagem provisória</small>
+          </div>
+          <div class="slide-legenda">
+            <h3>Descubra sua próxima leitura</h3>
+            <p>Encontre histórias e conheça novos autores.</p>
+          </div>
+        </article>
+
+        <article class="slide">
+          <div class="print-placeholder">
+            <span class="print-numero">02 / 03</span>
+            <span class="icone-print">▧</span>
+            <p>Print da página de leitura</p>
+            <small>Imagem provisória</small>
+          </div>
+          <div class="slide-legenda">
+            <h3>Entre no universo das histórias</h3>
+            <p>Conheça a experiência de leitura das obras.</p>
+          </div>
+        </article>
+
+        <article class="slide">
+          <div class="print-placeholder">
+            <span class="print-numero">03 / 03</span>
+            <span class="icone-print">▧</span>
+            <p>Print do editor</p>
+            <small>Imagem provisória</small>
+          </div>
+          <div class="slide-legenda">
+            <h3>Transforme ideias em histórias</h3>
+            <p>Crie suas obras e organize seus capítulos.</p>
+          </div>
+        </article>
+
+      </div>
+    </div>
+
+    <div class="carrossel-controles">
+      <p class="carrossel-contador" id="carrosselContador">
+        01 <span>/ 03</span>
+      </p>
+
+      <div class="carrossel-botoes">
+        <button type="button" id="slideAnterior" aria-label="Slide anterior">←</button>
+        <button type="button" id="proximoSlide" aria-label="Próximo slide">→</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="secao publicos" id="publicos">
+  <div class="publicos-intro">
+    <p class="sobretitulo">DOIS CAMINHOS, UM UNIVERSO</p>
+    <h2>Qual será sua próxima história<span>?</span></h2>
+    <p class="secao-descricao">
+      Seja para descobrir ou criar, existe um lugar para você.
+    </p>
+  </div>
+
+  <div class="publicos-grade">
+    <article class="publico-card">
+      <span class="publico-numero">01</span>
+      <h3>Para leitores<span>.</span></h3>
+      <p>
+        Explore histórias, conheça autores e descubra novas leituras.
+      </p>
+      <a href="explorar.html" class="publico-link">
+        Encontrar histórias ↗
+      </a>
+    </article>
+
+    <article class="publico-card">
+      <span class="publico-numero">02</span>
+      <h3>Para escritores<span>.</span></h3>
+      <p>
+        Crie suas obras, organize capítulos e compartilhe suas ideias.
+      </p>
+      <a href="javascript:void(0)" class="publico-link btn-escrever">
+        Criar minha história ↗
+      </a>
+    </article>
+  </div>
+</section>
+
+  </main>  <footer class="footer">
+    <div class="footer-conteudo">
+      <div class="footer-marca">
+        <a href="home.html" class="logo">Readeriso<span>.</span></a>
+        <p>Explorando a literatura!</p>
+      </div>  <div class="footer-coluna">
+    <h3>Readeriso</h3>
+    <a href="home.html">Início</a>
+    <a href="explorar.html">Explorar</a>
+    <a href="explorar/biblioteca.html">Biblioteca</a>
+    <a href="explorar/sites.html">Sites</a>
+  </div>
+
+  <div class="footer-coluna">
+    <h3>Escritor</h3>
+    <a href="javascript:void(0)" class="btn-escrever">Criar história</a>
+    <a href="explorar/escritor.html">Minhas histórias</a>
+    <a href="explorar/escritor.html">Rascunhos</a>
+    <a href="explorar/perfil.html">Meu perfil</a>
+  </div>
+
+  <div class="footer-coluna">
+    <h3>Contatos</h3>
+    <a href="mailto:contato@readeriso.com">E-mail</a>
+    <a href="#" class="link-provisorio">Instagram</a>
+    <a href="#conheca">Sobre nós</a>
+  </div>
+</div>
+
+<div class="footer-bottom">
+  <p>© 2026 Readeriso. Todos os direitos reservados.</p>
+</div>
+
+  </footer>
 </body>
 </html>
