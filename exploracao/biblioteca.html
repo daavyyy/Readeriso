@@ -1,19 +1,85 @@
+
 <!DOCTYPE html>
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="biblioteca.css">
-
   <script src="biblioteca.js" defer></script>
-   <script src="../auth.js"></script>
-  <script>
-    protegerPagina();
-  </script>
-  <title>Biblioteca de livros - Readeriso</title>
+  <title>Biblioteca - Readeriso</title>
 </head>
 <body>
-    
+  <header class="cabecalho">
+    <a href="../explorar.html" class="logo">Readeriso</a>
+    <nav>
+      <a href="../explorar.html">Explorar</a>
+      <a href="escritor.html">Escrever</a>
+      <a href="perfil.html">Perfil</a>
+    </nav>
+  </header>
+
+  <main class="conteudo">
+    <section class="apresentacao">
+      <p class="etiqueta">SEU ESPAÇO LITERÁRIO</p>
+      <h1>Minha biblioteca<span>.</span></h1>
+      <p>Suas histórias, suas ideias e mundos esperando para serem descobertos.</p>
+      <a href="escritor.html" class="botao principal">+ Criar história</a>
+    </section>
+
+    <section class="secao-livros">
+      <div class="abas">
+        <button class="aba ativa" data-tipo="publicados">Publicados</button>
+        <button class="aba" data-tipo="rascunhos">Rascunhos</button>
+        <span id="contadorLivros">0 histórias</span>
+      </div>
+
+      <div id="listaLivros" class="lista-livros"></div>
+
+      <div id="mensagemVazia" class="vazio">
+        <span class="icone-vazio">📖</span>
+        <h2>Sua estante está esperando.</h2>
+        <p>Crie sua primeira história e ela aparecerá aqui.</p>
+        <a href="escritor.html" class="botao principal">Começar a escrever</a>
+      </div>
+    </section>
+  </main>
+
+  
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-conteudo">
+    <div class="footer-marca">
+      <a href="index.html" class="logo">Readeriso<span>.</span></a>
+      <p>Explorando a literatura!</p>
+    </div>
+
+    <div class="footer-coluna">
+      <h3>Readeriso</h3>
+      <a href="index.html">Início</a>
+      <a href="explorar.html">Explorar</a>
+      <a href="biblioteca.html">Biblioteca</a>
+      <a href="sites.html">Sites</a>
+    </div>
+
+    <div class="footer-coluna">
+      <h3>Escritor</h3>
+      <a href="../escritores/escritor.html" class="btn-escrever">Criar história</a>
+      <a href="../escritores/escritor.html">Minhas histórias</a>
+      <a href="perfil.html">Meu perfil</a>
+    </div>
+
+    <div class="footer-coluna">
+      <h3>Contatos</h3>
+      <a href="mailto:contato@readeriso.com">E-mail</a>
+      <a href="#" class="link-provisorio">Instagram</a>
+      <a href="index.html#conheca">Sobre nós</a>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p>© 2026 Readeriso. Todos os direitos reservados.</p>
+  </div>
+</footer>
+
 </body>
 </html>

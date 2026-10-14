@@ -1,394 +1,340 @@
-/* editor.js - página "Editor"
-   Abre o livro indicado em editor.html?id=..., edita capítulos,
-   salva, visualiza e publica/despublica (muda de "Rascunhos" para "Publicados" no escritor). */
+/* editor.js - editor de histórias (usa window.Readeriso, de livros.js) */
 (() => {
-  const R = window.Readeriso;
-  const $ = (s, r = document) => r.querySelector(s);
-  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
-  const esc = (t) =>
-    String(t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
- 
-  // ---------- Carrega o livro ----------
-  const id = new URLSearchParams(window.location.search).get('id');
-  const estado = id ? R.obter(id) : null;
- 
-  if (!estado) {
-    window.location.replace('escritor.html');
-    return;
-  }
-  if (!Array.isArray(estado.capitulos) || !estado.capitulos.length) {
-    estado.capitulos = [{ titulo: 'Capítulo 1', texto: '' }];
-  }
-  estado.ativo = Math.min(Math.max(0, estado.ativo || 0), estado.capitulos.length - 1);
- 
-  // ---------- Elementos ----------
-  const texto = $('#textoCapitulo');
-  const inputTitulo = $('#tituloCapitulo');
-  const listaCaps = $('.lista-capitulos');
-  const rotuloCap = $('.cabecalho-capitulo > span');
-  const contador = $('.informacoes-editor span:first-child');
-  const statusSalv = $('.status-salvamento');
- 
-  document.execCommand('defaultParagraphSeparator', false, 'p');
- 
-  // ---------- Status / contador ----------
-  let sujo = false;
-  let timerAuto = null;
- 
-  const marcarNaoSalvo = () => {
-    sujo = true;
-    statusSalv.textContent = '● Alterações não salvas';
-    statusSalv.className = 'status-salvamento';
-    clearTimeout(timerAuto);
-    timerAuto = setTimeout(salvar, 3000); // salva sozinho após 3s sem digitar
-  };
- 
-  const marcarSalvo = () => {
-    sujo = false;
-    statusSalv.textContent = '✓ Rascunho salvo';
-    statusSalv.className = 'status-salvamento salvo';
-  };
- 
-  const atualizarContador = () => {
-    const t = texto.innerText.trim();
-    const n = t ? t.split(/\s+/).length : 0;
-    contador.textContent = `${n} ${n === 1 ? 'palavra' : 'palavras'}`;
-  };
- 
-  // ---------- Informações do topo ----------
-  function atualizarEtiquetas() {
-    $('.dados-historia h1').textContent = estado.titulo;
-    $('.dados-historia > p').textContent = estado.descricao || 'Sem descrição.';
-    $('.etiquetas span:nth-child(1)').textContent = estado.genero;
-    $('.etiquetas span:nth-child(2)').textContent = estado.publicada ? 'Publicada' : 'Rascunho';
-    $('.btn-publicar').textContent = estado.publicada ? 'Despublicar' : 'Publicar';
-    document.title = `${estado.titulo} - Editor - Readeriso`;
-  }
- 
-  // ---------- Capítulos ----------
-  const capAtual = () => estado.capitulos[estado.ativo];
- 
-  function guardarCapituloAtual() {
-    capAtual().titulo = inputTitulo.value.trim() || 'Sem título';
-    capAtual().texto = texto.innerHTML;
-  }
- 
-  function renderLista() {
-    listaCaps.innerHTML = estado.capitulos
-      .map(
-        (c, i) => `
-      <button type="button" class="capitulo ${i === estado.ativo ? 'ativo' : ''}" data-i="${i}">
-        <span>Capítulo ${i + 1}</span>
-        <small>${esc(c.titulo)}</small>
-      </button>`
-      )
-      .join('');
-  }
- 
-  function carregarCapitulo() {
-    const c = capAtual();
-    rotuloCap.textContent = `Capítulo ${estado.ativo + 1}`;
-    inputTitulo.value = c.titulo;
-    texto.innerHTML = c.texto;
-    renderLista();
-    atualizarContador();
-    atualizarBotoesFormato();
-  }
- 
-  function selecionarCapitulo(i) {
-    if (i === estado.ativo) return;
-    guardarCapituloAtual();
-    estado.ativo = i;
-    carregarCapitulo();
-  }
- 
-  function novoCapitulo() {
-    guardarCapituloAtual();
-    estado.capitulos.push({ titulo: 'Novo capítulo', texto: '' });
-    estado.ativo = estado.capitulos.length - 1;
-    carregarCapitulo();
-    marcarNaoSalvo();
-    inputTitulo.focus();
-    inputTitulo.select();
-    listaCaps.lastElementChild.scrollIntoView({ block: 'nearest' });
-  }
- 
-  listaCaps.addEventListener('click', (e) => {
-    const b = e.target.closest('.capitulo');
-    if (b) selecionarCapitulo(Number(b.dataset.i));
-  });
-  $('.btn-adicionar').addEventListener('click', novoCapitulo);
-  $('.btn-novo-capitulo').addEventListener('click', novoCapitulo);
- 
-  inputTitulo.addEventListener('input', () => {
-    const small = $('.capitulo.ativo small');
-    if (small) small.textContent = inputTitulo.value || 'Sem título';
-    marcarNaoSalvo();
-  });
- 
-  // ---------- Barra de ferramentas ----------
-  function alternarBloco(tag) {
-    const atual = (document.queryCommandValue('formatBlock') || '').toLowerCase();
-    document.execCommand('formatBlock', false, atual === tag ? 'p' : tag);
-  }
- 
-  const comandos = {
-    'Negrito': () => document.execCommand('bold'),
-    'Itálico': () => document.execCommand('italic'),
-    'Sublinhado': () => document.execCommand('underline'),
-    'Título': () => alternarBloco('h2'),
-    'Lista': () => document.execCommand('insertUnorderedList'),
-    'Citação': () => alternarBloco('blockquote'),
-    'Alinhar à esquerda': () => document.execCommand('justifyLeft'),
-    'Centralizar': () => document.execCommand('justifyCenter'),
-    'Alinhar à direita': () => document.execCommand('justifyRight'),
-  };
- 
-  const estados = {
-    'Negrito': 'bold',
-    'Itálico': 'italic',
-    'Sublinhado': 'underline',
-    'Lista': 'insertUnorderedList',
-    'Alinhar à esquerda': 'justifyLeft',
-    'Centralizar': 'justifyCenter',
-    'Alinhar à direita': 'justifyRight',
-  };
- 
-  function atualizarBotoesFormato() {
-    $$('.barra-ferramentas button').forEach((b) => {
-      const t = b.title;
-      let ativo = false;
-      try {
-        if (estados[t]) ativo = document.queryCommandState(estados[t]);
-        else if (t === 'Título') ativo = document.queryCommandValue('formatBlock').toLowerCase() === 'h2';
-        else if (t === 'Citação') ativo = document.queryCommandValue('formatBlock').toLowerCase() === 'blockquote';
-      } catch {
-        /* ignora */
-      }
-      b.classList.toggle('active', !!ativo);
-    });
-  }
- 
-  document.addEventListener('selectionchange', () => {
-    const sel = window.getSelection();
-    if (sel.rangeCount && texto.contains(sel.anchorNode)) atualizarBotoesFormato();
-  });
- 
-  $$('.barra-ferramentas button').forEach((b) => {
-    b.addEventListener('mousedown', (e) => e.preventDefault()); // mantém a seleção do texto
-    b.addEventListener('click', () => {
-      texto.focus();
-      comandos[b.title]?.();
-      atualizarBotoesFormato();
-      atualizarContador();
-      marcarNaoSalvo();
-    });
-  });
- 
-  texto.addEventListener('input', () => {
-    if (!texto.innerText.trim() && !texto.querySelector('li')) texto.innerHTML = '';
-    atualizarContador();
-    marcarNaoSalvo();
-  });
- 
-  // Colar sempre como texto puro (evita trazer estilos de outros sites)
-  texto.addEventListener('paste', (e) => {
-    e.preventDefault();
-    const puro = (e.clipboardData || window.clipboardData).getData('text/plain');
-    document.execCommand('insertText', false, puro);
-  });
- 
-  ['keyup', 'mouseup', 'focus'].forEach((ev) => texto.addEventListener(ev, atualizarBotoesFormato));
- 
-  // Ctrl+S salva
-  document.addEventListener('keydown', (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
-      e.preventDefault();
-      salvar();
+  "use strict";
+
+  function iniciar() {
+    /* Parte 1 - Sistema de dados e elementos */
+    const R = window.Readeriso;
+
+    if (!R || typeof R.obter !== "function" || typeof R.salvar !== "function") {
+      console.error("Readeriso não encontrado. Carregue livros.js antes de editor.js.");
+      alert("Não foi possível carregar o sistema de histórias.");
+      return;
     }
-  });
- 
-  // ---------- Salvar ----------
-  function salvar() {
-    clearTimeout(timerAuto);
-    guardarCapituloAtual();
-    if (R.salvar(estado)) {
-      marcarSalvo();
+
+    const campoTitulo = document.getElementById("tituloHistoria");
+    const campoDescricao = document.getElementById("descricaoHistoria");
+    const campoGenero = document.getElementById("generoHistoria");
+    const campoTituloCapitulo = document.getElementById("tituloCapitulo");
+    const campoTexto = document.getElementById("textoCapitulo");
+    const listaCapitulos = document.getElementById("listaCapitulos");
+    const numeroCapitulo = document.getElementById("numeroCapitulo");
+    const contadorPalavras = document.getElementById("contadorPalavras");
+    const statusSalvamento = document.getElementById("statusSalvamento");
+    const statusHistoria = document.getElementById("statusHistoria");
+    const painelVisualizacao = document.getElementById("painelVisualizacao");
+
+    const parametros = new URLSearchParams(window.location.search);
+    const idSolicitado = parametros.get("id");
+
+    let historiaId = idSolicitado || R.gerarId();
+    let capitulos = [];
+    let capituloAtual = 0;
+    let publicada = false;
+    let alteracoesSalvas = true;
+
+    /* Parte 2 - Gênero (garante que o valor salvo exista na lista) */
+    function definirGenero(genero) {
+      const valor = genero || "Fantasia";
+
+      if (
+        campoGenero.options &&
+        ![...campoGenero.options].some(opcao => opcao.value === valor)
+      ) {
+        campoGenero.add(new Option(valor, valor));
+      }
+
+      campoGenero.value = valor;
+    }
+
+    /* Parte 3 - Carregar uma história existente */
+    function carregarHistoria() {
+      const historia = idSolicitado ? R.obter(idSolicitado) : null;
+
+      if (!historia) {
+        capitulos = [R.novoCapitulo("O começo", "")];
+      } else {
+        historiaId = historia.id;
+        campoTitulo.value = historia.titulo;
+        campoDescricao.value = historia.descricao;
+        definirGenero(historia.genero);
+        publicada = historia.publicada;
+        capitulos = historia.capitulos.map(capitulo => ({ ...capitulo }));
+      }
+
+      atualizarListaCapitulos();
+      /* guardar:false evita apagar o capítulo 1 com os campos ainda vazios */
+      carregarCapitulo(0, { guardar: false });
+      atualizarStatus();
+    }
+
+    /* Parte 4 - Guardar o capítulo atual na memória */
+    function guardarCapituloAtual() {
+      if (!capitulos[capituloAtual]) return;
+
+      capitulos[capituloAtual].titulo = campoTituloCapitulo.value;
+      capitulos[capituloAtual].conteudo = campoTexto.value;
+      capitulos[capituloAtual].alinhamento = campoTexto.style.textAlign || "left";
+    }
+
+    /* Parte 5 - Alternar capítulos */
+    function carregarCapitulo(indice, { guardar = true } = {}) {
+      if (guardar) guardarCapituloAtual();
+
+      if (!capitulos[indice]) return;
+
+      capituloAtual = indice;
+      campoTituloCapitulo.value = capitulos[indice].titulo;
+      campoTexto.value = capitulos[indice].conteudo;
+      campoTexto.style.textAlign = capitulos[indice].alinhamento || "left";
+
+      numeroCapitulo.textContent = `Capítulo ${indice + 1}`;
+      atualizarContagemPalavras();
+      atualizarListaCapitulos();
+    }
+
+    function atualizarListaCapitulos() {
+      listaCapitulos.replaceChildren();
+
+      capitulos.forEach((capitulo, indice) => {
+        const botao = document.createElement("button");
+        botao.type = "button";
+        botao.className = "capitulo";
+        botao.classList.toggle("ativo", indice === capituloAtual);
+
+        const titulo = document.createElement("span");
+        titulo.textContent = `Capítulo ${indice + 1}`;
+
+        const subtitulo = document.createElement("small");
+        subtitulo.textContent = capitulo.titulo.trim() || "Sem título";
+
+        botao.append(titulo, subtitulo);
+        botao.addEventListener("click", () => carregarCapitulo(indice));
+        listaCapitulos.appendChild(botao);
+      });
+    }
+
+    function adicionarCapitulo() {
+      guardarCapituloAtual();
+
+      capitulos.push(R.novoCapitulo(`Capítulo ${capitulos.length + 1}`, ""));
+      carregarCapitulo(capitulos.length - 1);
+      marcarAlteracoes();
+      campoTituloCapitulo.focus();
+    }
+
+    document
+      .getElementById("btnAdicionarCapitulo")
+      .addEventListener("click", adicionarCapitulo);
+    document
+      .getElementById("btnNovoCapitulo")
+      .addEventListener("click", adicionarCapitulo);
+
+    /* Parte 6 - Alterações e contagem de palavras */
+    function marcarAlteracoes() {
+      alteracoesSalvas = false;
+      statusSalvamento.textContent = "● Alterações não salvas";
+      statusSalvamento.classList.remove("salvo");
+    }
+
+    function atualizarStatus() {
+      statusHistoria.textContent = publicada ? "Publicado" : "Rascunho";
+      atualizarContagemPalavras();
+    }
+
+    function atualizarContagemPalavras() {
+      const texto = campoTexto.value.trim();
+      const quantidade = texto ? texto.split(/\s+/).length : 0;
+      contadorPalavras.textContent =
+        `${quantidade} ${quantidade === 1 ? "palavra" : "palavras"}`;
+    }
+
+    campoTitulo.addEventListener("input", marcarAlteracoes);
+    campoDescricao.addEventListener("input", marcarAlteracoes);
+    campoGenero.addEventListener("change", marcarAlteracoes);
+
+    campoTituloCapitulo.addEventListener("input", () => {
+      guardarCapituloAtual();
+      atualizarListaCapitulos();
+      marcarAlteracoes();
+    });
+
+    campoTexto.addEventListener("input", () => {
+      guardarCapituloAtual();
+      atualizarContagemPalavras();
+      marcarAlteracoes();
+    });
+
+    /* Parte 7 - Salvar história */
+    function salvarHistoria(publicar = false) {
+      guardarCapituloAtual();
+
+      const titulo = campoTitulo.value.trim();
+
+      if (!titulo) {
+        alert("Dê um título para sua história antes de salvar.");
+        campoTitulo.focus();
+        return false;
+      }
+
+      if (!capitulos.length) {
+        alert("Adicione pelo menos um capítulo.");
+        return false;
+      }
+
+      const existente = R.obter(historiaId) || {
+        id: historiaId,
+        criadoEm: Date.now()
+      };
+
+      const historia = {
+        ...existente,
+        titulo,
+        descricao: campoDescricao.value.trim(),
+        genero: campoGenero.value,
+        capitulos: capitulos.map(capitulo => ({ ...capitulo })),
+        publicada: publicar ? true : publicada
+      };
+
+      if (!R.salvar(historia)) {
+        alert("Não foi possível salvar. Verifique o espaço disponível no navegador.");
+        return false;
+      }
+
+      publicada = historia.publicada;
+      alteracoesSalvas = true;
+      statusSalvamento.textContent = "● Todas as alterações foram salvas";
+      statusSalvamento.classList.add("salvo");
+      atualizarStatus();
+
       return true;
     }
-    statusSalv.textContent = '⚠ Não foi possível salvar';
-    statusSalv.className = 'status-salvamento erro';
-    return false;
-  }
-  $('.btn-salvar').addEventListener('click', salvar);
- 
-  window.addEventListener('beforeunload', () => {
-    if (sujo) salvar();
-  });
- 
-  // ---------- Modal (Bootstrap) ----------
-  function abrirModal({ titulo, corpo, botoes = [], grande = false }) {
-    const el = document.createElement('div');
-    el.className = 'modal fade';
-    el.tabIndex = -1;
-    el.innerHTML = `
-      <div class="modal-dialog modal-dialog-centered ${grande ? 'modal-lg modal-dialog-scrollable' : ''}">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">${esc(titulo)}</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-          </div>
-          <div class="modal-body">${corpo}</div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-            ${botoes
-              .map((b, i) => `<button type="button" class="btn ${b.classe || 'btn-primary'}" data-acao="${i}">${esc(b.texto)}</button>`)
-              .join('')}
-          </div>
-        </div>
-      </div>`;
-    document.body.appendChild(el);
-    const modal = new bootstrap.Modal(el);
-    el.addEventListener('hidden.bs.modal', () => {
-      modal.dispose();
-      el.remove();
+
+    document.getElementById("btnSalvar").addEventListener("click", () => {
+      if (salvarHistoria(false)) {
+        alert(publicada ? "Alterações salvas!" : "Rascunho salvo com sucesso!");
+      }
     });
-    el.addEventListener('click', (e) => {
-      const a = e.target.closest('[data-acao]');
-      if (a) botoes[a.dataset.acao].acao(el, modal);
-    });
-    modal.show();
-    return { el, modal };
-  }
- 
-  // ---------- Visualizar ----------
-  $('.btn-visualizar').addEventListener('click', () => {
-    guardarCapituloAtual();
-    const c = capAtual();
-    const html = c.texto.trim() ? c.texto : '<p class="text-secondary">Este capítulo ainda está vazio.</p>';
-    abrirModal({
-      titulo: `${estado.titulo} — Capítulo ${estado.ativo + 1}`,
-      grande: true,
-      corpo: `<h2 class="mb-4">${esc(c.titulo)}</h2><article>${html}</article>`,
-    });
-  });
- 
-  // ---------- Publicar / Despublicar ----------
-  $('.btn-publicar').addEventListener('click', () => {
-    guardarCapituloAtual();
- 
-    if (estado.publicada) {
-      abrirModal({
-        titulo: 'Despublicar história',
-        corpo: '<p>A história voltará a ser um rascunho e deixará de ficar visível para os leitores.</p>',
-        botoes: [
-          {
-            texto: 'Despublicar',
-            classe: 'btn-danger',
-            acao: (el, m) => {
-              estado.publicada = false;
-              salvar();
-              atualizarEtiquetas();
-              m.hide();
-            },
-          },
-        ],
-      });
-      return;
-    }
- 
-    const vazios = estado.capitulos.filter((c) => !c.texto.replace(/<[^>]*>/g, '').trim()).length;
- 
-    if (vazios === estado.capitulos.length) {
-      abrirModal({ titulo: 'Não é possível publicar', corpo: '<p>Escreva pelo menos um capítulo antes de publicar.</p>' });
-      return;
-    }
- 
-    abrirModal({
-      titulo: 'Publicar história',
-      corpo: `<p>Publicar <strong>${esc(estado.titulo)}</strong> com ${estado.capitulos.length} capítulo(s)?</p>
-              ${vazios ? `<p class="text-warning mb-0">Atenção: ${vazios} capítulo(s) estão vazios.</p>` : ''}`,
-      botoes: [
-        {
-          texto: 'Publicar',
-          classe: 'btn-success',
-          acao: (el, m) => {
-            estado.publicada = true;
-            salvar();
-            atualizarEtiquetas();
-            m.hide();
-          },
-        },
-      ],
-    });
-  });
- 
-  // ---------- Configurações ----------
-  $('.btn-configuracoes').addEventListener('click', () => {
-    const generos = Object.values(R.GENEROS);
-    if (!generos.includes(estado.genero)) generos.push(estado.genero);
- 
-    const { el, modal } = abrirModal({
-      titulo: 'Configurações da história',
-      corpo: `
-        <div class="mb-3">
-          <label class="form-label" for="cfgTitulo">Título</label>
-          <input class="form-control" id="cfgTitulo" maxlength="80" value="${esc(estado.titulo)}">
-        </div>
-        <div class="mb-3">
-          <label class="form-label" for="cfgDescricao">Descrição</label>
-          <textarea class="form-control" id="cfgDescricao" rows="3" maxlength="500">${esc(estado.descricao)}</textarea>
-        </div>
-        <div class="mb-4">
-          <label class="form-label" for="cfgGenero">Gênero</label>
-          <select class="form-select" id="cfgGenero">
-            ${generos.map((g) => `<option ${g === estado.genero ? 'selected' : ''}>${esc(g)}</option>`).join('')}
-          </select>
-        </div>
-        <div class="d-flex flex-wrap gap-2">
-          <button type="button" class="btn btn-outline-danger btn-sm" id="btnApagarCap">Apagar capítulo atual</button>
-          <button type="button" class="btn btn-outline-danger btn-sm" id="btnApagarHistoria">Apagar história</button>
-        </div>`,
-      botoes: [
-        {
-          texto: 'Salvar',
-          acao: (elm, m) => {
-            estado.titulo = $('#cfgTitulo', elm).value.trim() || 'Sem título';
-            estado.descricao = $('#cfgDescricao', elm).value.trim();
-            estado.genero = $('#cfgGenero', elm).value;
-            atualizarEtiquetas();
-            salvar();
-            m.hide();
-          },
-        },
-      ],
-    });
- 
-    $('#btnApagarCap', el).addEventListener('click', () => {
-      if (estado.capitulos.length === 1) {
-        alert('A história precisa ter pelo menos um capítulo.');
+
+    /* Parte 8 - Publicar */
+    document.getElementById("btnPublicar").addEventListener("click", () => {
+      guardarCapituloAtual();
+
+      const temConteudo = capitulos.some(capitulo => capitulo.conteudo.trim());
+
+      if (!temConteudo) {
+        alert("Escreva o conteúdo de pelo menos um capítulo antes de publicar.");
+        campoTexto.focus();
         return;
       }
-      if (!confirm('Apagar o capítulo atual? Esta ação não pode ser desfeita.')) return;
-      estado.capitulos.splice(estado.ativo, 1);
-      estado.ativo = Math.max(0, estado.ativo - 1);
-      carregarCapitulo();
-      salvar();
-      modal.hide();
+
+      if (!confirm("Deseja publicar esta história na biblioteca?")) return;
+
+      if (salvarHistoria(true)) {
+        alert("História publicada! Ela já está marcada como publicada na biblioteca.");
+        window.location.href = "biblioteca.html";
+      }
     });
- 
-    $('#btnApagarHistoria', el).addEventListener('click', () => {
-      if (!confirm('Apagar a história inteira? Esta ação não pode ser desfeita.')) return;
-      sujo = false;
-      clearTimeout(timerAuto);
-      R.excluir(estado.id);
-      window.location.href = 'escritor.html';
+
+    /* Parte 9 - Ferramentas de formatação */
+    function inserirMarcacao(antes, depois = antes) {
+      const inicio = campoTexto.selectionStart;
+      const fim = campoTexto.selectionEnd;
+      const textoSelecionado = campoTexto.value.slice(inicio, fim);
+      const substituto = antes + textoSelecionado + depois;
+
+      campoTexto.setRangeText(substituto, inicio, fim, "select");
+      campoTexto.focus();
+      guardarCapituloAtual();
+      atualizarContagemPalavras();
+      marcarAlteracoes();
+    }
+
+    document.querySelectorAll("[data-format]").forEach(botao => {
+      botao.addEventListener("click", () => {
+        const formato = botao.dataset.format;
+
+        if (formato === "bold") {
+          inserirMarcacao("**");
+        } else if (formato === "italic") {
+          inserirMarcacao("*");
+        } else if (formato === "underline") {
+          inserirMarcacao("__");
+        } else if (formato === "heading") {
+          inserirMarcacao("## ", "");
+        } else if (formato === "list") {
+          inserirMarcacao("- ", "");
+        } else if (formato === "quote") {
+          inserirMarcacao("> ", "");
+        } else if (["left", "center", "right"].includes(formato)) {
+          campoTexto.style.textAlign = formato;
+          guardarCapituloAtual();
+          marcarAlteracoes();
+          campoTexto.focus();
+        }
+      });
     });
-  });
- 
-  // ---------- Início ----------
-  atualizarEtiquetas();
-  carregarCapitulo();
-  marcarSalvo();
+
+    /* Parte 10 - Visualização */
+    document.getElementById("btnVisualizar").addEventListener("click", () => {
+      guardarCapituloAtual();
+
+      document.getElementById("previaTitulo").textContent =
+        campoTitulo.value.trim() || "História sem título";
+
+      document.getElementById("previaDescricao").textContent =
+        campoDescricao.value.trim();
+
+      const areaPrevia = document.getElementById("previaCapitulos");
+      areaPrevia.replaceChildren();
+
+      capitulos.forEach((capitulo, indice) => {
+        const artigo = document.createElement("article");
+        artigo.className = "previa-capitulo";
+
+        const titulo = document.createElement("h3");
+        titulo.textContent = capitulo.titulo.trim() || `Capítulo ${indice + 1}`;
+
+        const texto = document.createElement("p");
+        texto.className = "previa-texto";
+        texto.style.textAlign = capitulo.alinhamento || "left";
+        texto.textContent = capitulo.conteudo;
+
+        artigo.append(titulo, texto);
+        areaPrevia.appendChild(artigo);
+      });
+
+      painelVisualizacao.hidden = false;
+      painelVisualizacao.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    document
+      .getElementById("btnFecharVisualizacao")
+      .addEventListener("click", () => {
+        painelVisualizacao.hidden = true;
+      });
+
+    /* Parte 11 - Configurações */
+    document.getElementById("btnConfigurar").addEventListener("click", () => {
+      campoTitulo.focus();
+      campoTitulo.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+
+    /* Parte 12 - Avisar sobre alterações não salvas */
+    window.addEventListener("beforeunload", evento => {
+      if (!alteracoesSalvas) {
+        evento.preventDefault();
+        evento.returnValue = "";
+      }
+    });
+
+    /* Parte 13 - Inicialização */
+    carregarHistoria();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", iniciar);
+  } else {
+    iniciar();
+  }
 })();
- 

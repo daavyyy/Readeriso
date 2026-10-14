@@ -8,7 +8,7 @@ document.getElementById("formLogin").addEventListener("submit", function(event) 
   if (email === "readeriso@gmail.com" && senha === "123456") {
     localStorage.setItem("readerisoLogado", "true");
 
-    window.location.href = "explorar.html";
+    window.location.href = "exploracao/explorar.html";
   } else {
     alert("Email ou senha incorretos!");
   }
