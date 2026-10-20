@@ -1,5 +1,5 @@
 const books = [
-  {id:"poder",title:"O Poder da Leitura",description:"Livro de desenvolvimento pessoal",genre:"Desenvolvimento pessoal",rating:5,cover:"assets/reading-cover.jpg"},
+  {id:"primavera",title:"A dança da primavera imortal",description:"para se emocionar",genre:"romance",rating:5,cover:"assets/reading-cover.jpg"},
   {id:"mundo",title:"O Mundo Perdido",description:"Aventura e mistério",genre:"Aventura",rating:5,cover:"assets/lost-world-cover.jpg"},
   {id:"estrelas",title:"Além das Estrelas",description:"Ficção científica",genre:"Ficção científica",rating:4,cover:"assets/stars-cover.jpg"}
 ];
