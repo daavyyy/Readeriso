@@ -1,14 +1,16 @@
+/* ===== Readeriso | sites.css ===== */
 
 /* Parte 1 - Configurações gerais */
 :root {
+  --bg: #0a0a0a;
+  --bg-nav: #080808;
+  --bg-card: #111111;
+  --borda: #3a0000;
   --vermelho: #e50914;
-  --fundo: #0a0a0a;
-  --bg-nav: #151515;
-  --superficie: #111111;
-  --borda: #292929;
-  --texto: #ffffff;
-  --texto-suave: #aaaaaa;
-  --margem: 5%;
+  --vermelho-escuro: #b20710;
+  --texto: #f5f5f5;
+  --texto-suave: #bdbdbd;
+  --margem: 8%;
 }
 
 * {
@@ -19,26 +21,40 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 90px; /* evita que o menu cubra a âncora */
 }
 
 body {
   font-family: Arial, Helvetica, sans-serif;
-  background-color: var(--fundo);
+  background-color: var(--bg);
   color: var(--texto);
+  line-height: 1.6;
   overflow-x: hidden;
 }
 
 header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
   width: 100%;
-  background-color: #080808;
+  background-color: var(--bg-nav);
 }
 
 a {
   text-decoration: none;
 }
 
+ul {
+  list-style: none;
+}
+
 button {
   font: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--vermelho);
+  outline-offset: 3px;
 }
 
 /* Parte 2 - Navegação */
@@ -50,14 +66,22 @@ nav {
   gap: 25px;
   padding: 15px var(--margem);
   background-color: var(--bg-nav);
-  border-bottom: 1px solid var(--vermelho);
+  border-bottom: 1px solid var(--borda);
 }
 
 .logo {
-  color: var(--texto);
+  color: #ffffff;
   font-size: 1.4rem;
   font-weight: bold;
   white-space: nowrap;
+}
+
+.logo:hover {
+  color: #ffffff;
+}
+
+.logo span {
+  color: var(--vermelho);
 }
 
 nav ul {
@@ -65,18 +89,18 @@ nav ul {
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 20px;
-  list-style: none;
+  gap: 35px;
   margin: 0;
   padding: 0;
 }
 
 nav a {
-  color: var(--texto);
+  color: #dddddd;
   transition: color 0.3s;
 }
 
-nav a:hover {
+nav a:hover,
+nav a.link-ativo {
   color: var(--vermelho);
 }
 
@@ -84,18 +108,24 @@ nav a:hover {
 .titulo {
   text-align: center;
   padding: 60px 20px 40px;
-  background: linear-gradient(135deg, #0a0a0a, #151515, #1a0000);
+  background: linear-gradient(135deg, #0a0a0a 0%, #111111 60%, #1a0000 100%);
 }
 
 .titulo h1 {
-  font-size: clamp(2rem, 5vw, 3rem);
   margin-bottom: 15px;
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1.1;
+  color: #ffffff;
+}
+
+.titulo h1 span {
+  color: var(--vermelho);
 }
 
 .titulo p {
+  margin-bottom: 10px;
   color: var(--texto-suave);
   line-height: 1.6;
-  margin-bottom: 10px;
 }
 
 /* Parte 4 - Lista de sites */
@@ -110,7 +140,7 @@ nav a:hover {
   --bs-accordion-color: #ffffff;
   --bs-accordion-border-color: #3a0000;
   --bs-accordion-btn-color: #ffffff;
-  --bs-accordion-btn-bg: #151515;
+  --bs-accordion-btn-bg: #111111;
   --bs-accordion-active-color: #ffffff;
   --bs-accordion-active-bg: #1d0000;
   --bs-accordion-btn-focus-box-shadow: none;
@@ -118,16 +148,21 @@ nav a:hover {
 
 .accordion-item {
   margin-bottom: 15px;
-  border: 1px solid #3a0000 !important;
-  border-radius: 8px !important;
   overflow: hidden;
-  background-color: var(--superficie);
+  background-color: var(--bg-card);
+  border: 1px solid var(--borda) !important;
+  border-radius: 8px !important;
+  transition: border-color 0.3s;
+}
+
+.accordion-item:hover {
+  border-color: var(--vermelho) !important;
 }
 
 .accordion-button {
+  padding: 20px;
   font-size: 1.1rem;
   font-weight: bold;
-  padding: 20px;
 }
 
 .accordion-button::after {
@@ -136,7 +171,7 @@ nav a:hover {
 
 .accordion-body {
   padding: 25px;
-  background-color: #0d0d0d;
+  background-color: var(--bg);
 }
 
 .sites-grid {
@@ -152,10 +187,10 @@ nav a:hover {
   align-items: center;
   text-align: center;
   padding: 25px 20px;
-  background-color: var(--bg-nav);
-  border: 1px solid #2f2f2f;
-  border-radius: 10px;
-  transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+  background-color: var(--bg-card);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  transition: 0.3s;
 }
 
 .site-card:hover {
@@ -167,46 +202,49 @@ nav a:hover {
 .site-card img {
   width: 70px;
   height: 70px;
-  object-fit: contain;
   margin-bottom: 18px;
+  object-fit: contain;
   border-radius: 10px;
 }
 
 .site-card h3 {
-  font-size: 1.15rem;
   margin-bottom: 10px;
+  font-size: 1.15rem;
+  color: #ffffff;
 }
 
 .site-card p {
-  color: var(--texto-suave);
-  font-size: 0.9rem;
-  line-height: 1.5;
   min-height: 42px;
   margin-bottom: 18px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--texto-suave);
 }
 
 .site-card a {
   display: inline-block;
   margin-top: auto;
   padding: 8px 18px;
-  background-color: var(--vermelho);
-  color: var(--texto);
-  border-radius: 6px;
   font-size: 0.9rem;
   font-weight: bold;
-  transition: background-color 0.3s, transform 0.3s;
+  color: #ffffff;
+  background-color: var(--vermelho);
+  border: 1px solid var(--vermelho);
+  border-radius: 6px;
+  transition: 0.3s;
 }
 
 .site-card a:hover {
-  background-color: #b20710;
+  background-color: var(--vermelho-escuro);
+  border-color: var(--vermelho-escuro);
   transform: translateY(-2px);
 }
 
 #nenhumResultado {
   display: none;
+  padding: 40px 20px;
   text-align: center;
   color: var(--texto-suave);
-  padding: 40px 20px;
 }
 
 .site-card.oculto {
@@ -245,7 +283,7 @@ nav a:hover {
 .footer-coluna h3 {
   margin-bottom: 6px;
   font-size: 1rem;
-  color: var(--texto);
+  color: #ffffff;
 }
 
 .footer-coluna a {
@@ -276,10 +314,15 @@ nav a:hover {
   .sites-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
 
+@media (max-width: 800px) {
   .footer-conteudo {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 30px;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .footer-marca {
+    grid-column: 1 / -1;
   }
 }
 
@@ -295,12 +338,12 @@ nav a:hover {
   nav {
     flex-direction: column;
     justify-content: center;
-    gap: 15px;
-    padding: 18px var(--margem);
+    gap: 12px;
+    padding: 16px var(--margem);
   }
 
   nav ul {
-    gap: 15px;
+    gap: 18px;
   }
 
   nav ul a {
@@ -342,17 +385,13 @@ nav a:hover {
     min-height: 0;
   }
 
-  .footer-conteudo {
-    grid-template-columns: 1fr;
-    gap: 28px;
-  }
-
-  .footer-marca {
-    grid-column: 1 / -1;
-  }
-
   .footer {
     padding-top: 40px;
+  }
+
+  .footer-conteudo {
+    grid-template-columns: 1fr;
+    gap: 30px;
   }
 }
 
