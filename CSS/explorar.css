@@ -1,453 +1,71 @@
-/* Parte 1 - Configurações gerais */
-:root {
-  --vermelho: #e50914;
-  --fundo: #0a0a0a;
-  --superficie: #121212;
-  --borda: #292929;
-  --texto: #f5f5f5;
-  --secundario: #a5a5a5;
-}
- 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
- 
-body {
-  background: var(--fundo);
-  color: var(--texto);
-  font-family: Arial, sans-serif;
-  min-height: 100vh;
-}
- 
-a {
-  color: inherit;
-  text-decoration: none;
-}
- 
-button {
-  font: inherit;
-}
- 
-main {
-  width: 100%;
-}
- 
-/* Parte 2 - Cabeçalho */
-header {
-  width: 100%;
-  border-bottom: 1px solid var(--borda);
-}
- 
-nav {
-  min-height: 75px;
-  padding: 18px 7%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-}
- 
-.logo {
-  font-size: 1.7rem;
-  font-weight: 800;
-  color: var(--vermelho);
-}
- 
-nav ul {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 25px;
-  list-style: none;
-}
- 
-nav a {
-  color: #d0d0d0;
-  transition: color 0.2s;
-}
- 
-nav a:hover {
-  color: var(--vermelho);
-}
- 
-/* Parte 3 - Busca / apresentação */
-.buscar {
-  min-height: 300px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 65px 20px 45px;
-}
- 
-.buscar h1 {
-  font-size: clamp(2.2rem, 6vw, 3.5rem);
-  margin-bottom: 25px;
-}
- 
-.buscar input {
+/* ===== Readeriso | explorar.css ===== */
+/* Base visual (cores, navbar, cards, carrossel, footer) vem de ../index.css */
+
+/* ===== Busca ===== */
+
+.busca {
   width: 90%;
-  max-width: 600px;
-  padding: 14px 18px;
-  background: var(--superficie);
-  color: var(--texto);
-  border: 1px solid var(--borda);
-  border-radius: 7px;
-  outline: none;
-  font-size: 1rem;
-  transition: border-color 0.2s;
+  max-width: 620px;
 }
- 
-.buscar input:focus {
-  border-color: var(--vermelho);
+
+.busca .campo {
+  padding: 15px 20px;
 }
- 
-.buscar input::placeholder {
-  color: var(--secundario);
+
+.hero-pagina .filtros {
+  margin-top: 25px;
 }
- 
-/* Resultados da busca */
-.resultados {
-  width: 90%;
-  max-width: 600px;
-  margin-top: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  text-align: left;
-}
- 
-.resultados[hidden],
-.historias[hidden] {
-  display: none;
-}
- 
-.resultado-item {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  padding: 12px;
-  background: var(--superficie);
-  border: 1px solid var(--borda);
-  border-radius: 8px;
-  transition: border-color 0.2s;
-}
- 
-.resultado-item:hover {
-  border-color: var(--vermelho);
-}
- 
-.resultado-item img {
-  width: 60px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: 5px;
-}
- 
-.resultado-item h3 {
-  font-size: 1.1rem;
-  margin-bottom: 4px;
-}
- 
-.resultado-item p,
-.sem-resultado {
-  color: var(--secundario);
-  font-size: 0.9rem;
-}
- 
-.sem-resultado {
-  text-align: center;
-}
- 
-/* Capas dos carrosséis de histórias */
-#carouselHistorias .carousel-item img {
-  max-height: 420px;
-  object-fit: contain;
-  background: #000;
-}
- 
-/* Parte 4 - Seções */
-.historias,
-.sites {
-  width: min(1120px, 86%);
-  margin: 0 auto;
-  padding: 45px 0;
-  text-align: center;
-}
- 
-.historias h2,
-.sites h2 {
-  margin-bottom: 30px;
-  font-size: 2rem;
-  color: var(--texto);
-}
- 
-/* Parte 5 - Carrosséis (cards) */
-#carouselHistorias,
-#carouselSites {
-  width: 100%;
-  max-width: 900px;
-  margin: 0 auto;
-}
- 
-.carousel-item {
-  background: var(--superficie);
-  border: 1px solid var(--borda);
-  border-radius: 10px;
-  overflow: hidden;
-}
- 
-.carousel-item a {
-  color: var(--texto);
-}
- 
-.carousel-item h3 {
-  margin-top: 20px;
-  color: var(--texto);
-  font-size: 1.4rem;
-}
- 
-.carousel-item p {
-  margin: 10px 0 20px;
-  color: var(--secundario);
-  line-height: 1.6;
-}
- 
-.carousel-control-prev,
-.carousel-control-next {
-  width: 10%;
-}
- 
-.carousel-control-prev-icon,
-.carousel-control-next-icon {
-  width: 35px;
-  height: 35px;
-}
- 
-#carouselSites .site-conteudo {
-  padding: 25px;
-}
- 
-#carouselSites .site-conteudo img {
-  width: 250px !important;
-  height: 150px;
-  object-fit: contain;
+
+/* ===== Carrossel de sites ===== */
+
+/* Cada slide é um link para o site */
+.slide {
   display: block;
-  margin: 0 auto 20px;
-  border-radius: 7px;
+  color: inherit;
 }
- 
-#carouselSites .site-conteudo h3 {
-  margin-bottom: 10px;
-  color: var(--texto);
-  font-size: 1.4rem;
+
+.slide:hover {
+  color: inherit;
 }
- 
-#carouselSites .site-conteudo p {
-  margin: 0;
-  color: var(--secundario);
+
+.slide-imagem {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background-color: #000000;
 }
- 
-#carouselSites a {
-  color: var(--texto);
+
+.slide-imagem img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
- 
-/* Parte 6 - Botão */
-.mais-sites {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 25px 0 40px;
-  padding: 0 20px;
+
+.slide-imagem .print-numero {
+  z-index: 1;
+  padding: 2px 10px;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 20px;
 }
- 
-.mais-sites .btn {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  padding: 11px 17px;
-  background: var(--vermelho);
-  border: 1px solid var(--vermelho);
-  border-radius: 7px;
-  color: white;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: 0.2s;
+
+.slide-legenda h3 {
+  transition: color 0.3s;
 }
- 
-.mais-sites .btn:hover {
-  background: #bd0710;
+
+.slide:hover .slide-legenda h3 {
+  color: var(--vermelho);
 }
- 
-/* Parte 7 - Footer */
-.footer {
-  background: #0a0a0a;
-  color: #aaa;
-  border-top: 1px solid #292929;
-  margin-top: 40px;
+
+/* ===== Chamada final ===== */
+
+.publicos .hero-acoes {
+  margin-top: 10px;
 }
-.footer-conteudo {
-  width: 90%;
-  max-width: 1200px;
-  margin: auto;
-  padding: 45px 0;
-  display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr 1fr;
-  gap: 35px;
-}
-.footer-marca .logo {
-  color: #fff;
-  text-decoration: none;
-  font-size: 25px;
-  font-weight: 800;
-}
-.footer-marca .logo span {
-  color: #e50914;
-}
-.footer-marca p {
-  color: #aaa;
-  font-size: 13px;
-  line-height: 1.6;
-}
-.footer-coluna {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.footer-coluna h3 {
-  color: #fff;
-  font-size: 15px;
-  margin: 0 0 5px;
-}
-.footer-coluna a {
-  color: #aaa;
-  font-size: 13px;
-  text-decoration: none;
-  transition: color .2s;
-}
-.footer-coluna a:hover {
-  color: #e50914;
-}
-.footer-bottom {
-  border-top: 1px solid #292929;
-  padding: 18px 5%;
-  text-align: center;
-}
-.footer-bottom p {
-  margin: 0;
-  font-size: 12px;
-  color: #777;
-}
-@media (max-width: 700px) {
-  .footer-conteudo {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 30px 20px;
-  }
-}
-@media (max-width: 400px) {
-  .footer-conteudo {
-    grid-template-columns: 1fr;
-  }
-}
- 
-/* Parte 8 - Responsividade */
-@media (max-width: 900px) {
-  #carouselHistorias,
-  #carouselSites {
-    max-width: 750px;
-  }
-}
- 
+
+/* ===== Responsivo ===== */
+
 @media (max-width: 600px) {
-  nav {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 17px;
-  }
- 
-  nav ul {
-    gap: 17px;
-    font-size: 0.9rem;
-  }
- 
-  .logo {
-    font-size: 1.4rem;
-  }
- 
-  .buscar {
-    min-height: 250px;
-    padding: 45px 15px 35px;
-  }
- 
-  .buscar h1 {
-    font-size: 2rem;
-    margin-bottom: 20px;
-  }
- 
-  .buscar input {
+  .busca {
     width: 100%;
-  }
- 
-  .historias,
-  .sites {
-    width: 90%;
-    padding: 35px 0;
-  }
- 
-  .historias h2,
-  .sites h2 {
-    font-size: 1.6rem;
-    margin-bottom: 22px;
-  }
- 
-  .carousel-control-prev,
-  .carousel-control-next {
-    width: 15%;
-  }
- 
-  .carousel-control-prev-icon,
-  .carousel-control-next-icon {
-    width: 25px;
-    height: 25px;
-  }
- 
-  .carousel-item h3,
-  #carouselSites .site-conteudo h3 {
-    font-size: 1.2rem;
-  }
- 
-  .carousel-item p,
-  #carouselSites .site-conteudo p {
-    font-size: 0.9rem;
-  }
- 
-  #carouselSites .site-conteudo {
-    padding: 20px 15px;
-  }
- 
-  #carouselSites .site-conteudo img {
-    width: 180px !important;
-    height: 110px;
-    margin-bottom: 15px;
-  }
- 
-  .mais-sites {
-    margin-top: 20px;
-    margin-bottom: 30px;
-  }
-}
- 
-@media (max-width: 400px) {
-  .historias h2,
-  .sites h2 {
-    font-size: 1.4rem;
-  }
- 
-  #carouselSites .site-conteudo img {
-    width: 150px !important;
-    height: 95px;
   }
 }

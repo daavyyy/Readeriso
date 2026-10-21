@@ -128,11 +128,62 @@
     return normalizarCapitulo({ titulo, conteudo, alinhamento }, 0);
   }
 
+  // Evita que textos digitados pelo usuário virem HTML
+  function escaparHTML(texto) {
+    return String(texto ?? "").replace(/[&<>"']/g, caractere => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    })[caractere]);
+  }
+
+  // Converte as marcações do editor (**negrito**, *itálico*, __sublinhado__,
+  // ## título, - lista, > citação) em HTML para leitura
+  function formatarTexto(texto) {
+    const inline = linha => linha
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/\*(.+?)\*/g, "<em>$1</em>")
+      .replace(/__(.+?)__/g, "<u>$1</u>");
+
+    const html = [];
+    let lista = [];
+
+    // Fecha a lista aberta antes de outro tipo de linha
+    const fecharLista = () => {
+      if (lista.length) html.push(`<ul>${lista.join("")}</ul>`);
+      lista = [];
+    };
+
+    escaparHTML(texto).split("\n").forEach(linha => {
+      if (/^- /.test(linha)) {
+        lista.push(`<li>${inline(linha.slice(2))}</li>`);
+        return;
+      }
+
+      fecharLista();
+
+      if (/^## /.test(linha)) html.push(`<h4>${inline(linha.slice(3))}</h4>`);
+      else if (/^&gt; /.test(linha)) html.push(`<blockquote>${inline(linha.slice(5))}</blockquote>`);
+      else if (linha.trim()) html.push(`<p>${inline(linha)}</p>`);
+      else html.push("<br>");
+    });
+
+    fecharLista();
+    return html.join("");
+  }
+
+  // Dados da conta logada (gravados pelo login.js)
+  function usuarioAtual() {
+    const dados = lerJSON("readerisoUsuarioAtual");
+    return dados && typeof dados === "object" ? dados : { usuario: "Leitor", email: "" };
+  }
+
   window.Readeriso = {
     CHAVE,
     gerarId,
     novoCapitulo: gerarCapitulo,
     listar,
+    escaparHTML,
+    formatarTexto,
+    usuarioAtual,
 
     obter(id) {
       if (id === undefined || id === null) return null;

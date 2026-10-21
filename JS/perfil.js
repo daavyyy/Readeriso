@@ -1,61 +1,136 @@
-const books = [
-  {id:"primavera",title:"A dança da primavera imortal",description:"para se emocionar",genre:"romance",rating:5,cover:"assets/reading-cover.jpg"},
-  {id:"mundo",title:"O Mundo Perdido",description:"Aventura e mistério",genre:"Aventura",rating:5,cover:"assets/lost-world-cover.jpg"},
-  {id:"estrelas",title:"Além das Estrelas",description:"Ficção científica",genre:"Ficção científica",rating:4,cover:"assets/stars-cover.jpg"}
-];
-const favorites = new Set(JSON.parse(localStorage.getItem("crimsonReaderFavorites") || "[]"));
-const bookGrid = document.getElementById("book-grid");
-const favoritesContent = document.getElementById("favorites-content");
-const favoriteCount = document.getElementById("favorite-count");
-const favoritesHeadingCount = document.getElementById("favorites-heading-count");
+// perfil.js — dados do usuário, estatísticas e favoritos
+(() => {
+  "use strict";
 
-function bookCard(book) {
-  const favorite = favorites.has(book.id);
-  return `<article class="book-card">
-    <div class="cover-stage">
-      <div class="book-cover"><img src="${book.cover}" alt="Capa de ${book.title}" loading="lazy"><span class="cover-title">${book.title}</span><span class="cover-caption">${book.genre}</span></div>
-      <button class="cover-heart ${favorite ? "is-favorite" : ""}" data-favorite="${book.id}" aria-label="${favorite ? "Remover dos" : "Adicionar aos"} favoritos" aria-pressed="${favorite}">${favorite ? "♥" : "♡"}</button>
-    </div>
-    <div class="book-details"><p class="genre-label">${book.genre}</p><h3 class="book-title">${book.title}</h3><p class="book-description">${book.description}</p>
-      <div class="rating-row" aria-label="${book.rating} de 5 estrelas">${"★".repeat(book.rating)}<span>${book.rating},0</span></div>
-      <button class="favorite-btn ${favorite ? "is-favorite" : ""}" data-favorite="${book.id}" aria-pressed="${favorite}">${favorite ? "♥ Remover dos favoritos" : "♡ Adicionar aos favoritos"}</button>
-    </div>
-  </article>`;
-}
-function render() {
-  bookGrid.innerHTML = books.map(bookCard).join("");
-  const selected = books.filter(book => favorites.has(book.id));
-  favoriteCount.textContent = String(favorites.size).padStart(2,"0");
-  favoritesHeadingCount.textContent = String(favorites.size).padStart(2,"0");
-  favoritesContent.innerHTML = selected.length
-    ? `<div class="book-grid">${selected.map(bookCard).join("")}</div>`
-    : `<div class="empty-favorites"><div class="heart">♡</div><p>Nenhum livro escolhido ainda.</p><span>Sua próxima história favorita pode estar logo acima.</span></div>`;
-  localStorage.setItem("crimsonReaderFavorites", JSON.stringify([...favorites]));
-}
-document.addEventListener("click", event => {
-  const favoriteButton = event.target.closest("[data-favorite]");
-  if (favoriteButton) {
-    const id = favoriteButton.dataset.favorite;
-    favorites.has(id) ? favorites.delete(id) : favorites.add(id);
-    render();
-    return;
+  const CHAVE_FAVORITOS = "readerisoFavoritos";
+  const CHAVE_PERFIL = "readerisoPerfil";
+
+  // Livros que podem ser favoritados (mesmos do Explorar)
+  const livros = [
+    { id: "fantasia", titulo: "Fantasia", genero: "Fantasia", descricao: "Um reino à beira do fim guarda um segredo esquecido.", capa: "livro.teste/1.png", link: "livro.teste/fantasia.txt" },
+    { id: "romance", titulo: "Romance", genero: "Romance", descricao: "Duas pessoas descobrem o que nunca conseguiram dizer.", capa: "livro.teste/2.png", link: "livro.teste/romance.txt" },
+    { id: "yaoi", titulo: "Yaoi", genero: "Yaoi", descricao: "Um encontro inesperado muda tudo o que eles sabiam.", capa: "livro.teste/3.png", link: "livro.teste/yaoi.txt" }
+  ];
+
+  function lerJSON(chave, padrao) {
+    try {
+      return JSON.parse(localStorage.getItem(chave)) ?? padrao;
+    } catch {
+      return padrao;
+    }
   }
-  const nav = event.target.closest("[data-section]");
-  if (nav) {
-    document.querySelectorAll(".nav-link").forEach(link => link.classList.toggle("active", link === nav));
+
+  function iniciar() {
+    const R = window.Readeriso;
+    const escapar = R.escaparHTML;
+    const doisDigitos = numero => String(numero).padStart(2, "0");
+
+    // Favoritos (aproveita a chave antiga, se existir)
+    const favoritos = new Set(lerJSON(CHAVE_FAVORITOS, null) ?? lerJSON("crimsonReaderFavorites", []));
+
+    // ===== Dados do usuário =====
+    const usuario = R.usuarioAtual();
+    // Nome e bio editados ficam guardados por e-mail
+    const perfis = lerJSON(CHAVE_PERFIL, {});
+    const perfil = {
+      nome: usuario.usuario,
+      bio: "Apaixonado por livros, histórias e novos mundos.",
+      ...(perfis[usuario.email] || {})
+    };
+
+    function mostrarPerfil() {
+      document.getElementById("nomeUsuario").textContent = perfil.nome;
+      document.getElementById("avatar").textContent = perfil.nome.charAt(0).toUpperCase() || "R";
+      document.getElementById("emailUsuario").textContent = usuario.email;
+      document.getElementById("bioUsuario").textContent = perfil.bio;
+    }
+
+    // ===== Estatísticas das histórias escritas =====
+    function mostrarEstatisticas() {
+      const historias = R.listar();
+      const palavras = historias
+        .flatMap(livro => livro.capitulos)
+        .reduce((soma, capitulo) => soma + (capitulo.conteudo.trim() ? capitulo.conteudo.trim().split(/\s+/).length : 0), 0);
+
+      document.getElementById("totalHistorias").textContent = doisDigitos(historias.length);
+      document.getElementById("totalPublicadas").textContent = doisDigitos(historias.filter(livro => livro.publicada).length);
+      document.getElementById("totalPalavras").textContent = palavras.toLocaleString("pt-BR");
+      document.getElementById("totalFavoritos").textContent = doisDigitos(favoritos.size);
+    }
+
+    // ===== Cards e favoritos =====
+    function criarCard(livro) {
+      const favorito = favoritos.has(livro.id);
+
+      return `
+        <article class="card-historia">
+          <div class="capa-historia">
+            <img src="${escapar(livro.capa)}" alt="Capa de ${escapar(livro.titulo)}" loading="lazy">
+            <button type="button" class="btn-favorito" data-favorito="${livro.id}"
+              aria-pressed="${favorito}" aria-label="${favorito ? "Remover dos" : "Adicionar aos"} favoritos">
+              ${favorito ? "♥" : "♡"}
+            </button>
+          </div>
+          <p class="genero">${escapar(livro.genero.toUpperCase())}</p>
+          <h3>${escapar(livro.titulo)}</h3>
+          <p class="descricao-historia">${escapar(livro.descricao)}</p>
+          <a href="${escapar(livro.link)}" class="link-ver-todas">Ler ↗</a>
+        </article>
+      `;
+    }
+
+    function mostrarLivros() {
+      const escolhidos = livros.filter(livro => favoritos.has(livro.id));
+
+      document.getElementById("gradeLivros").innerHTML = livros.map(criarCard).join("");
+      document.getElementById("gradeFavoritos").innerHTML = escolhidos.map(criarCard).join("");
+      document.getElementById("semFavoritos").hidden = escolhidos.length > 0;
+      mostrarEstatisticas();
+    }
+
+    // Coração: adiciona/remove dos favoritos
+    document.addEventListener("click", evento => {
+      const botao = evento.target.closest("[data-favorito]");
+      if (!botao) return;
+
+      const id = botao.dataset.favorito;
+      if (favoritos.has(id)) favoritos.delete(id);
+      else favoritos.add(id);
+
+      localStorage.setItem(CHAVE_FAVORITOS, JSON.stringify([...favoritos]));
+      mostrarLivros();
+    });
+
+    // ===== Editar perfil =====
+    const modal = document.getElementById("modalPerfil");
+    const campoNome = document.getElementById("campoNome");
+    const campoBio = document.getElementById("campoBio");
+
+    // Preenche o formulário ao abrir o modal
+    modal.addEventListener("show.bs.modal", () => {
+      campoNome.value = perfil.nome;
+      campoBio.value = perfil.bio;
+    });
+
+    document.getElementById("formPerfil").addEventListener("submit", evento => {
+      evento.preventDefault();
+
+      perfil.nome = campoNome.value.trim() || usuario.usuario;
+      perfil.bio = campoBio.value.trim();
+      perfis[usuario.email] = { nome: perfil.nome, bio: perfil.bio };
+      localStorage.setItem(CHAVE_PERFIL, JSON.stringify(perfis));
+
+      mostrarPerfil();
+      bootstrap.Modal.getInstance(modal).hide();
+    });
+
+    // Sair da conta (função do auth.js)
+    document.getElementById("btnSair").addEventListener("click", sairDaConta);
+
+    mostrarPerfil();
+    mostrarLivros();
   }
-});
-const modal = document.getElementById("settings-modal");
-document.getElementById("open-settings").addEventListener("click", () => { modal.hidden = false; });
-document.getElementById("close-settings").addEventListener("click", () => { modal.hidden = true; });
-document.getElementById("save-settings").addEventListener("click", () => {
-  document.getElementById("app").classList.toggle("light-reading", document.getElementById("theme-select").value === "claro");
-  const app = document.getElementById("app");
-  app.classList.remove("font-medium-reading","font-large-reading");
-  if (document.getElementById("font-select").value === "18") app.classList.add("font-medium-reading");
-  if (document.getElementById("font-select").value === "20") app.classList.add("font-large-reading");
-  modal.hidden = true;
-});
-modal.addEventListener("click", event => { if (event.target === modal) modal.hidden = true; });
-document.addEventListener("keydown", event => { if (event.key === "Escape") modal.hidden = true; });
-render();
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", iniciar);
+  else iniciar();
+})();

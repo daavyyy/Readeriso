@@ -1,145 +1,384 @@
-/* Parte 1 - Base */
-*{box-sizing:border-box}
-:root{--bg:#0a0a0a;--card:#141212;--surface:#1c1919;--text:#f5f2f2;--muted:#aaa1a1;--border:#302929;--red:#e50914;--red-hover:#bd0710;--green:#58c98a}
-html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--text);font-family:Manrope,Arial,sans-serif;line-height:1.6}
-button,input,textarea,select{font:inherit}
-button{cursor:pointer}
-a{color:inherit}
-[hidden]{display:none!important}
-.page-width{width:min(1200px,calc(100% - 48px));margin-inline:auto}
-.visualmente-oculto{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+/* ===== Readeriso | editor.css ===== */
+/* Base visual vem de ../index.css; o estilo da prévia vem de biblioteca.css */
 
-/* Parte 2 - Cabeçalho */
-.cabecalho-site{background:#111;border-bottom:1px solid var(--border)}
-.nav-editor{min-height:76px;display:flex;align-items:center;justify-content:space-between;gap:24px}
-.logo{font-size:25px;font-weight:800;text-decoration:none;color:#fff;white-space:nowrap}
-.logo span{color:var(--red)}
-.nav-editor ul{list-style:none;display:flex;align-items:center;gap:28px;padding:0;margin:0}
-.nav-editor li a{color:var(--muted);font-size:13px;font-weight:700;text-decoration:none;transition:color .2s}
-.nav-editor li a:hover{color:#fff}
+/* ===== Topo: dados da história ===== */
 
-/* Parte 3 - Informações da história */
-.informacoes-historia{display:flex;align-items:center;gap:22px;padding:32px 0;border-bottom:1px solid var(--border)}
-.capa-historia{width:100px;height:125px;flex-shrink:0;display:grid;place-items:center;background:linear-gradient(145deg,#5a1721,#211617);border:1px solid #513036;border-radius:7px;font-size:38px}
-.dados-historia{flex:1;min-width:0}
-.campo-label{display:block;margin:0 0 5px;color:var(--muted);font-size:11px;font-weight:700}
-.campo-historia{display:block;width:100%;background:transparent;color:var(--text);border:1px solid transparent;border-radius:5px;padding:5px 8px;outline:none}
-.campo-historia:focus{border-color:var(--red);background:var(--card)}
-.titulo-historia{font-size:25px;font-weight:800}
-.descricao-historia{resize:vertical;min-height:48px;font-size:13px;color:var(--muted)}
-.etiquetas{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}
-.seletor-genero,.status-historia{padding:6px 10px;border:1px solid var(--border);border-radius:20px;background:var(--surface);color:var(--muted);font-size:11px}
-.seletor-genero{cursor:pointer}
-.status-historia{color:var(--gold,#f4c65e)}
-.btn-configuracoes{flex-shrink:0;padding:10px 14px;background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px}
-.btn-configuracoes:hover{border-color:var(--red)}
-
-/* Parte 4 - Área do editor */
-.area-editor{display:grid;grid-template-columns:245px minmax(0,1fr);gap:22px;padding:28px 0}
-.capitulos,.escrita{background:var(--card);border:1px solid var(--border);border-radius:9px;min-width:0}
-.capitulos{padding:17px;height:fit-content}
-.capitulos-cabecalho{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
-.capitulos-cabecalho h2{font-size:16px;font-weight:800;margin:0}
-.btn-adicionar{width:32px;height:32px;border:0;border-radius:6px;background:var(--red);color:white;font-size:23px;line-height:1}
-.btn-adicionar:hover,.btn-publicar:hover{background:var(--red-hover)}
-.lista-capitulos{display:flex;flex-direction:column;gap:8px}
-.capitulo{display:flex;flex-direction:column;align-items:flex-start;gap:3px;width:100%;padding:12px;border:1px solid transparent;border-radius:6px;background:transparent;color:var(--text);text-align:left}
-.capitulo span{font-size:12px;font-weight:800}
-.capitulo small{font-size:11px;color:var(--muted);overflow-wrap:anywhere}
-.capitulo:hover{background:var(--surface)}
-.capitulo.ativo{background:#2a1719;border-color:#61252a}
-.capitulo.ativo span{color:#ff7a81}
-.btn-novo-capitulo{width:100%;margin-top:15px;padding:10px;border:1px dashed var(--border);border-radius:6px;background:transparent;color:var(--muted);font-size:12px}
-.btn-novo-capitulo:hover{color:#fff;border-color:var(--red)}
-
-/* Parte 5 - Escrita */
-.escrita{overflow:hidden}
-.cabecalho-capitulo{display:flex;flex-direction:column;gap:7px;padding:20px 22px 15px}
-.cabecalho-capitulo span{font-size:11px;color:var(--muted);font-weight:700}
-.cabecalho-capitulo input{width:100%;padding:7px 0;border:0;border-bottom:1px solid var(--border);outline:none;background:transparent;color:var(--text);font-size:21px;font-weight:800}
-.cabecalho-capitulo input:focus{border-color:var(--red)}
-.barra-ferramentas{display:flex;align-items:center;gap:5px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:#171414}
-.barra-ferramentas button{min-width:34px;height:34px;border:1px solid transparent;border-radius:5px;background:transparent;color:var(--text);font-size:15px}
-.barra-ferramentas button:hover,.barra-ferramentas button:focus{border-color:var(--border);background:#302626}
-.separador{width:1px;height:23px;margin:0 5px;background:var(--border)}
-.area-texto{padding:20px}
-#textoCapitulo{display:block;width:100%;min-height:430px;resize:vertical;border:0;outline:none;background:transparent;color:var(--text);font-family:Georgia,serif;font-size:17px;line-height:1.9}
-#textoCapitulo::placeholder{color:#716969}
-.informacoes-editor{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;padding:12px 20px;border-top:1px solid var(--border);font-size:11px;color:var(--muted)}
-.status-salvamento{color:var(--muted)}
-.status-salvamento.salvo{color:var(--green)}
-
-/* Parte 6 - Controles */
-.controles{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:0 0 35px}
-.acoes{display:flex;gap:10px;flex-wrap:wrap}
-.btn-salvar,.btn-visualizar,.btn-publicar{padding:11px 17px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-weight:800}
-.btn-salvar,.btn-visualizar{background:transparent;color:var(--text)}
-.btn-salvar:hover,.btn-visualizar:hover{border-color:var(--red)}
-.btn-publicar{background:var(--red);border-color:var(--red);color:#fff}
-
-/* Parte 7 - Prévia */
-.painel-visualizacao{margin:0 0 40px;padding:30px;background:#f8f3ec;color:#292020;border-radius:9px}
-.visualizacao-topo{display:flex;align-items:center;justify-content:space-between;gap:15px;border-bottom:1px solid #ded5cc;padding-bottom:15px;margin-bottom:25px}
-.visualizacao-topo h2{font-size:20px;margin:0}
-.btn-fechar{background:transparent;border:1px solid #c9bdb4;border-radius:5px;padding:7px 12px;color:#292020}
-#previaTitulo{font-family:Georgia,serif;font-size:32px;margin-bottom:10px}
-.previa-descricao{color:#756b64;margin-bottom:28px}
-.previa-capitulo{margin-top:25px}
-.previa-capitulo h3{font-family:Georgia,serif;font-size:23px;margin-bottom:15px}
-.previa-texto{font-family:Georgia,serif;font-size:17px;line-height:1.9;white-space:pre-wrap;overflow-wrap:anywhere}
-
-/* Parte 8 - Footer */
-.footer{background:#080808;color:#aaa;border-top:1px solid #292929;margin-top:25px}
-.footer-conteudo{width:90%;max-width:1200px;margin:auto;padding:45px 0;display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:35px}
-.footer-marca .logo{font-size:25px;color:#fff}
-.footer-marca p{font-size:13px;line-height:1.6;color:#aaa}
-.footer-coluna{display:flex;flex-direction:column;gap:12px}
-.footer-coluna h3{margin:0 0 5px;color:#fff;font-size:15px}
-.footer-coluna a{color:#aaa;font-size:13px;text-decoration:none;transition:color .2s}
-.footer-coluna a:hover{color:var(--red)}
-.footer-bottom{padding:18px 5%;border-top:1px solid #292929;text-align:center}
-.footer-bottom p{margin:0;color:#777;font-size:12px}
-
-/* Parte 9 - Responsividade */
-@media(max-width:900px){
-  .nav-editor{align-items:flex-start;flex-direction:column;justify-content:center;padding-top:15px;padding-bottom:15px;gap:12px}
-  .nav-editor ul{gap:20px;flex-wrap:wrap}
-  .area-editor{grid-template-columns:200px minmax(0,1fr);gap:14px}
-  .footer-conteudo{grid-template-columns:repeat(2,minmax(0,1fr));gap:30px 20px}
-}
-@media(max-width:650px){
-  .page-width{width:calc(100% - 28px)}
-  .informacoes-historia{align-items:flex-start;flex-wrap:wrap;gap:14px;padding:24px 0}
-  .capa-historia{width:72px;height:94px;font-size:30px}
-  .dados-historia{width:calc(100% - 90px);flex:1}
-  .titulo-historia{font-size:20px}
-  .btn-configuracoes{margin-left:auto}
-  .area-editor{grid-template-columns:1fr}
-  .capitulos{padding:13px}
-  .lista-capitulos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
-  .area-texto{padding:14px}
-  #textoCapitulo{min-height:350px;font-size:16px}
-  .controles{align-items:stretch;flex-direction:column}
-  .acoes{display:grid;grid-template-columns:1fr 1fr}
-  .btn-publicar{grid-column:1/-1}
-  .btn-salvar,.btn-visualizar,.btn-publicar{width:100%}
-  .footer-conteudo{grid-template-columns:repeat(2,minmax(0,1fr));padding:32px 0}
-}
-@media(max-width:400px){
-  .nav-editor ul{gap:12px}
-  .nav-editor li a{font-size:11px}
-  .lista-capitulos{grid-template-columns:1fr}
-  .barra-ferramentas{padding:8px;gap:2px}
-  .barra-ferramentas button{min-width:30px}
-  .footer-conteudo{grid-template-columns:1fr}
-  .acoes{grid-template-columns:1fr}
-  .btn-publicar{grid-column:auto}
+.editor-topo {
+  padding-bottom: 40px;
+  background-color: var(--bg-nav);
+  border-bottom: 1px solid var(--borda);
 }
 
-/* Formatação exibida na prévia */
-.previa-texto strong { font-weight: 800; }
-.previa-texto em { font-style: italic; }
-.previa-texto blockquote { margin: 12px 0; padding: 8px 14px; border-left: 3px solid var(--red); color: #665a54; }
-.previa-texto h3 { margin: 12px 0; font-size: 1.15em; }
+.editor-topo-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 25px;
+}
 
+.status-historia {
+  padding: 4px 14px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: #f4c65e;
+  border: 1px solid #5a4a1e;
+  border-radius: 20px;
+}
+
+.status-historia.publicada {
+  color: #58c98a;
+  border-color: #1e5a3a;
+}
+
+/* Título grande, sem borda, como o h1 da home */
+.titulo-historia {
+  width: 100%;
+  margin-bottom: 25px;
+  padding: 4px 0;
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  font-weight: bold;
+  color: #ffffff;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.titulo-historia:focus {
+  border-bottom-color: var(--vermelho);
+}
+
+.titulo-historia::placeholder {
+  color: #555555;
+}
+
+.editor-dados {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 20px;
+}
+
+.editor-dados textarea.campo {
+  min-height: 52px;
+}
+
+/* ===== Capítulos + escrita ===== */
+
+.area-editor {
+  padding-block: 40px 30px;
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  gap: 25px;
+  align-items: start;
+}
+
+.capitulos,
+.escrita {
+  min-width: 0;
+  background-color: var(--bg-card);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+}
+
+.capitulos {
+  padding: 20px;
+}
+
+.capitulos-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.capitulos-cabecalho h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.btn-adicionar {
+  width: 34px;
+  height: 34px;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: #ffffff;
+  background-color: var(--vermelho);
+  border: 0;
+  border-radius: 50%;
+  transition: background-color 0.3s;
+}
+
+.btn-adicionar:hover {
+  background-color: var(--vermelho-escuro);
+}
+
+.lista-capitulos {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Botão de cada capítulo na lista lateral */
+.capitulo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  padding: 10px 12px;
+  text-align: left;
+  color: var(--texto);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  transition: 0.3s;
+}
+
+.capitulo span {
+  font-size: 0.75rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: var(--texto-suave);
+}
+
+.capitulo small {
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+.capitulo:hover {
+  border-color: #555555;
+}
+
+.capitulo.ativo {
+  background-color: rgba(229, 9, 20, 0.1);
+  border-color: var(--vermelho);
+}
+
+.capitulo.ativo span {
+  color: var(--vermelho);
+}
+
+.cabecalho-capitulo {
+  padding: 20px 24px 15px;
+}
+
+.cabecalho-capitulo .sobretitulo {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.cabecalho-capitulo-linha {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#tituloCapitulo {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 0;
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #ffffff;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--borda);
+  outline: none;
+}
+
+#tituloCapitulo:focus {
+  border-bottom-color: var(--vermelho);
+}
+
+.btn-excluir-capitulo {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid #555555;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+.btn-excluir-capitulo:hover:not(:disabled) {
+  border-color: var(--vermelho);
+  background-color: rgba(229, 9, 20, 0.15);
+}
+
+.btn-excluir-capitulo:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Barra de formatação */
+.barra-ferramentas {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 10px 18px;
+  background-color: var(--bg-nav);
+  border-top: 1px solid var(--borda);
+  border-bottom: 1px solid var(--borda);
+}
+
+.barra-ferramentas button {
+  min-width: 36px;
+  height: 36px;
+  font-size: 1rem;
+  color: var(--texto);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  transition: 0.3s;
+}
+
+.barra-ferramentas button:hover {
+  border-color: #555555;
+}
+
+/* Alinhamento selecionado */
+.barra-ferramentas button[aria-pressed="true"] {
+  color: #ffffff;
+  background-color: var(--vermelho);
+  border-color: var(--vermelho);
+}
+
+.separador {
+  width: 1px;
+  height: 24px;
+  margin: 0 6px;
+  background-color: var(--borda);
+}
+
+#textoCapitulo {
+  display: block;
+  width: 100%;
+  min-height: 460px;
+  padding: 24px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.1rem;
+  line-height: 1.9;
+  color: var(--texto);
+  background: transparent;
+  border: 0;
+  outline: none;
+  resize: vertical;
+}
+
+#textoCapitulo::placeholder {
+  color: #666666;
+}
+
+.informacoes-editor {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px 24px;
+  font-size: 0.85rem;
+  color: var(--texto-suave);
+  border-top: 1px solid var(--borda);
+}
+
+.status-salvamento.salvo {
+  color: #58c98a;
+}
+
+/* ===== Botões de ação ===== */
+
+.controles {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 15px;
+  padding-top: 0;
+}
+
+.controles-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.controles .btn-principal,
+.controles .btn-secundario {
+  min-width: 0;
+}
+
+/* ===== Prévia e configurações ===== */
+
+.previa-titulo {
+  margin-bottom: 10px;
+  font-size: 2rem;
+  color: #ffffff;
+}
+
+.configuracoes {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.config-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.config-item h3 {
+  margin-bottom: 4px;
+  font-size: 1rem;
+  color: #ffffff;
+}
+
+.config-item p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--texto-suave);
+}
+
+.config-item button {
+  flex-shrink: 0;
+  min-width: 0;
+  padding: 10px 18px;
+}
+
+/* ===== Responsivo ===== */
+
+@media (max-width: 800px) {
+  .area-editor,
+  .editor-dados {
+    grid-template-columns: 1fr;
+  }
+
+  .lista-capitulos {
+    flex-direction: row;
+    overflow-x: auto;
+  }
+
+  .capitulo {
+    width: auto;
+    min-width: 140px;
+  }
+}
+
+@media (max-width: 600px) {
+  #textoCapitulo {
+    min-height: 360px;
+    padding: 18px;
+  }
+
+  .controles,
+  .controles-acoes,
+  .config-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

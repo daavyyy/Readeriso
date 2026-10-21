@@ -3,61 +3,180 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Uma coleção de livros, histórias e novos mundos.">
-  <title>Edgerson · Meu Perfil de Leitura</title>
+  <meta name="theme-color" content="#0a0a0a">
+  <meta name="description" content="Seu perfil de leitura e escrita no Readeriso.">
+
+  <title>Readeriso | Perfil</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../index.css">
   <link rel="stylesheet" href="../CSS/perfil.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="../JS/perfil.js"></script>
+
   <script src="../auth.js"></script>
   <script>
-    if (typeof protegerPagina === "function") protegerPagina();
+    if (typeof protegerPagina === "function") {
+      protegerPagina();
+    }
   </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" defer></script>
+  <script src="../JS/livros.js" defer></script>
+  <script src="../JS/perfil.js" defer></script>
 </head>
+
 <body>
-<div class="reading-app" id="app">
-  <header class="site-header">
-    <div class="header-inner page-width">
-      <a href="#perfil" class="brand"><span class="brand-mark">📖</span>READERISO<span class="red">.</span></a>
-      <nav class="main-nav" aria-label="Navegação principal">
-        <a href="#perfil" class="nav-link active" data-section="perfil">♙ Perfil</a>
-        <a href="#livros" class="nav-link" data-section="livros">▤ Livros</a>
-        <a href="#favoritos" class="nav-link" data-section="favoritos">♡ Favoritos</a>
-      </nav>
-      <button id="open-settings" class="outline-btn" type="button">⚙ <span class="settings-label">Configurações</span></button>
-    </div>
+
+  <header>
+    <nav class="navbar">
+      <a href="../index.html" class="logo">Readeriso<span>.</span></a>
+
+      <ul class="menu">
+        <li><a href="explorar.html">Explorar</a></li>
+        <li><a href="biblioteca.html">Biblioteca</a></li>
+        <li><a href="escritor.html">Escrever</a></li>
+        <li><a href="sites.html">Sites</a></li>
+        <li><a href="perfil.html" class="btn-entrar link-ativo">Perfil</a></li>
+      </ul>
+    </nav>
   </header>
-  <main class="page-width">
-    <section id="perfil" class="profile-section">
-      <p class="eyebrow">UM NOVO MUNDO A CADA PÁGINA</p>
-      <div class="profile-layout">
-        <div class="profile-avatar">📖<span class="avatar-badge">✓</span></div>
-        <div class="profile-info"><h1 class="profile-name">alguem<span class="red">.</span></h1><p class="profile-handle">@leitor</p><p class="profile-bio">Apaixonado por livros, histórias e novos mundos.</p></div>
-        <div class="profile-stats"><div class="stat"><strong>03</strong><span>Livros</span></div><div class="stat"><strong class="red" id="favorite-count">00</strong><span>Favoritos</span></div><div class="stat"><strong>00</strong><span>Resenhas</span></div></div>
+
+  <main>
+
+    <!-- Cabeçalho do perfil -->
+    <section class="hero hero-pagina perfil-topo">
+      <div class="avatar" id="avatar" aria-hidden="true">R</div>
+
+      <p class="sobretitulo">UM NOVO MUNDO A CADA PÁGINA</p>
+
+      <h1><span id="nomeUsuario">Leitor</span><span class="ponto">.</span></h1>
+
+      <p class="perfil-email" id="emailUsuario"></p>
+      <p class="hero-descricao" id="bioUsuario"></p>
+
+      <div class="hero-acoes">
+        <button type="button" class="btn-principal" data-bs-toggle="modal" data-bs-target="#modalPerfil">Editar perfil</button>
+        <button type="button" class="btn-secundario" id="btnSair">Sair da conta</button>
       </div>
     </section>
-    <section id="livros" class="books-section">
-      <div class="section-heading"><div><h2 class="section-title">▤ Meus livros</h2><p class="section-subtitle">Histórias que fazem parte de mim.</p></div><span class="section-count">▦ 3 livros na coleção</span></div>
-      <div class="book-grid" id="book-grid"></div>
+
+    <!-- Números do usuário -->
+    <section class="secao estatisticas">
+      <div class="estatistica">
+        <strong id="totalHistorias">00</strong>
+        <span>Histórias</span>
+      </div>
+      <div class="estatistica">
+        <strong id="totalPublicadas">00</strong>
+        <span>Publicadas</span>
+      </div>
+      <div class="estatistica">
+        <strong id="totalPalavras">0</strong>
+        <span>Palavras escritas</span>
+      </div>
+      <div class="estatistica">
+        <strong id="totalFavoritos">00</strong>
+        <span>Favoritos</span>
+      </div>
     </section>
-    <section id="favoritos" class="favorites-section">
-      <div class="section-heading"><div><h2 class="section-title">♡ Meus favoritos <span class="count-small" id="favorites-heading-count">00</span></h2><p class="section-subtitle">As histórias que ficam com a gente.</p></div></div>
-      <div id="favorites-content"></div>
+
+    <section class="secao conheca">
+      <div class="secao-cabecalho">
+        <div>
+          <p class="sobretitulo">PARA DESCOBRIR</p>
+          <h2>Livros em destaque<span>.</span></h2>
+          <p class="secao-descricao">Toque no coração para guardar nos favoritos.</p>
+        </div>
+
+        <a href="explorar.html" class="link-ver-todas">Explorar mais ↗</a>
+      </div>
+
+      <div class="lista-historias" id="gradeLivros"></div>
     </section>
+
+    <section class="secao" id="favoritos">
+      <div class="secao-cabecalho">
+        <div>
+          <p class="sobretitulo">GUARDADOS</p>
+          <h2>Meus favoritos<span>.</span></h2>
+          <p class="secao-descricao">As histórias que ficam com a gente.</p>
+        </div>
+      </div>
+
+      <div class="lista-historias" id="gradeFavoritos"></div>
+
+      <p class="sem-resultado" id="semFavoritos" hidden>
+        ♡ Nenhum livro escolhido ainda. Sua próxima história favorita pode estar logo acima.
+      </p>
+    </section>
+
   </main>
-  <footer class="site-footer"><div class="footer-inner page-width"><span>© 2026 Meu Perfil de Leitura</span><span>Feito de páginas e <span class="red">♥</span> boas histórias.</span></div></footer>
-</div>
-<div class="modal-backdrop" id="settings-modal" hidden>
-  <section class="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-title">
-    <button class="modal-x" id="close-settings" aria-label="Fechar">×</button>
-    <h2 id="settings-title">Configurações</h2><p class="section-subtitle">Preferências de leitura</p>
-    <label for="theme-select">Tema</label>
-    <select id="theme-select" class="settings-select"><option value="escuro">Escuro</option><option value="claro">Claro</option></select>
-    <label for="font-select">Tamanho da fonte</label>
-    <select id="font-select" class="settings-select"><option value="16">Pequeno</option><option value="18">Médio</option><option value="20">Grande</option></select>
-    <button class="primary-btn" id="save-settings">Concluir</button>
-  </section>
-</div>
+
+  <!-- Modal de edição do perfil (Bootstrap) -->
+  <div class="modal fade" id="modalPerfil" tabindex="-1" aria-labelledby="tituloModalPerfil" aria-hidden="true" data-bs-theme="dark">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="tituloModalPerfil">Editar perfil<span>.</span></h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+
+        <div class="modal-body">
+          <form id="formPerfil">
+            <div>
+              <label for="campoNome" class="rotulo">NOME</label>
+              <input type="text" id="campoNome" class="campo" maxlength="40" required>
+            </div>
+
+            <div>
+              <label for="campoBio" class="rotulo">BIO</label>
+              <textarea id="campoBio" class="campo" maxlength="200" placeholder="Fale um pouco sobre você"></textarea>
+            </div>
+
+            <div class="janela-acoes">
+              <button type="button" class="btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" class="btn-principal">Salvar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-conteudo">
+
+      <div class="footer-marca">
+        <a href="../index.html" class="logo">Readeriso<span>.</span></a>
+        <p>Explorando a literatura!</p>
+      </div>
+
+      <div class="footer-coluna">
+        <h3>Readeriso</h3>
+        <a href="../index.html">Início</a>
+        <a href="explorar.html">Explorar</a>
+        <a href="biblioteca.html">Biblioteca</a>
+        <a href="sites.html">Sites</a>
+      </div>
+
+      <div class="footer-coluna">
+        <h3>Escritor</h3>
+        <a href="escritor.html#secao-livros">Criar história</a>
+        <a href="escritor.html#secao-livros">Minhas histórias</a>
+        <a href="perfil.html">Meu perfil</a>
+      </div>
+
+      <div class="footer-coluna">
+        <h3>Contatos</h3>
+        <a href="mailto:readeriso.contato@gmail.com">E-mail</a>
+        <a href="../index.html#conheca">Sobre nós</a>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2026 Readeriso. Todos os direitos reservados.</p>
+    </div>
+  </footer>
 
 </body>
-</html> 
+</html>

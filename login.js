@@ -1,23 +1,31 @@
+// login.js — confere e-mail e senha com as contas salvas no localStorage
 (() => {
   "use strict";
 
   const CHAVE_USUARIOS = "readerisoUsuarios";
-
   const form = document.getElementById("formLogin");
+  const campoEmail = document.getElementById("email");
+  const campoSenha = document.getElementById("senha");
+  const mensagem = document.getElementById("mensagem");
+  const botao = form.querySelector("button[type=submit]");
 
-  if (!form) {
-    console.error("Formulário formLogin não encontrado.");
-    return;
+  // Mostra um aviso dentro do cartão (no lugar de alert)
+  function avisar(texto, sucesso = false) {
+    mensagem.textContent = texto;
+    mensagem.classList.toggle("sucesso", sucesso);
+    mensagem.hidden = false;
   }
 
   function obterUsuarios() {
     try {
-      return JSON.parse(localStorage.getItem(CHAVE_USUARIOS)) || [];
+      const usuarios = JSON.parse(localStorage.getItem(CHAVE_USUARIOS));
+      return Array.isArray(usuarios) ? usuarios : [];
     } catch {
       return [];
     }
   }
 
+  // A senha é comparada pelo hash SHA-256, nunca em texto puro
   async function criarHash(senha) {
     const dados = new TextEncoder().encode(senha);
     const hash = await crypto.subtle.digest("SHA-256", dados);
@@ -27,71 +35,55 @@
       .join("");
   }
 
-  form.addEventListener("submit", async function (evento) {
+  // Grava a sessão e abre o Explorar
+  function entrar(usuario) {
+    localStorage.setItem("readerisoLogado", "true");
+    localStorage.setItem("readerisoUsuarioAtual", JSON.stringify(usuario));
+    window.location.href = "HTML/explorar.html";
+  }
+
+  // Mostra o aviso vindo do cadastro (login.html?cadastro=ok)
+  if (new URLSearchParams(window.location.search).get("cadastro") === "ok") {
+    avisar("Conta criada! Agora é só entrar.", true);
+  }
+
+  form.addEventListener("submit", async evento => {
     evento.preventDefault();
 
-    const email = document
-      .getElementById("email").value.trim().toLowerCase();
-
-    const senha = document
-      .getElementById("senha").value;
+    const email = campoEmail.value.trim().toLowerCase();
+    const senha = campoSenha.value;
 
     if (!email || !senha) {
-      alert("Informe seu e-mail e sua senha.");
+      avisar("Informe seu e-mail e sua senha.");
       return;
     }
 
-    // Login predefinido do Readeriso.
-    if (
-      email === "readeriso@gmail.com" &&
-      senha === "123456"
-    ) {
-      localStorage.setItem("readerisoLogado", "true");
-
-      localStorage.setItem(
-        "readerisoUsuarioAtual",
-        JSON.stringify({
-          id: "admin",
-          usuario: "Readeriso",
-          email: "readeriso@gmail.com"
-        })
-      );
-
-      window.location.href = "HTML/explorar.html";
+    // Conta predefinida do Readeriso
+    if (email === "readeriso@gmail.com" && senha === "123456") {
+      entrar({ id: "admin", usuario: "Readeriso", email });
       return;
     }
 
-    // Login das contas cadastradas.
+    // Contas cadastradas
+    botao.disabled = true;
+
     try {
-      const usuarios = obterUsuarios();
       const senhaHash = await criarHash(senha);
-
-      const pessoa = usuarios.find(
-        usuario =>
-          usuario.email.toLowerCase() === email &&
-          usuario.senhaHash === senhaHash
+      const pessoa = obterUsuarios().find(
+        usuario => usuario.email.toLowerCase() === email && usuario.senhaHash === senhaHash
       );
 
       if (!pessoa) {
-        alert("E-mail ou senha incorretos!");
+        avisar("E-mail ou senha incorretos.");
         return;
       }
 
-      localStorage.setItem("readerisoLogado", "true");
-
-      localStorage.setItem(
-        "readerisoUsuarioAtual",
-        JSON.stringify({
-          id: pessoa.id,
-          usuario: pessoa.usuario,
-          email: pessoa.email
-        })
-      );
-
-      window.location.href = "HTML/explorar.html";
+      entrar({ id: pessoa.id, usuario: pessoa.usuario, email: pessoa.email });
     } catch (erro) {
       console.error("Erro ao entrar:", erro);
-      alert("Não foi possível realizar o login.");
+      avisar("Não foi possível entrar. Abra o projeto pelo Live Server e tente novamente.");
+    } finally {
+      botao.disabled = false;
     }
   });
 })();

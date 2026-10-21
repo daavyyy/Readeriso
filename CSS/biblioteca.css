@@ -1,436 +1,77 @@
+/* ===== Readeriso | biblioteca.css ===== */
+/* Base visual (navbar, cards, abas, footer) vem de ../index.css */
 
-/* Parte 1 - Configurações gerais */
-:root {
-  --bg: #0a0a0a;
-  --bg-nav: #080808;
-  --bg-card: #111111;
-  --borda: #3a0000;
-  --vermelho: #e50914;
-  --vermelho-escuro: #b20710;
-  --texto: #f5f5f5;
-  --texto-suave: #bdbdbd;
-  --margem: 8%;
+.info-livro {
+  font-size: 0.85rem;
+  color: #888888;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+.sem-resultado .btn-principal {
+  margin-top: 20px;
 }
 
-html {
-  scroll-behavior: smooth;
-  scroll-padding-top: 90px;
-}
+/* ===== Leitura ===== */
 
-body {
-  min-height: 100vh;
-  font-family: Arial, Helvetica, sans-serif;
-  background-color: var(--bg);
-  color: var(--texto);
-  line-height: 1.6;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-ul {
-  list-style: none;
-}
-
-button {
-  font: inherit;
-}
-
-:focus-visible {
-  outline: 2px solid var(--vermelho);
-  outline-offset: 3px;
-}
-
-/* Parte 2 - Cabeçalho */
-.cabecalho {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  min-height: 80px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  padding: 15px var(--margem);
+.leitura {
   background-color: var(--bg-nav);
   border-bottom: 1px solid var(--borda);
 }
 
-.logo {
-  font-size: 1.4rem;
-  font-weight: bold;
-  color: #ffffff;
-  white-space: nowrap;
-}
-
-.logo span {
-  color: var(--vermelho);
-}
-
-.cabecalho nav {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 35px;
-}
-
-.cabecalho nav a {
-  color: #dddddd;
-  transition: color 0.3s;
-}
-
-.cabecalho nav a:hover,
-.cabecalho nav a.link-ativo {
-  color: var(--vermelho);
-}
-
-/* Parte 3 - Apresentação */
-.conteudo {
-  width: min(1120px, 86%);
-  min-height: 70vh;
+.leitura-conteudo {
+  max-width: 760px;
   margin: 0 auto;
 }
 
-.apresentacao {
-  padding: 65px 0 45px;
-}
-
-.etiqueta {
-  margin-bottom: 12px;
-  font-size: 0.8rem;
-  font-weight: bold;
-  letter-spacing: 3px;
-  color: var(--vermelho);
-}
-
-.apresentacao h1 {
-  margin-bottom: 14px;
-  font-size: clamp(2.2rem, 6vw, 3.5rem);
-  line-height: 1.1;
-  color: #ffffff;
-}
-
-.apresentacao h1 span {
-  color: var(--vermelho);
-}
-
-.apresentacao > p:not(.etiqueta) {
-  margin-bottom: 25px;
-  color: var(--texto-suave);
-  line-height: 1.7;
-}
-
-/* Parte 4 - Botões e abas */
-.botao {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  padding: 11px 17px;
-  font-weight: bold;
-  border: 1px solid #555555;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.principal {
-  color: #ffffff;
-  background-color: var(--vermelho);
-  border-color: var(--vermelho);
-}
-
-.principal:hover {
-  background-color: var(--vermelho-escuro);
-  border-color: var(--vermelho-escuro);
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(229, 9, 20, 0.3);
-}
-
-.secundario {
-  color: #ffffff;
-  background-color: transparent;
-}
-
-.secundario:hover {
-  border-color: var(--vermelho);
-  transform: translateY(-3px);
-}
-
-.abas {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 22px;
-  margin-bottom: 28px;
-  border-bottom: 1px solid var(--borda);
-}
-
-.aba {
-  padding: 13px 2px;
-  color: var(--texto-suave);
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  cursor: pointer;
-  transition: color 0.3s;
-}
-
-.aba:hover {
-  color: #ffffff;
-}
-
-.aba.ativa {
-  color: #ffffff;
-  border-bottom-color: var(--vermelho);
-}
-
-#contadorLivros {
-  margin-left: auto;
-  font-size: 0.85rem;
-  color: var(--texto-suave);
-}
-
-/* Parte 5 - Lista de histórias */
-.lista-livros {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(245px, 1fr));
-  gap: 25px;
-  padding-bottom: 60px;
-}
-
-.card-livro {
+.leitura-conteudo > .btn-secundario {
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  padding: 23px;
-  background-color: var(--bg-card);
-  border: 1px solid var(--borda);
-  border-radius: 8px;
-  transition: 0.3s;
+  margin-bottom: 40px;
+  padding: 10px 20px;
 }
 
-.card-livro:hover {
-  border-color: var(--vermelho);
-  transform: translateY(-4px);
+.leitura-conteudo .secao-descricao {
+  max-width: none;
+  margin-bottom: 30px;
 }
 
-.capa-livro {
-  height: 125px;
-  display: grid;
-  place-items: center;
-  margin-bottom: 20px;
-  font-size: 2.5rem;
-  background: linear-gradient(135deg, #1a0000, #111111 70%);
-  border-radius: 6px;
+.capitulo-leitura {
+  padding: 30px 0;
+  border-top: 1px solid var(--borda);
 }
 
-.genero {
-  margin-bottom: 10px;
-  font-size: 0.75rem;
-  font-weight: bold;
-  letter-spacing: 2px;
-  color: var(--vermelho);
+.capitulo-leitura h3 {
+  margin-bottom: 18px;
+  font-size: 1.5rem;
+  color: #ffffff;
 }
 
-.card-livro h2 {
-  margin-bottom: 10px;
+/* Texto do capítulo com fonte de livro */
+.texto-capitulo {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.1rem;
+  line-height: 1.9;
+  color: #e6e6e6;
+  overflow-wrap: anywhere;
+}
+
+.texto-capitulo p {
+  margin-bottom: 0.6em;
+}
+
+.texto-capitulo h4 {
+  margin: 1em 0 0.5em;
   font-size: 1.25rem;
   color: #ffffff;
-  overflow-wrap: anywhere;
 }
 
-.descricao {
-  margin-bottom: 15px;
-  font-size: 0.92rem;
-  line-height: 1.6;
+.texto-capitulo ul {
+  margin: 0 0 0.8em 1.4em;
+  list-style: disc;
+}
+
+.texto-capitulo blockquote {
+  margin: 1em 0;
+  padding: 6px 18px;
+  font-style: italic;
   color: var(--texto-suave);
-  overflow-wrap: anywhere;
-}
-
-.status {
-  margin-top: auto;
-  margin-bottom: 18px;
-  font-size: 0.8rem;
-  color: #888888;
-}
-
-.acoes-livro {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 9px;
-}
-
-.acoes-livro .botao {
-  flex: 1;
-  padding: 10px 12px;
-  font-size: 0.88rem;
-}
-
-/* Parte 6 - Leitura dentro da biblioteca */
-.leitura {
-  grid-column: 1 / -1;
-  padding: clamp(20px, 5vw, 45px);
-  background-color: var(--bg-nav);
-  border: 1px solid var(--borda);
-  border-radius: 8px;
-}
-
-.leitura h2 {
-  margin-bottom: 10px;
-  font-size: clamp(1.5rem, 4vw, 2.2rem);
-  color: #ffffff;
-}
-
-.leitura .texto-capitulo {
-  max-width: 760px;
-  margin: 25px auto 0;
-  color: #dedede;
-  line-height: 1.95;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-
-.leitura .texto-capitulo h3 {
-  margin-bottom: 15px;
-}
-
-/* Parte 7 - Estado vazio */
-.vazio {
-  padding: 45px 20px 80px;
-  text-align: center;
-}
-
-.icone-vazio {
-  font-size: 2.5rem;
-  color: var(--vermelho);
-}
-
-.vazio h2 {
-  margin: 15px 0 10px;
-  color: #ffffff;
-}
-
-.vazio p {
-  margin-bottom: 22px;
-  color: var(--texto-suave);
-}
-
-.vazio[hidden] {
-  display: none;
-}
-
-/* Parte 8 - Rodapé */
-.footer {
-  margin-top: 40px;
-  padding: 60px var(--margem) 25px;
-  background-color: var(--bg-nav);
-  border-top: 1px solid var(--borda);
-}
-
-.footer-conteudo {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
-  gap: 40px;
-}
-
-.footer-marca p {
-  margin-top: 10px;
-  color: var(--texto-suave);
-}
-
-.footer-coluna {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.footer-coluna h3 {
-  margin-bottom: 6px;
-  font-size: 1rem;
-  color: #ffffff;
-}
-
-.footer-coluna a {
-  font-size: 0.95rem;
-  color: var(--texto-suave);
-  transition: color 0.3s;
-}
-
-.footer-coluna a:hover {
-  color: var(--vermelho);
-}
-
-.footer-coluna .link-provisorio {
-  opacity: 0.6;
-}
-
-.footer-bottom {
-  margin-top: 40px;
-  padding-top: 20px;
-  text-align: center;
-  font-size: 0.85rem;
-  color: #888888;
-  border-top: 1px solid var(--borda);
-}
-
-/* Parte 9 - Responsividade */
-@media (max-width: 800px) {
-  .footer-conteudo {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .footer-marca {
-    grid-column: 1 / -1;
-  }
-}
-
-@media (max-width: 600px) {
-  :root {
-    --margem: 5%;
-  }
-
-  html {
-    scroll-padding-top: 130px;
-  }
-
-  .cabecalho {
-    flex-direction: column;
-    justify-content: center;
-    gap: 12px;
-    padding: 16px 5%;
-  }
-
-  .logo {
-    font-size: 1.2rem;
-  }
-
-  .cabecalho nav {
-    justify-content: center;
-    gap: 18px;
-    font-size: 0.9rem;
-  }
-
-  .conteudo {
-    width: 90%;
-  }
-
-  .apresentacao {
-    padding-top: 45px;
-  }
-
-  .lista-livros {
-    grid-template-columns: 1fr;
-  }
-
-  .abas {
-    gap: 15px;
-  }
+  border-left: 3px solid var(--vermelho);
 }

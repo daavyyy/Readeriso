@@ -3,38 +3,65 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0a">
+  <meta name="description" content="Entre na sua conta do Readeriso.">
+
+  <title>Readeriso | Entrar</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="index.css">
   <link rel="stylesheet" href="login.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" defer></script>
   <script src="login.js" defer></script>
-  <title>Login - Readeriso</title>
 </head>
+
 <body>
+
   <header>
-    <h1>Readeriso</h1>
+    <nav class="navbar">
+      <a href="index.html" class="logo">Readeriso<span>.</span></a>
+
+      <ul class="menu">
+        <li><a href="index.html">Início</a></li>
+        <li><a href="cadastro.html" class="btn-entrar">Cadastro</a></li>
+      </ul>
+    </nav>
   </header>
 
-  <main>
-    <section>
-      <h2>Login</h2>
-      <form id="formLogin">
-        <input
-          type="email"
-          id="email"
-          placeholder="E-mail"
-          required
-        >
+  <main class="pagina-acesso">
+    <section class="cartao-acesso">
 
-        <input
-          type="password"
-          id="senha"
-          placeholder="Senha"
-          required
-        >
+      <!-- Alterna entre login e cadastro -->
+      <div class="alternar-acesso" role="tablist">
+        <a href="login.html" class="ativo" role="tab" aria-selected="true">Entrar</a>
+        <a href="cadastro.html" role="tab" aria-selected="false">Cadastrar</a>
+      </div>
 
-        <button type="submit">Entrar</button>
+      <p class="sobretitulo">BEM-VINDO DE VOLTA</p>
+      <h1>Entrar<span>.</span></h1>
+
+      <form id="formLogin" novalidate>
+        <div>
+          <label for="email" class="rotulo">E-MAIL</label>
+          <input type="email" id="email" class="campo" placeholder="voce@email.com" autocomplete="email" required>
+        </div>
+
+        <div>
+          <label for="senha" class="rotulo">SENHA</label>
+          <input type="password" id="senha" class="campo" placeholder="Sua senha" autocomplete="current-password" required>
+        </div>
+
+        <p class="mensagem" id="mensagem" role="alert" hidden></p>
+
+        <button type="submit" class="btn-principal">Entrar ↗</button>
       </form>
 
+      <p class="trocar-acesso">
+        Ainda não tem conta? <a href="cadastro.html">Cadastre-se</a>
+      </p>
     </section>
   </main>
+
 </body>
 </html>

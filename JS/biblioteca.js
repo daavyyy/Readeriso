@@ -1,172 +1,114 @@
-/* biblioteca.js - mostra rascunhos, publicações e leitura das histórias */
+// biblioteca.js — mostra rascunhos e publicadas, e abre a leitura das histórias
 (() => {
   "use strict";
 
   function iniciar() {
     const R = window.Readeriso;
-    if (!R || typeof R.listar !== "function" || typeof R.obter !== "function") {
-      console.error("Carregue livros.js antes de biblioteca.js.");
-      alert("Não foi possível carregar as histórias. Confira a ordem dos scripts em biblioteca.html.");
-      return;
-    }
+    const escapar = R.escaparHTML;
 
+    const abas = document.querySelectorAll("#abas .filtro");
     const listaLivros = document.getElementById("listaLivros");
     const mensagemVazia = document.getElementById("mensagemVazia");
     const contadorLivros = document.getElementById("contadorLivros");
-    const abas = document.querySelectorAll(".aba");
+    const tituloLista = document.getElementById("tituloLista");
+    const secaoLivros = document.getElementById("secaoLivros");
+    const painelLeitura = document.getElementById("painelLeitura");
+
     let tipoAtual = "publicados";
-    let livroAberto = null;
 
-    function escaparHTML(texto) {
-      return String(texto ?? "").replace(/[&<>"']/g, caractere => ({
-        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-      })[caractere]);
+    // Card de uma história com botões Ler / Editar
+    function criarCard(livro) {
+      const id = encodeURIComponent(livro.id);
+      const capitulos = livro.capitulos.length;
+      const botaoLer = livro.publicada
+        ? `<button type="button" class="btn-principal" data-ler="${escapar(livro.id)}">Ler</button>`
+        : "";
+
+      return `
+        <article class="card-historia">
+          <div class="capa-historia sem-capa" aria-hidden="true">▧</div>
+          <p class="genero">${escapar(livro.genero.toUpperCase())}</p>
+          <h3>${escapar(livro.titulo || "História sem título")}</h3>
+          <p class="descricao-historia">${escapar(livro.descricao || "Sem descrição.")}</p>
+          <p class="info-livro">${livro.publicada ? "Publicada" : "Rascunho"} · ${capitulos} ${capitulos === 1 ? "capítulo" : "capítulos"}</p>
+          <div class="card-acoes">
+            ${botaoLer}
+            <a href="editor.html?id=${id}" class="btn-secundario">
+              ${livro.publicada ? "Editar" : "Continuar escrevendo"}
+            </a>
+          </div>
+        </article>
+      `;
     }
 
-    function formatarTexto(texto) {
-      return escaparHTML(texto)
-        .replace(/^## (.+)$/gm, "<h3>$1</h3>")
-        .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-        .replace(/\*(.+?)\*/g, "<em>$1</em>")
-        .replace(/__(.+?)__/g, "<u>$1</u>")
-        .replace(/^&gt; (.+)$/gm, "<blockquote>$1</blockquote>")
-        .replace(/^- (.+)$/gm, "• $1")
-        .replace(/\n/g, "<br>");
-    }
-
+    // Lista as histórias da aba atual
     function carregarBiblioteca() {
       const filtrados = R.listar()
         .filter(livro => tipoAtual === "publicados" ? livro.publicada : !livro.publicada)
-        .sort((a, b) => (b.atualizadoEm || 0) - (a.atualizadoEm || 0));
+        .sort((a, b) => b.atualizadoEm - a.atualizadoEm);
 
-      listaLivros.replaceChildren();
+      tituloLista.innerHTML = `${tipoAtual === "publicados" ? "Publicadas" : "Rascunhos"}<span>.</span>`;
       contadorLivros.textContent = `${filtrados.length} ${filtrados.length === 1 ? "história" : "histórias"}`;
+      listaLivros.innerHTML = filtrados.map(criarCard).join("");
       mensagemVazia.hidden = filtrados.length > 0;
-
-      filtrados.forEach(livro => {
-        const card = document.createElement("article");
-        card.className = "card-livro";
-
-        const capa = document.createElement("div");
-        capa.className = "capa-livro";
-        capa.textContent = "📖";
-        capa.setAttribute("aria-hidden", "true");
-
-        const generoEl = document.createElement("p");
-        generoEl.className = "genero";
-        generoEl.textContent = livro.genero || "SEM GÊNERO";
-
-        const tituloEl = document.createElement("h2");
-        tituloEl.textContent = livro.titulo || "História sem título";
-
-        const descricaoEl = document.createElement("p");
-        descricaoEl.className = "descricao";
-        descricaoEl.textContent = livro.descricao || "Sem descrição.";
-
-        const status = document.createElement("p");
-        status.className = "status";
-        status.textContent = livro.publicada ? "● Publicado" : "● Rascunho";
-
-        const acoes = document.createElement("div");
-        acoes.className = "acoes-livro";
-
-        if (livro.publicada) {
-          const botaoLer = document.createElement("button");
-          botaoLer.type = "button";
-          botaoLer.className = "botao principal";
-          botaoLer.textContent = "Ler";
-          botaoLer.addEventListener("click", () => abrirLeitura(livro.id));
-          acoes.appendChild(botaoLer);
-        }
-
-        const botaoEditar = document.createElement("button");
-        botaoEditar.type = "button";
-        botaoEditar.className = "botao secundario";
-        botaoEditar.textContent = livro.publicada ? "Editar" : "Continuar escrevendo";
-        botaoEditar.addEventListener("click", () => {
-          window.location.href = `editor.html?id=${encodeURIComponent(String(livro.id))}`;
-        });
-        acoes.appendChild(botaoEditar);
-
-        card.append(capa, generoEl, tituloEl, descricaoEl, status, acoes);
-        listaLivros.appendChild(card);
-      });
-
-      if (livroAberto) mostrarLeitura(livroAberto);
     }
 
+    // Abre a leitura de uma história publicada
     function abrirLeitura(id) {
-      livroAberto = id;
-      mostrarLeitura(id);
-    }
-
-    function mostrarLeitura(id) {
-      document.getElementById("painelLeitura")?.remove();
       const livro = R.obter(id);
-      if (!livro || !livro.publicada) {
-        livroAberto = null;
-        return;
-      }
+      if (!livro || !livro.publicada) return;
 
-      const painel = document.createElement("section");
-      painel.id = "painelLeitura";
-      painel.className = "leitura";
-      painel.setAttribute("aria-label", "Leitura da história");
+      document.getElementById("leituraGenero").textContent = livro.genero.toUpperCase();
+      document.getElementById("leituraTitulo").innerHTML = `${escapar(livro.titulo || "História sem título")}<span>.</span>`;
+      document.getElementById("leituraDescricao").textContent = livro.descricao;
 
-      const fechar = document.createElement("button");
-      fechar.type = "button";
-      fechar.className = "botao secundario";
-      fechar.textContent = "← Fechar leitura";
-      fechar.addEventListener("click", () => {
-        livroAberto = null;
-        painel.remove();
-      });
+      document.getElementById("leituraCapitulos").innerHTML = livro.capitulos.map((capitulo, indice) => `
+        <section class="capitulo-leitura">
+          <p class="sobretitulo">CAPÍTULO ${indice + 1}</p>
+          <h3>${escapar(capitulo.titulo || `Capítulo ${indice + 1}`)}</h3>
+          <div class="texto-capitulo" style="text-align: ${capitulo.alinhamento}">
+            ${capitulo.conteudo.trim() ? R.formatarTexto(capitulo.conteudo) : "<p>Este capítulo ainda não tem texto.</p>"}
+          </div>
+        </section>
+      `).join("");
 
-      const tituloEl = document.createElement("h2");
-      tituloEl.textContent = livro.titulo || "História sem título";
-
-      const descricaoEl = document.createElement("p");
-      descricaoEl.className = "descricao";
-      descricaoEl.textContent = livro.descricao || "";
-      painel.append(fechar, tituloEl, descricaoEl);
-
-      livro.capitulos.forEach((capitulo, indice) => {
-        const area = document.createElement("div");
-        area.className = "texto-capitulo";
-
-        const nomeCapitulo = document.createElement("h3");
-        nomeCapitulo.textContent = capitulo.titulo || `Capítulo ${indice + 1}`;
-
-        const texto = document.createElement("div");
-        texto.className = "conteudo-formatado";
-        texto.style.textAlign = capitulo.alinhamento || "left";
-        texto.innerHTML = formatarTexto(capitulo.conteudo || "Este capítulo ainda não tem texto.");
-
-        area.append(nomeCapitulo, texto);
-        painel.appendChild(area);
-      });
-
-      listaLivros.before(painel);
-      painel.scrollIntoView({ behavior: "smooth", block: "start" });
+      painelLeitura.hidden = false;
+      secaoLivros.hidden = true;
+      painelLeitura.scrollIntoView();
     }
 
+    function fecharLeitura() {
+      painelLeitura.hidden = true;
+      secaoLivros.hidden = false;
+      // Tira o ?ler= da URL para não reabrir ao recarregar
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+
+    // Troca de aba
     abas.forEach(aba => {
       aba.addEventListener("click", () => {
         tipoAtual = aba.dataset.tipo;
-        abas.forEach(item => item.classList.remove("ativa"));
-        aba.classList.add("ativa");
-        livroAberto = null;
-        document.getElementById("painelLeitura")?.remove();
+        abas.forEach(item => item.classList.toggle("ativo", item === aba));
+        fecharLeitura();
         carregarBiblioteca();
       });
     });
 
+    // Botão "Ler" dos cards
+    listaLivros.addEventListener("click", evento => {
+      const botao = evento.target.closest("[data-ler]");
+      if (botao) abrirLeitura(botao.dataset.ler);
+    });
+
+    document.getElementById("btnFecharLeitura").addEventListener("click", fecharLeitura);
+
     carregarBiblioteca();
+
+    // Abre direto a leitura quando vem de outra página (biblioteca.html?ler=ID)
+    const idLeitura = new URLSearchParams(window.location.search).get("ler");
+    if (idLeitura) abrirLeitura(idLeitura);
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", iniciar);
-  } else {
-    iniciar();
-  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", iniciar);
+  else iniciar();
 })();

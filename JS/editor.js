@@ -1,26 +1,10 @@
-/* editor.js — carrega, salva, retoma, publica e envia para as páginas corretas. */
+// editor.js — carrega, edita, formata, salva e publica uma história
 (() => {
   "use strict";
 
-  function mostrarAvisoFileProtocol() {
-    if (window.location.protocol !== "file:") return;
-    const aviso = document.createElement("div");
-    aviso.setAttribute("role", "alert");
-    aviso.style.cssText = "margin:0;padding:14px 5%;background:#fff0cf;color:#4d3300;font:14px/1.5 Arial,sans-serif;border-bottom:1px solid #e5c16a";
-    aviso.textContent = "Atenção: o site está aberto por file://. O navegador pode separar o localStorage entre as páginas. Abra a pasta do projeto pelo Live Server do VS Code e acesse Escritor, Editor e Biblioteca pela mesma URL.";
-    document.body.prepend(aviso);
-  }
-
   function iniciar() {
-    mostrarAvisoFileProtocol();
     const R = window.Readeriso;
     const $ = id => document.getElementById(id);
-
-    if (!R || typeof R.obter !== "function" || typeof R.salvar !== "function") {
-      console.error("livros.js precisa ser carregado antes de editor.js.");
-      alert("O sistema de histórias não carregou. Confira se livros.js está antes de editor.js no editor.html.");
-      return;
-    }
 
     const titulo = $("tituloHistoria");
     const descricao = $("descricaoHistoria");
@@ -32,22 +16,18 @@
     const contadorPalavras = $("contadorPalavras");
     const statusSalvamento = $("statusSalvamento");
     const statusHistoria = $("statusHistoria");
-    const painelVisualizacao = $("painelVisualizacao");
-    const obrigatorios = [titulo, descricao, genero, tituloCapitulo, textoCapitulo, listaCapitulos, contadorPalavras, statusSalvamento, statusHistoria, painelVisualizacao];
+    const btnExcluirCapitulo = $("btnExcluirCapitulo");
+    const btnExcluirHistoria = $("btnExcluirHistoria");
+    const botoesAlinhamento = document.querySelectorAll('[data-format="left"], [data-format="center"], [data-format="right"]');
 
-    if (obrigatorios.some(elemento => !elemento)) {
-      console.error("Algum ID obrigatório não existe em editor.html.");
-      alert("O editor não encontrou um ou mais campos do HTML. Confira os IDs e tente novamente.");
-      return;
-    }
-
-    const idURL = new URLSearchParams(window.location.search).get("id");
-    let historiaId = idURL;
+    let historiaId = new URLSearchParams(window.location.search).get("id");
     let capitulos = [];
     let indiceAtual = 0;
     let publicada = false;
     let alteracoesSalvas = true;
-    let temporizadorSalvamento = null;
+    let temporizador = null;
+
+    // ===== Estado na tela =====
 
     function atualizarStatusSalvamento(salvo, mensagem) {
       alteracoesSalvas = salvo;
@@ -55,10 +35,16 @@
       statusSalvamento.classList.toggle("salvo", salvo);
     }
 
+    // Selo Rascunho/Publicada e textos que dependem disso
     function atualizarStatusHistoria() {
-      statusHistoria.textContent = publicada ? "Publicado" : "Rascunho";
-      const botaoPublicar = $("btnPublicar");
-      if (botaoPublicar) botaoPublicar.textContent = publicada ? "Publicar novamente" : "Publicar";
+      statusHistoria.textContent = publicada ? "Publicada" : "Rascunho";
+      statusHistoria.classList.toggle("publicada", publicada);
+      $("btnSalvar").textContent = publicada ? "Salvar alterações" : "Salvar rascunho";
+      $("btnPublicar").hidden = publicada;
+      $("btnDespublicar").disabled = !publicada;
+      $("textoPublicacao").textContent = publicada
+        ? "Esta história está publicada e aparece no Explorar."
+        : "Esta história ainda é um rascunho.";
     }
 
     function contarPalavras() {
@@ -67,100 +53,60 @@
       contadorPalavras.textContent = `${quantidade} ${quantidade === 1 ? "palavra" : "palavras"}`;
     }
 
+    // Destaca o botão de alinhamento ativo
+    function marcarAlinhamento(alinhamento) {
+      textoCapitulo.style.textAlign = alinhamento;
+      botoesAlinhamento.forEach(botao => {
+        botao.setAttribute("aria-pressed", String(botao.dataset.format === alinhamento));
+      });
+    }
+
+    // ===== Capítulos =====
+
+    // Copia o que está na tela para o capítulo atual
     function guardarCapituloAtual() {
       const capitulo = capitulos[indiceAtual];
       if (!capitulo) return;
       capitulo.titulo = tituloCapitulo.value.trim() || `Capítulo ${indiceAtual + 1}`;
       capitulo.conteudo = textoCapitulo.value;
-      const alinhamento = textoCapitulo.style.textAlign;
-      if (["left", "center", "right"].includes(alinhamento)) capitulo.alinhamento = alinhamento;
-      else capitulo.alinhamento = capitulo.alinhamento || "left";
+      capitulo.alinhamento = textoCapitulo.style.textAlign || "left";
     }
 
     function atualizarListaCapitulos() {
       listaCapitulos.replaceChildren();
+
       capitulos.forEach((capitulo, indice) => {
         const botao = document.createElement("button");
         botao.type = "button";
         botao.className = "capitulo";
         botao.classList.toggle("ativo", indice === indiceAtual);
+
         const nome = document.createElement("span");
-        nome.textContent = `Capítulo ${indice + 1}`;
+        nome.textContent = `CAPÍTULO ${indice + 1}`;
         const subtitulo = document.createElement("small");
         subtitulo.textContent = capitulo.titulo || `Capítulo ${indice + 1}`;
+
         botao.append(nome, subtitulo);
         botao.addEventListener("click", () => carregarCapitulo(indice));
         listaCapitulos.appendChild(botao);
       });
+
+      // Sempre precisa sobrar pelo menos um capítulo
+      btnExcluirCapitulo.disabled = capitulos.length <= 1;
     }
 
+    // Mostra um capítulo na área de escrita
     function carregarCapitulo(indice, guardarAtual = true) {
       if (guardarAtual) guardarCapituloAtual();
       if (!capitulos[indice]) return;
+
       indiceAtual = indice;
       tituloCapitulo.value = capitulos[indice].titulo || `Capítulo ${indice + 1}`;
       textoCapitulo.value = capitulos[indice].conteudo || "";
-      textoCapitulo.style.textAlign = capitulos[indice].alinhamento || "left";
-      if (numeroCapitulo) numeroCapitulo.textContent = `Capítulo ${indice + 1}`;
+      numeroCapitulo.textContent = `CAPÍTULO ${indice + 1}`;
+      marcarAlinhamento(capitulos[indice].alinhamento || "left");
       contarPalavras();
       atualizarListaCapitulos();
-    }
-
-    function salvarHistoria(opcoes = {}) {
-      const publicar = typeof opcoes.publicar === "boolean" ? opcoes.publicar : publicada;
-      const silencioso = opcoes.silencioso === true;
-      clearTimeout(temporizadorSalvamento);
-      guardarCapituloAtual();
-
-      if (!historiaId) {
-        atualizarStatusSalvamento(false, "⚠ História sem identificador");
-        if (!silencioso) alert("Não foi possível identificar esta história. Volte para Escritor e abra-a novamente.");
-        return false;
-      }
-
-      const existente = R.obter(historiaId);
-      if (!existente && idURL) {
-        atualizarStatusSalvamento(false, "⚠ História não encontrada");
-        if (!silencioso) alert("Esta história não foi encontrada no localStorage. Abra o Readeriso pelo Live Server, volte para Escritor e tente novamente.");
-        return false;
-      }
-
-      const historia = {
-        ...(existente || {}),
-        id: String(historiaId),
-        titulo: titulo.value.trim(),
-        descricao: descricao.value.trim(),
-        genero: genero.value || "Outro",
-        publicada: publicar,
-        capitulos: capitulos.map(capitulo => ({ ...capitulo })),
-        criadoEm: existente?.criadoEm || Date.now(),
-        atualizadoEm: Date.now()
-      };
-
-      if (!R.salvar(historia)) {
-        atualizarStatusSalvamento(false, "⚠ Falha ao salvar");
-        if (!silencioso) alert("O navegador não conseguiu gravar os dados. Confira o armazenamento disponível e se está usando o Live Server.");
-        return false;
-      }
-
-      // Confirma o conteúdo que acabou de ser salvo, em vez de confiar só no retorno do setItem.
-      const conferida = R.obter(historiaId);
-      if (!conferida || conferida.titulo !== historia.titulo || conferida.descricao !== historia.descricao || conferida.publicada !== publicar) {
-        atualizarStatusSalvamento(false, "⚠ Não foi possível confirmar o salvamento");
-        if (!silencioso) alert("O navegador não confirmou o salvamento. Abra o projeto pelo Live Server e tente novamente.");
-        return false;
-      }
-
-      publicada = publicar;
-      atualizarStatusHistoria();
-      atualizarStatusSalvamento(true, publicar ? "✓ História publicada e salva" : "✓ Rascunho salvo");
-      return true;
-    }
-
-    function marcarAlteracoes() {
-      atualizarStatusSalvamento(false, "● Alterações não salvas");
-      clearTimeout(temporizadorSalvamento);
-      temporizadorSalvamento = setTimeout(() => salvarHistoria({ publicar: publicada, silencioso: true }), 500);
     }
 
     function adicionarCapitulo() {
@@ -168,62 +114,223 @@
       capitulos.push(R.novoCapitulo(`Capítulo ${capitulos.length + 1}`, ""));
       carregarCapitulo(capitulos.length - 1, false);
       marcarAlteracoes();
-      tituloCapitulo.focus();
+      tituloCapitulo.select();
     }
 
-    function carregarHistoria() {
-      let historia = idURL ? R.obter(idURL) : null;
+    function excluirCapitulo() {
+      if (capitulos.length <= 1) return;
 
-      // Não cria silenciosamente uma história vazia quando um ID da página Escritor não é encontrado.
-      if (idURL && !historia) {
-        atualizarStatusSalvamento(false, "⚠ História não encontrada");
-        alert("Não encontrei esta história no localStorage. Isso pode acontecer quando o site é aberto por file://. Abra-o pelo Live Server, volte para Escritor e abra a história de novo.");
+      const nome = capitulos[indiceAtual].titulo || `Capítulo ${indiceAtual + 1}`;
+      if (!confirm(`Excluir "${nome}"? O texto deste capítulo será perdido.`)) return;
+
+      capitulos.splice(indiceAtual, 1);
+      carregarCapitulo(Math.min(indiceAtual, capitulos.length - 1), false);
+      marcarAlteracoes();
+    }
+
+    // ===== Salvar =====
+
+    function salvarHistoria({ publicar = publicada, silencioso = false } = {}) {
+      clearTimeout(temporizador);
+      guardarCapituloAtual();
+
+      const existente = R.obter(historiaId);
+      const salvou = R.salvar({
+        ...(existente || {}),
+        id: historiaId,
+        titulo: titulo.value.trim(),
+        descricao: descricao.value.trim(),
+        genero: genero.value || "Outro",
+        publicada: publicar,
+        capitulos: capitulos.map(capitulo => ({ ...capitulo }))
+      });
+
+      if (!salvou) {
+        atualizarStatusSalvamento(false, "⚠ Falha ao salvar");
+        if (!silencioso) alert("O navegador não conseguiu gravar os dados. Abra o projeto pelo Live Server e tente novamente.");
+        return false;
+      }
+
+      publicada = publicar;
+      atualizarStatusHistoria();
+      atualizarStatusSalvamento(true, `✓ Salvo às ${new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`);
+      return true;
+    }
+
+    // Salvamento automático meio segundo depois da última alteração
+    function marcarAlteracoes() {
+      atualizarStatusSalvamento(false, "● Alterações não salvas");
+      clearTimeout(temporizador);
+      temporizador = setTimeout(() => salvarHistoria({ silencioso: true }), 500);
+    }
+
+    // ===== Carregar =====
+
+    function carregarHistoria() {
+      let historia = historiaId ? R.obter(historiaId) : null;
+
+      // ID inválido: volta para a lista de histórias
+      if (historiaId && !historia) {
+        alert("Não encontrei esta história. Volte para Escrever e abra-a novamente.");
         window.location.replace("escritor.html");
         return;
       }
 
+      // Sem ID: começa uma história nova
       if (!historia) {
-        historia = R.criar({ titulo: "", descricao: "", genero: genero.value || "Fantasia" });
+        historia = R.criar({ genero: genero.value });
         if (!historia) {
-          alert("Não foi possível criar uma história no localStorage. Abra o projeto pelo Live Server.");
+          alert("Não foi possível criar uma história. Abra o projeto pelo Live Server.");
           return;
         }
-        historiaId = historia.id;
-        window.history.replaceState(null, "", `${window.location.pathname}?id=${encodeURIComponent(historiaId)}`);
-      } else historiaId = historia.id;
+        window.history.replaceState(null, "", `?id=${encodeURIComponent(historia.id)}`);
+      }
 
-      titulo.value = historia.titulo || "";
-      descricao.value = historia.descricao || "";
-      const generoSalvo = historia.genero || "Fantasia";
-      if (![...genero.options].some(opcao => opcao.value === generoSalvo)) genero.add(new Option(generoSalvo, generoSalvo));
-      genero.value = generoSalvo;
-      publicada = historia.publicada === true;
-      capitulos = Array.isArray(historia.capitulos) ? historia.capitulos.map(capitulo => ({ ...capitulo })) : [];
-      if (!capitulos.length) capitulos = [R.novoCapitulo("Capítulo 1", "")];
+      historiaId = historia.id;
+      titulo.value = historia.titulo;
+      descricao.value = historia.descricao;
+
+      // Mantém gêneros antigos que não estão na lista
+      if (![...genero.options].some(opcao => opcao.value === historia.genero)) {
+        genero.add(new Option(historia.genero, historia.genero));
+      }
+      genero.value = historia.genero;
+
+      publicada = historia.publicada;
+      capitulos = historia.capitulos.map(capitulo => ({ ...capitulo }));
       carregarCapitulo(0, false);
       atualizarStatusHistoria();
       atualizarStatusSalvamento(true, "✓ História carregada");
+      document.title = `Readeriso | ${historia.titulo || "Editor"}`;
     }
 
-    function escaparHTML(texto) {
-      return String(texto ?? "").replace(/[&<>"']/g, caractere => ({
-        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-      })[caractere]);
+    // ===== Formatação =====
+
+    // Substitui um trecho do texto mantendo o Ctrl+Z funcionando
+    function substituirTrecho(inicio, fim, texto) {
+      textoCapitulo.focus();
+      textoCapitulo.setSelectionRange(inicio, fim);
+      if (!document.execCommand("insertText", false, texto)) {
+        textoCapitulo.setRangeText(texto, inicio, fim, "end");
+      }
     }
 
-    function formatarTexto(texto) {
-      return escaparHTML(texto)
-        .replace(/^## (.+)$/gm, "<h3>$1</h3>")
-        .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-        .replace(/\*(.+?)\*/g, "<em>$1</em>")
-        .replace(/__(.+?)__/g, "<u>$1</u>")
-        .replace(/^&gt; (.+)$/gm, "<blockquote>$1</blockquote>")
-        .replace(/^- (.+)$/gm, "• $1")
-        .replace(/\n/g, "<br>");
+    // Negrito, itálico e sublinhado: envolve a seleção (ou remove se já tiver)
+    function alternarEnvolvimento(marcador) {
+      const valor = textoCapitulo.value;
+      const inicio = textoCapitulo.selectionStart;
+      const fim = textoCapitulo.selectionEnd;
+      const selecionado = valor.slice(inicio, fim);
+      const tam = marcador.length;
+
+      const antes = valor.slice(inicio - tam, inicio);
+      const depois = valor.slice(fim, fim + tam);
+      // No itálico (*), ignora quando o asterisco faz parte de um negrito (**)
+      const vizinhosLivres = marcador !== "*" || (valor[inicio - tam - 1] !== "*" && valor[fim + tam] !== "*");
+
+      // Marcação ao redor da seleção: **[texto]**
+      if (antes === marcador && depois === marcador && vizinhosLivres) {
+        substituirTrecho(inicio - tam, fim + tam, selecionado);
+        textoCapitulo.setSelectionRange(inicio - tam, fim - tam);
+        return;
+      }
+
+      // Marcação dentro da seleção: [**texto**]
+      if (selecionado.length > tam * 2 && selecionado.startsWith(marcador) && selecionado.endsWith(marcador)) {
+        const limpo = selecionado.slice(tam, -tam);
+        substituirTrecho(inicio, fim, limpo);
+        textoCapitulo.setSelectionRange(inicio, inicio + limpo.length);
+        return;
+      }
+
+      // Aplica a marcação; sem seleção, deixa o cursor no meio para digitar
+      substituirTrecho(inicio, fim, marcador + selecionado + marcador);
+      textoCapitulo.setSelectionRange(inicio + tam, fim + tam);
     }
 
-    $("btnAdicionarCapitulo")?.addEventListener("click", adicionarCapitulo);
-    $("btnNovoCapitulo")?.addEventListener("click", adicionarCapitulo);
+    // Subtítulo, lista e citação: prefixo no começo de cada linha selecionada
+    function alternarPrefixo(prefixo) {
+      const valor = textoCapitulo.value;
+      const inicioLinha = valor.lastIndexOf("\n", textoCapitulo.selectionStart - 1) + 1;
+      let fimLinha = valor.indexOf("\n", textoCapitulo.selectionEnd);
+      if (fimLinha === -1) fimLinha = valor.length;
+
+      const linhas = valor.slice(inicioLinha, fimLinha).split("\n");
+      const todasTem = linhas.every(linha => linha.startsWith(prefixo));
+      const outrosPrefixos = /^(## |- |> )/;
+
+      // Se todas já têm o prefixo, remove; senão troca qualquer outro prefixo por este
+      const novas = linhas.map(linha => todasTem
+        ? linha.slice(prefixo.length)
+        : prefixo + linha.replace(outrosPrefixos, ""));
+
+      const novoTexto = novas.join("\n");
+      substituirTrecho(inicioLinha, fimLinha, novoTexto);
+      textoCapitulo.setSelectionRange(inicioLinha, inicioLinha + novoTexto.length);
+    }
+
+    function aplicarFormato(formato) {
+      if (["left", "center", "right"].includes(formato)) {
+        marcarAlinhamento(formato);
+        textoCapitulo.focus();
+      } else {
+        const envolver = { bold: "**", italic: "*", underline: "__" }[formato];
+        const prefixo = { heading: "## ", list: "- ", quote: "> " }[formato];
+
+        if (envolver) alternarEnvolvimento(envolver);
+        else if (prefixo) alternarPrefixo(prefixo);
+        else return;
+
+        contarPalavras();
+      }
+
+      guardarCapituloAtual();
+      marcarAlteracoes();
+    }
+
+    document.querySelectorAll("[data-format]").forEach(botao => {
+      // Impede que o clique tire a seleção do texto
+      botao.addEventListener("mousedown", evento => evento.preventDefault());
+      botao.addEventListener("click", () => aplicarFormato(botao.dataset.format));
+    });
+
+    // Atalhos Ctrl+B / Ctrl+I / Ctrl+U dentro do texto
+    textoCapitulo.addEventListener("keydown", evento => {
+      if (!(evento.ctrlKey || evento.metaKey)) return;
+      const formato = { b: "bold", i: "italic", u: "underline" }[evento.key.toLowerCase()];
+      if (formato) {
+        evento.preventDefault();
+        aplicarFormato(formato);
+      }
+    });
+
+    // ===== Prévia =====
+
+    function montarPrevia() {
+      guardarCapituloAtual();
+      $("previaGenero").textContent = genero.value.toUpperCase();
+      $("previaTitulo").textContent = titulo.value.trim() || "História sem título";
+      $("previaDescricao").textContent = descricao.value.trim();
+
+      $("previaCapitulos").innerHTML = capitulos.map((capitulo, indice) => `
+        <section class="capitulo-leitura">
+          <p class="sobretitulo">CAPÍTULO ${indice + 1}</p>
+          <h3>${R.escaparHTML(capitulo.titulo)}</h3>
+          <div class="texto-capitulo" style="text-align: ${capitulo.alinhamento}">
+            ${capitulo.conteudo.trim() ? R.formatarTexto(capitulo.conteudo) : "<p>Este capítulo ainda não tem texto.</p>"}
+          </div>
+        </section>
+      `).join("");
+
+      bootstrap.Modal.getOrCreateInstance($("modalPrevia")).show();
+    }
+
+    // ===== Eventos =====
+
+    $("btnAdicionarCapitulo").addEventListener("click", adicionarCapitulo);
+    btnExcluirCapitulo.addEventListener("click", excluirCapitulo);
+    $("btnVisualizar").addEventListener("click", montarPrevia);
+
     [titulo, descricao].forEach(campo => campo.addEventListener("input", marcarAlteracoes));
     genero.addEventListener("change", marcarAlteracoes);
 
@@ -232,103 +339,73 @@
       atualizarListaCapitulos();
       marcarAlteracoes();
     });
+
     textoCapitulo.addEventListener("input", () => {
-      guardarCapituloAtual();
       contarPalavras();
       marcarAlteracoes();
     });
 
-    document.querySelectorAll("[data-format]").forEach(botao => {
-      botao.addEventListener("click", () => {
-        const formato = botao.dataset.format;
-        if (["left", "center", "right"].includes(formato)) {
-          textoCapitulo.style.textAlign = formato;
-          guardarCapituloAtual();
-          marcarAlteracoes();
-          textoCapitulo.focus();
-          return;
-        }
-        const inicio = textoCapitulo.selectionStart;
-        const fim = textoCapitulo.selectionEnd;
-        const selecionado = textoCapitulo.value.slice(inicio, fim);
-        const marcadores = {
-          bold: ["**", "**"], italic: ["*", "*"], underline: ["__", "__"],
-          heading: ["## ", ""], list: ["- ", ""], quote: ["> ", ""]
-        }[formato];
-        if (!marcadores) return;
-        textoCapitulo.setRangeText(marcadores[0] + selecionado + marcadores[1], inicio, fim, "select");
-        textoCapitulo.focus();
-        guardarCapituloAtual();
-        contarPalavras();
-        marcarAlteracoes();
-      });
-    });
+    // Salvar mantém o status atual e continua no editor
+    $("btnSalvar").addEventListener("click", () => salvarHistoria());
 
-    $("btnVisualizar")?.addEventListener("click", () => {
+    // Publicar exige título e algum texto; depois abre a leitura na Biblioteca
+    $("btnPublicar").addEventListener("click", () => {
       guardarCapituloAtual();
-      $("previaTitulo").textContent = titulo.value.trim() || "História sem título";
-      $("previaDescricao").textContent = descricao.value.trim();
-      const area = $("previaCapitulos");
-      area.replaceChildren();
-      capitulos.forEach((capitulo, indice) => {
-        const artigo = document.createElement("article");
-        artigo.className = "previa-capitulo";
-        const subtitulo = document.createElement("h3");
-        subtitulo.textContent = capitulo.titulo || `Capítulo ${indice + 1}`;
-        const conteudo = document.createElement("div");
-        conteudo.className = "previa-texto";
-        conteudo.style.textAlign = capitulo.alinhamento || "left";
-        conteudo.innerHTML = formatarTexto(capitulo.conteudo || "");
-        artigo.append(subtitulo, conteudo);
-        area.appendChild(artigo);
-      });
-      painelVisualizacao.hidden = false;
-      painelVisualizacao.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
 
-    $("btnFecharVisualizacao")?.addEventListener("click", () => { painelVisualizacao.hidden = true; });
-
-    $("btnSalvar")?.addEventListener("click", () => {
-      const salvou = salvarHistoria({ publicar: false });
-      if (!salvou) return;
-      // O rascunho deve aparecer em Escritor, então volta para lá após gravar.
-      window.location.href = "escritor.html?status=rascunho#listaRascunhos";
-    });
-
-    $("btnPublicar")?.addEventListener("click", () => {
-      guardarCapituloAtual();
       if (!titulo.value.trim()) {
         alert("Dê um título para sua história antes de publicar.");
         titulo.focus();
         return;
       }
-      if (!capitulos.some(capitulo => String(capitulo.conteudo || "").trim())) {
+
+      if (!capitulos.some(capitulo => capitulo.conteudo.trim())) {
         alert("Escreva pelo menos um capítulo antes de publicar.");
         textoCapitulo.focus();
         return;
       }
-      if (!salvarHistoria({ publicar: true })) return;
-      // Sem confirmação adicional: um clique publica, salva e abre a biblioteca.
-      window.location.href = "biblioteca.html";
+
+      if (salvarHistoria({ publicar: true })) {
+        window.location.href = `biblioteca.html?ler=${encodeURIComponent(historiaId)}`;
+      }
     });
 
-    $("btnConfigurar")?.addEventListener("click", () => {
-      titulo.focus();
-      titulo.scrollIntoView({ behavior: "smooth", block: "center" });
+    // Configurações: voltar para rascunho
+    $("btnDespublicar").addEventListener("click", () => {
+      salvarHistoria({ publicar: false });
+      bootstrap.Modal.getInstance($("modalConfiguracoes"))?.hide();
     });
 
+    // Configurações: excluir (pede um segundo clique para confirmar)
+    btnExcluirHistoria.addEventListener("click", () => {
+      if (btnExcluirHistoria.dataset.confirmar !== "sim") {
+        btnExcluirHistoria.dataset.confirmar = "sim";
+        btnExcluirHistoria.textContent = "Clique de novo para excluir";
+        return;
+      }
+
+      clearTimeout(temporizador);
+      alteracoesSalvas = true;
+      R.excluir(historiaId);
+      window.location.href = "escritor.html";
+    });
+
+    // Ao fechar o modal, o botão de excluir volta ao normal
+    $("modalConfiguracoes").addEventListener("hidden.bs.modal", () => {
+      delete btnExcluirHistoria.dataset.confirmar;
+      btnExcluirHistoria.textContent = "Excluir";
+    });
+
+    // Ctrl+S salva
     document.addEventListener("keydown", evento => {
       if ((evento.ctrlKey || evento.metaKey) && evento.key.toLowerCase() === "s") {
         evento.preventDefault();
-        salvarHistoria({ publicar: false });
+        salvarHistoria();
       }
     });
 
-    window.addEventListener("beforeunload", evento => {
-      if (!alteracoesSalvas) {
-        evento.preventDefault();
-        evento.returnValue = "";
-      }
+    // Salva o que faltar antes de sair da página
+    window.addEventListener("beforeunload", () => {
+      if (!alteracoesSalvas) salvarHistoria({ silencioso: true });
     });
 
     carregarHistoria();

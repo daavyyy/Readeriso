@@ -3,44 +3,65 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0a">
   <meta name="description" content="Escreva, edite e publique suas histórias no Readeriso.">
-  <title>Editor | Readeriso</title>
+
+  <title>Readeriso | Editor</title>
+
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../index.css">
+  <link rel="stylesheet" href="../CSS/biblioteca.css">
   <link rel="stylesheet" href="../CSS/editor.css">
+
   <script src="../auth.js"></script>
   <script>
     if (typeof protegerPagina === "function") {
       protegerPagina();
     }
   </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" defer></script>
   <script src="../JS/livros.js" defer></script>
   <script src="../JS/editor.js" defer></script>
 </head>
+
 <body>
-  <header class="cabecalho-site">
-    <nav class="nav-editor page-width" aria-label="Menu do editor">
-      <a href="explorar.html" class="logo">Readeriso<span>.</span></a>
-      <ul>
-        <li><a href="sites.html">Sites</a></li>
+
+  <header>
+    <nav class="navbar">
+      <a href="../index.html" class="logo">Readeriso<span>.</span></a>
+
+      <ul class="menu">
         <li><a href="explorar.html">Explorar</a></li>
-        <li><a href="escritor.html">Escritor</a></li>
         <li><a href="biblioteca.html">Biblioteca</a></li>
+        <li><a href="escritor.html" class="link-ativo">Escrever</a></li>
+        <li><a href="sites.html">Sites</a></li>
+        <li><a href="perfil.html" class="btn-entrar">Perfil</a></li>
       </ul>
     </nav>
   </header>
 
-  <main class="page-width">
-    <section class="informacoes-historia">
-      <div class="capa-historia" aria-hidden="true">📖</div>
-      <div class="dados-historia">
-        <label for="tituloHistoria" class="campo-label">Título da história</label>
-        <input id="tituloHistoria" class="campo-historia titulo-historia" type="text" maxlength="120" placeholder="Título da sua história">
-        <label for="descricaoHistoria" class="campo-label">Descrição</label>
-        <textarea id="descricaoHistoria" class="campo-historia descricao-historia" maxlength="500" rows="2" placeholder="Conte um pouco sobre sua história"></textarea>
-        <div class="etiquetas">
-          <label for="generoHistoria" class="visualmente-oculto">Gênero da história</label>
-          <select id="generoHistoria" class="seletor-genero">
+  <main>
+
+    <!-- Dados gerais da história -->
+    <section class="secao editor-topo">
+      <div class="editor-topo-linha">
+        <a href="escritor.html" class="link-ver-todas">← Minhas histórias</a>
+        <span class="status-historia" id="statusHistoria">Rascunho</span>
+      </div>
+
+      <label for="tituloHistoria" class="visually-hidden">Título da história</label>
+      <input id="tituloHistoria" class="titulo-historia" type="text" maxlength="120" placeholder="Título da sua história">
+
+      <div class="editor-dados">
+        <div>
+          <label for="descricaoHistoria" class="rotulo">DESCRIÇÃO</label>
+          <textarea id="descricaoHistoria" class="campo" maxlength="500" rows="2" placeholder="Conte um pouco sobre sua história"></textarea>
+        </div>
+
+        <div>
+          <label for="generoHistoria" class="rotulo">GÊNERO</label>
+          <select id="generoHistoria" class="campo">
             <option value="Fantasia" selected>Fantasia</option>
             <option value="Aventura">Aventura</option>
             <option value="Romance">Romance</option>
@@ -51,78 +72,127 @@
             <option value="Mistério">Mistério</option>
             <option value="Outro">Outro</option>
           </select>
-          <span id="statusHistoria" class="status-historia">Rascunho</span>
         </div>
       </div>
-      <button type="button" class="btn-configuracoes" id="btnConfigurar">⚙ Configurações</button>
     </section>
 
-    <section class="area-editor">
+    <!-- Capítulos + área de escrita -->
+    <section class="secao area-editor">
       <aside class="capitulos">
         <div class="capitulos-cabecalho">
-          <h2>Capítulos</h2>
+          <h2>Capítulos<span>.</span></h2>
           <button type="button" class="btn-adicionar" id="btnAdicionarCapitulo" aria-label="Adicionar capítulo">+</button>
         </div>
+
         <div class="lista-capitulos" id="listaCapitulos"></div>
-        <button type="button" class="btn-novo-capitulo" id="btnNovoCapitulo">+ Novo capítulo</button>
       </aside>
 
-      <section class="escrita">
+      <div class="escrita">
         <div class="cabecalho-capitulo">
-          <span id="numeroCapitulo">Capítulo 1</span>
-          <input type="text" id="tituloCapitulo" maxlength="120" placeholder="Título do capítulo">
+          <span class="sobretitulo" id="numeroCapitulo">CAPÍTULO 1</span>
+
+          <div class="cabecalho-capitulo-linha">
+            <label for="tituloCapitulo" class="visually-hidden">Título do capítulo</label>
+            <input type="text" id="tituloCapitulo" maxlength="120" placeholder="Título do capítulo">
+            <button type="button" class="btn-excluir-capitulo" id="btnExcluirCapitulo" title="Excluir capítulo" aria-label="Excluir capítulo">🗑</button>
+          </div>
         </div>
 
+        <!-- Cada botão usa data-format; a lógica está em editor.js -->
         <div class="barra-ferramentas" role="toolbar" aria-label="Formatação do texto">
-          <button type="button" data-format="bold" title="Negrito" aria-label="Negrito"><strong>B</strong></button>
-          <button type="button" data-format="italic" title="Itálico" aria-label="Itálico"><em>I</em></button>
-          <button type="button" data-format="underline" title="Sublinhado" aria-label="Sublinhado"><u>U</u></button>
+          <button type="button" data-format="bold" title="Negrito (Ctrl+B)" aria-label="Negrito"><strong>B</strong></button>
+          <button type="button" data-format="italic" title="Itálico (Ctrl+I)" aria-label="Itálico"><em>I</em></button>
+          <button type="button" data-format="underline" title="Sublinhado (Ctrl+U)" aria-label="Sublinhado"><u>U</u></button>
           <span class="separador"></span>
-          <button type="button" data-format="heading" title="Inserir título">H</button>
-          <button type="button" data-format="list" title="Lista">☷</button>
-          <button type="button" data-format="quote" title="Citação">“</button>
+          <button type="button" data-format="heading" title="Subtítulo" aria-label="Subtítulo">H</button>
+          <button type="button" data-format="list" title="Lista" aria-label="Lista">☰</button>
+          <button type="button" data-format="quote" title="Citação" aria-label="Citação">❝</button>
           <span class="separador"></span>
-          <button type="button" data-format="left" title="Alinhar à esquerda">⇤</button>
-          <button type="button" data-format="center" title="Centralizar">↔</button>
-          <button type="button" data-format="right" title="Alinhar à direita">⇥</button>
+          <button type="button" data-format="left" title="Alinhar à esquerda" aria-label="Alinhar à esquerda">⇤</button>
+          <button type="button" data-format="center" title="Centralizar" aria-label="Centralizar">↔</button>
+          <button type="button" data-format="right" title="Alinhar à direita" aria-label="Alinhar à direita">⇥</button>
         </div>
 
-        <div class="area-texto">
-          <textarea id="textoCapitulo" placeholder="Comece a escrever sua história..." spellcheck="true"></textarea>
-        </div>
+        <label for="textoCapitulo" class="visually-hidden">Texto do capítulo</label>
+        <textarea id="textoCapitulo" placeholder="Comece a escrever sua história..." spellcheck="true"></textarea>
 
         <div class="informacoes-editor">
           <span id="contadorPalavras">0 palavras</span>
           <span class="status-salvamento" id="statusSalvamento">● Alterações não salvas</span>
         </div>
-      </section>
-    </section>
-
-    <section class="controles">
-      <button type="button" class="btn-salvar" id="btnSalvar">Salvar rascunho</button>
-      <div class="acoes">
-        <button type="button" class="btn-visualizar" id="btnVisualizar">Visualizar</button>
-        <button type="button" class="btn-publicar" id="btnPublicar">Publicar</button>
       </div>
     </section>
 
-    <section id="painelVisualizacao" class="painel-visualizacao" hidden>
-      <div class="visualizacao-topo">
-        <h2>Prévia da história</h2>
-        <button type="button" id="btnFecharVisualizacao" class="btn-fechar">Fechar ×</button>
+    <!-- Ações principais -->
+    <section class="secao controles">
+      <button type="button" class="btn-secundario" id="btnConfigurar" data-bs-toggle="modal" data-bs-target="#modalConfiguracoes">⚙ Configurações</button>
+
+      <div class="controles-acoes">
+        <button type="button" class="btn-secundario" id="btnSalvar">Salvar rascunho</button>
+        <button type="button" class="btn-secundario" id="btnVisualizar">Visualizar</button>
+        <button type="button" class="btn-principal" id="btnPublicar">Publicar ↗</button>
       </div>
-      <h1 id="previaTitulo"></h1>
-      <p id="previaDescricao" class="previa-descricao"></p>
-      <div id="previaCapitulos"></div>
     </section>
+
   </main>
+
+  <!-- Modal de prévia (Bootstrap) -->
+  <div class="modal fade" id="modalPrevia" tabindex="-1" aria-labelledby="tituloPrevia" aria-hidden="true" data-bs-theme="dark">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="tituloPrevia">Prévia da história<span>.</span></h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+
+        <div class="modal-body leitura-conteudo">
+          <p class="sobretitulo" id="previaGenero"></p>
+          <h2 class="previa-titulo" id="previaTitulo"></h2>
+          <p class="secao-descricao" id="previaDescricao"></p>
+          <div id="previaCapitulos"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de configurações (Bootstrap) -->
+  <div class="modal fade" id="modalConfiguracoes" tabindex="-1" aria-labelledby="tituloConfiguracoes" aria-hidden="true" data-bs-theme="dark">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="tituloConfiguracoes">Configurações<span>.</span></h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+
+        <div class="modal-body configuracoes">
+          <div class="config-item">
+            <div>
+              <h3>Publicação</h3>
+              <p id="textoPublicacao">Esta história ainda é um rascunho.</p>
+            </div>
+            <button type="button" class="btn-secundario" id="btnDespublicar">Voltar para rascunho</button>
+          </div>
+
+          <div class="config-item">
+            <div>
+              <h3>Excluir história</h3>
+              <p>Apaga a história e todos os capítulos. Não dá para desfazer.</p>
+            </div>
+            <button type="button" class="btn-secundario btn-perigo" id="btnExcluirHistoria">Excluir</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <footer class="footer">
     <div class="footer-conteudo">
+
       <div class="footer-marca">
         <a href="../index.html" class="logo">Readeriso<span>.</span></a>
         <p>Explorando a literatura!</p>
       </div>
+
       <div class="footer-coluna">
         <h3>Readeriso</h3>
         <a href="../index.html">Início</a>
@@ -130,22 +200,26 @@
         <a href="biblioteca.html">Biblioteca</a>
         <a href="sites.html">Sites</a>
       </div>
+
       <div class="footer-coluna">
         <h3>Escritor</h3>
-        <a href="escritor.html" class="btn-escrever">Criar história</a>
-        <a href="escritor.html">Minhas histórias</a>
+        <a href="escritor.html#secao-livros">Criar história</a>
+        <a href="escritor.html#secao-livros">Minhas histórias</a>
         <a href="perfil.html">Meu perfil</a>
       </div>
+
       <div class="footer-coluna">
         <h3>Contatos</h3>
-        <a href="readeriso.contato@gmail.com">E-mail</a>
-        <a href="#" class="link-provisorio">Instagram</a>
-        <a href="../home.html#conheca">Sobre nós</a>
+        <a href="mailto:readeriso.contato@gmail.com">E-mail</a>
+        <a href="../index.html#conheca">Sobre nós</a>
       </div>
+
     </div>
+
     <div class="footer-bottom">
       <p>© 2026 Readeriso. Todos os direitos reservados.</p>
     </div>
   </footer>
+
 </body>
 </html>

@@ -1,14 +1,15 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0a">
   <meta name="description" content="Crie, organize e publique suas histórias no Readeriso.">
 
-  <title>Escritor | Readeriso</title>
+  <title>Readeriso | Escrever</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../index.css">
   <link rel="stylesheet" href="../CSS/escritor.css">
 
   <script src="../auth.js"></script>
@@ -18,123 +19,102 @@
     }
   </script>
 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" defer></script>
   <script src="../JS/livros.js" defer></script>
   <script src="../JS/escritor.js" defer></script>
 </head>
 
 <body>
-  <header class="cabecalho-site">
-    <nav class="nav-editor" aria-label="Menu principal">
-      <a href="explorar.html" class="logo">Readeriso<span>.</span></a>
 
-      <ul>
-        <li><a href="sites.html">Sites</a></li>
+  <header>
+    <nav class="navbar">
+      <a href="../index.html" class="logo">Readeriso<span>.</span></a>
+
+      <ul class="menu">
         <li><a href="explorar.html">Explorar</a></li>
-        <li><a href="escritor.html" aria-current="page">Escritor</a></li>
         <li><a href="biblioteca.html">Biblioteca</a></li>
+        <li><a href="escritor.html" class="link-ativo">Escrever</a></li>
+        <li><a href="sites.html">Sites</a></li>
+        <li><a href="perfil.html" class="btn-entrar">Perfil</a></li>
       </ul>
     </nav>
   </header>
 
   <main>
-    <section class="pagina-topo">
-      <div>
-        <h1>Minhas histórias</h1>
-        <p>Crie, organize e continue escrevendo suas aventuras.</p>
-      </div>
 
-      <button
-        type="button"
-        class="btn-principal"
-        data-bs-toggle="modal"
-        data-bs-target="#modalNovaHistoria"
-      >
-        <span aria-hidden="true">+</span> Criar história
-      </button>
+    <section class="hero hero-pagina">
+      <p class="sobretitulo">ESPAÇO DO ESCRITOR</p>
+
+      <h1>Minhas <span>histórias.</span></h1>
+
+      <p class="hero-descricao">
+        Crie, organize e continue escrevendo suas aventuras.
+      </p>
+
+      <div class="hero-acoes">
+        <button type="button" class="btn-principal" data-bs-toggle="modal" data-bs-target="#modalNovaHistoria">
+          + Criar história
+        </button>
+
+        <a href="biblioteca.html" class="btn-secundario">Ver biblioteca</a>
+      </div>
     </section>
 
-    <section class="secao-livros">
+    <section class="secao" id="secao-livros">
       <div class="secao-cabecalho">
-        <h2>Meus rascunhos</h2>
+        <div>
+          <p class="sobretitulo">EM ANDAMENTO</p>
+          <h2>Meus rascunhos<span>.</span></h2>
+          <p class="secao-descricao">Histórias que ainda não foram publicadas.</p>
+        </div>
+
         <span class="contador" id="contadorRascunhos">0 histórias</span>
       </div>
 
-      <div class="lista-livros" id="listaRascunhos">
-        <p class="lista-vazia">Carregando seus rascunhos...</p>
-      </div>
+      <div class="lista-historias" id="listaRascunhos"></div>
     </section>
 
-    <section class="secao-livros">
+    <section class="secao conheca">
       <div class="secao-cabecalho">
-        <h2>Histórias publicadas</h2>
+        <div>
+          <p class="sobretitulo">NO AR</p>
+          <h2>Histórias publicadas<span>.</span></h2>
+          <p class="secao-descricao">Já disponíveis no Explorar e na Biblioteca.</p>
+        </div>
+
         <span class="contador" id="contadorPublicados">0 histórias</span>
       </div>
 
-      <div class="lista-livros" id="listaPublicados">
-        <p class="lista-vazia">Carregando suas histórias...</p>
-      </div>
+      <div class="lista-historias" id="listaPublicados"></div>
     </section>
+
   </main>
 
-  <div
-    class="modal fade"
-    id="modalNovaHistoria"
-    tabindex="-1"
-    aria-labelledby="tituloModal"
-    aria-hidden="true"
-  >
+  <!-- Modal de nova história (Bootstrap) -->
+  <div class="modal fade" id="modalNovaHistoria" tabindex="-1" aria-labelledby="tituloModal" aria-hidden="true" data-bs-theme="dark">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
 
         <div class="modal-header">
-          <h2 class="modal-title fs-5" id="tituloModal">
-            Criar nova história
-          </h2>
-
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"
-            aria-label="Fechar"
-          ></button>
+          <h2 class="modal-title fs-5" id="tituloModal">Criar nova história<span>.</span></h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
         </div>
 
         <div class="modal-body">
           <form id="formNovaHistoria" novalidate>
-            <div class="campo">
-              <label for="titulo" class="campo-label">
-                Título da história
-              </label>
-
-              <input
-                type="text"
-                id="titulo"
-                class="campo-formulario"
-                maxlength="120"
-                placeholder="Ex.: A jornada dos sete reinos"
-                required
-              >
+            <div>
+              <label for="titulo" class="rotulo">TÍTULO</label>
+              <input type="text" id="titulo" class="campo" maxlength="120" placeholder="Ex.: A jornada dos sete reinos" required>
             </div>
 
-            <div class="campo">
-              <label for="descricao" class="campo-label">
-                Descrição
-              </label>
-
-              <textarea
-                id="descricao"
-                class="campo-formulario"
-                maxlength="500"
-                placeholder="Conte um pouco sobre sua história"
-              ></textarea>
+            <div>
+              <label for="descricao" class="rotulo">DESCRIÇÃO</label>
+              <textarea id="descricao" class="campo" maxlength="500" placeholder="Conte um pouco sobre sua história"></textarea>
             </div>
 
-            <div class="campo">
-              <label for="genero" class="campo-label">
-                Gênero
-              </label>
-
-              <select id="genero" class="campo-formulario" required>
+            <div>
+              <label for="genero" class="rotulo">GÊNERO</label>
+              <select id="genero" class="campo" required>
                 <option value="">Selecione um gênero</option>
                 <option value="Fantasia">Fantasia</option>
                 <option value="Aventura">Aventura</option>
@@ -148,24 +128,11 @@
               </select>
             </div>
 
-            <p id="erroForm" class="erro-form" role="alert" hidden></p>
+            <p id="erroForm" class="mensagem" role="alert" hidden></p>
 
-            <div class="modal-acoes">
-              <button
-                type="button"
-                class="btn-secundario"
-                data-bs-dismiss="modal"
-              >
-                Cancelar
-              </button>
-
-              <button
-                type="submit"
-                class="btn-principal"
-                id="btnCriar"
-              >
-                Criar e escrever
-              </button>
+            <div class="janela-acoes">
+              <button type="button" class="btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" class="btn-principal" id="btnCriar">Criar e escrever</button>
             </div>
           </form>
         </div>
@@ -176,6 +143,7 @@
 
   <footer class="footer">
     <div class="footer-conteudo">
+
       <div class="footer-marca">
         <a href="../index.html" class="logo">Readeriso<span>.</span></a>
         <p>Explorando a literatura!</p>
@@ -191,17 +159,17 @@
 
       <div class="footer-coluna">
         <h3>Escritor</h3>
-        <a href="escritor.html">Criar história</a>
-        <a href="escritor.html#listaRascunhos">Rascunhos</a>
+        <a href="escritor.html#secao-livros">Criar história</a>
+        <a href="escritor.html#secao-livros">Minhas histórias</a>
         <a href="perfil.html">Meu perfil</a>
       </div>
 
       <div class="footer-coluna">
         <h3>Contatos</h3>
         <a href="mailto:readeriso.contato@gmail.com">E-mail</a>
-        <a href="#" class="link-provisorio">Instagram</a>
         <a href="../index.html#conheca">Sobre nós</a>
       </div>
+
     </div>
 
     <div class="footer-bottom">
@@ -209,6 +177,5 @@
     </div>
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

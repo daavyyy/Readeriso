@@ -3,50 +3,70 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0a">
+  <meta name="description" content="Crie sua conta no Readeriso.">
+
+  <title>Readeriso | Cadastro</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="cadastro.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="login.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" defer></script>
   <script src="cadastro.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-
-  <title>Cadastro - Readeriso</title>
 </head>
+
 <body>
+
   <header>
-    <h1>Readeriso</h1>
+    <nav class="navbar">
+      <a href="index.html" class="logo">Readeriso<span>.</span></a>
+
+      <ul class="menu">
+        <li><a href="index.html">Início</a></li>
+        <li><a href="login.html" class="btn-entrar">Entrar</a></li>
+      </ul>
+    </nav>
   </header>
-  <main>
-    <section>
-      <h2>Cadastro</h2>
-      <form id="formCadastro">
-        <input
-          type="text"
-          id="usuario"
-          placeholder="Nome de usuário"
-          required
-        >
 
-        <input
-          type="email"
-          id="email"
-          placeholder="E-mail"
-          required
-        >
+  <main class="pagina-acesso">
+    <section class="cartao-acesso">
 
-        <input
-          type="password"
-          id="senha"
-          placeholder="Senha"
-          minlength="6"
-          required
-        >
+      <!-- Alterna entre login e cadastro -->
+      <div class="alternar-acesso" role="tablist">
+        <a href="login.html" role="tab" aria-selected="false">Entrar</a>
+        <a href="cadastro.html" class="ativo" role="tab" aria-selected="true">Cadastrar</a>
+      </div>
 
-        <button type="submit">Criar conta</button>
+      <p class="sobretitulo">COMECE SUA HISTÓRIA</p>
+      <h1>Criar conta<span>.</span></h1>
+
+      <form id="formCadastro" novalidate>
+        <div>
+          <label for="usuario" class="rotulo">NOME DE USUÁRIO</label>
+          <input type="text" id="usuario" class="campo" placeholder="Como quer ser chamado" autocomplete="username" maxlength="40" required>
+        </div>
+
+        <div>
+          <label for="email" class="rotulo">E-MAIL</label>
+          <input type="email" id="email" class="campo" placeholder="voce@email.com" autocomplete="email" required>
+        </div>
+
+        <div>
+          <label for="senha" class="rotulo">SENHA</label>
+          <input type="password" id="senha" class="campo" placeholder="Mínimo de 6 caracteres" autocomplete="new-password" minlength="6" required>
+        </div>
+
+        <p class="mensagem" id="mensagem" role="alert" hidden></p>
+
+        <button type="submit" class="btn-principal">Criar conta ↗</button>
       </form>
 
-
+      <p class="trocar-acesso">
+        Já tem uma conta? <a href="login.html">Entrar</a>
+      </p>
     </section>
   </main>
+
 </body>
 </html>

@@ -38,6 +38,21 @@ ul {
   list-style: none;
 }
 
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+[hidden] {
+  display: none !important;
+}
+
 :focus-visible {
   outline: 2px solid var(--vermelho);
   outline-offset: 3px;
@@ -544,6 +559,234 @@ header {
   border-top: 1px solid var(--borda);
 }
 
+/* ===== Componentes das páginas internas ===== */
+
+/* Hero compacto usado no topo das páginas internas */
+.hero-pagina {
+  min-height: auto;
+  padding: 80px 20px 60px;
+  border-bottom: 1px solid var(--borda);
+}
+
+.hero-pagina h1 {
+  font-size: clamp(2.2rem, 6vw, 3.8rem);
+}
+
+.hero-pagina .hero-descricao {
+  margin-bottom: 30px;
+}
+
+/* Campos de formulário */
+.rotulo {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: var(--texto-suave);
+}
+
+.campo {
+  width: 100%;
+  padding: 13px 16px;
+  font-size: 1rem;
+  color: var(--texto);
+  background-color: var(--bg-card);
+  border: 1px solid #555555;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.campo::placeholder {
+  color: #888888;
+}
+
+.campo:focus {
+  border-color: var(--vermelho);
+  box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.2);
+}
+
+textarea.campo {
+  min-height: 110px;
+  resize: vertical;
+}
+
+select.campo {
+  cursor: pointer;
+}
+
+/* Mensagens de erro / sucesso dos formulários */
+.mensagem {
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  border-left: 3px solid var(--vermelho);
+  background-color: rgba(229, 9, 20, 0.1);
+}
+
+.mensagem.sucesso {
+  border-left-color: #58c98a;
+  background-color: rgba(88, 201, 138, 0.1);
+}
+
+/* Chips de filtro / abas */
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.filtro {
+  padding: 6px 16px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: var(--texto-suave);
+  background-color: transparent;
+  border: 1px solid #555555;
+  border-radius: 20px;
+  transition: 0.3s;
+}
+
+.filtro:hover {
+  color: #ffffff;
+  border-color: var(--vermelho);
+}
+
+.filtro.ativo {
+  color: #ffffff;
+  background-color: var(--vermelho);
+  border-color: var(--vermelho);
+}
+
+/* Capa dentro dos cards de história */
+.card-historia {
+  color: inherit;
+  overflow: hidden;
+}
+
+.card-historia:hover {
+  color: inherit;
+}
+
+.capa-historia {
+  margin: -28px -28px 8px;
+  aspect-ratio: 16 / 10;
+  background-color: #000000;
+  border-bottom: 1px solid var(--borda);
+}
+
+.capa-historia img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.capa-historia.sem-capa {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  color: var(--vermelho);
+  background: repeating-linear-gradient(
+    45deg,
+    #111111,
+    #111111 12px,
+    #151515 12px,
+    #151515 24px
+  );
+}
+
+.selo-obra {
+  border-style: solid;
+  border-color: var(--vermelho);
+  color: #ffffff;
+}
+
+/* Botões pequenos dentro dos cards */
+.card-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.card-acoes .btn-principal,
+.card-acoes .btn-secundario {
+  min-width: 0;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+}
+
+.btn-perigo {
+  color: #ff6b72;
+  background-color: transparent;
+  border: 1px solid #5a1a1e;
+}
+
+.btn-perigo:hover {
+  color: #ffffff;
+  background-color: var(--vermelho-escuro);
+  border-color: var(--vermelho-escuro);
+}
+
+/* Aviso de lista vazia */
+.sem-resultado {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--texto-suave);
+  border: 1px dashed #555555;
+  border-radius: 8px;
+}
+
+/* Modal do Bootstrap no estilo do Readeriso */
+.modal-content {
+  color: var(--texto);
+  background-color: var(--bg-card);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+}
+
+.modal-header,
+.modal-footer {
+  border-color: var(--borda);
+}
+
+.modal-title {
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.modal-title span {
+  color: var(--vermelho);
+}
+
+.modal-body form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal-backdrop.show {
+  opacity: 0.75;
+}
+
+.janela-acoes {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.janela-acoes .btn-principal,
+.janela-acoes .btn-secundario {
+  min-width: 0;
+}
+
 /* ===== Responsivo ===== */
 
 @media (max-width: 800px) {
@@ -579,7 +822,9 @@ header {
   }
 
   .menu {
-    gap: 18px;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px 18px;
   }
 
   .menu a {
@@ -617,6 +862,14 @@ header {
 
   .slide-legenda {
     padding: 18px;
+  }
+
+  .hero-pagina {
+    padding: 60px 20px 45px;
+  }
+
+  .janela-acoes {
+    flex-direction: column-reverse;
   }
 
   .footer-conteudo {
