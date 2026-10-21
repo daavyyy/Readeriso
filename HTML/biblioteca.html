@@ -1,18 +1,22 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="biblioteca.css">
-  <script src="biblioteca.js" defer></script>
+  <link rel="stylesheet" href="../CSS/biblioteca.css">
+  <script src="../JS/livros.js" defer></script>
+  <script src="../JS/biblioteca.js" defer></script>
   <title>Biblioteca - Readeriso</title>
+  <script src="../auth.js"></script>
+  <script>
+    if (typeof protegerPagina === "function") protegerPagina();
+  </script>
 </head>
 <body>
   <header class="cabecalho">
-    <a href="../explorar.html" class="logo">Readeriso</a>
+    <a href="explorar.html" class="logo">Readeriso</a>
     <nav>
-      <a href="../explorar.html">Explorar</a>
+      <a href="explorar.html">Explorar</a>
       <a href="escritor.html">Escrever</a>
       <a href="perfil.html">Perfil</a>
     </nav>
@@ -49,13 +53,13 @@
 <footer class="footer">
   <div class="footer-conteudo">
     <div class="footer-marca">
-      <a href="index.html" class="logo">Readeriso<span>.</span></a>
+      <a href="../index.html" class="logo">Readeriso<span>.</span></a>
       <p>Explorando a literatura!</p>
     </div>
 
     <div class="footer-coluna">
       <h3>Readeriso</h3>
-      <a href="index.html">Início</a>
+      <a href="../index.html">Início</a>
       <a href="explorar.html">Explorar</a>
       <a href="biblioteca.html">Biblioteca</a>
       <a href="sites.html">Sites</a>
@@ -63,16 +67,16 @@
 
     <div class="footer-coluna">
       <h3>Escritor</h3>
-      <a href="../escritores/escritor.html" class="btn-escrever">Criar história</a>
-      <a href="../escritores/escritor.html">Minhas histórias</a>
+      <a href="escritor.html" class="btn-escrever">Criar história</a>
+      <a href="escritor.html">Minhas histórias</a>
       <a href="perfil.html">Meu perfil</a>
     </div>
 
     <div class="footer-coluna">
       <h3>Contatos</h3>
-      <a href="mailto:contato@readeriso.com">E-mail</a>
+      <a href="readeriso.contato@gmail.com">E-mail</a>
       <a href="#" class="link-provisorio">Instagram</a>
-      <a href="index.html#conheca">Sobre nós</a>
+      <a href="../home.html#conheca">Sobre nós</a>
     </div>
   </div>
 

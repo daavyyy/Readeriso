@@ -1,181 +1,122 @@
+/* escritor.js — lista e criação de histórias usando o mesmo livros.js do editor. */
 (() => {
   "use strict";
 
-  const $ = (seletor, elemento = document) =>
-    elemento.querySelector(seletor);
+  function mostrarAvisoFileProtocol() {
+    if (window.location.protocol !== "file:") return;
+    const aviso = document.createElement("div");
+    aviso.setAttribute("role", "alert");
+    aviso.style.cssText = "margin:0;padding:14px 5%;background:#fff0cf;color:#4d3300;font:14px/1.5 Arial,sans-serif;border-bottom:1px solid #e5c16a";
+    aviso.textContent = "Atenção: o site está aberto por file://. O navegador pode separar o localStorage entre escritor.html, editor.html e biblioteca.html. Abra o projeto pelo Live Server do VS Code e use sempre a mesma URL para salvar e publicar corretamente.";
+    document.body.prepend(aviso);
+  }
 
   function iniciar() {
+    mostrarAvisoFileProtocol();
+
+    const R = window.Readeriso;
+    const $ = seletor => document.querySelector(seletor);
     const listaRascunhos = $("#listaRascunhos");
     const listaPublicados = $("#listaPublicados");
     const formulario = $("#formNovaHistoria");
     const campoTitulo = $("#titulo");
     const campoDescricao = $("#descricao");
     const campoGenero = $("#genero");
-    const erro = $("#erroForm");
-    const elModal = $("#modalNovaHistoria");
+    const erroForm = $("#erroForm");
     const botaoCriar = $("#btnCriar");
-
     let criando = false;
 
+    if (!R || typeof R.listar !== "function" || typeof R.criar !== "function") {
+      console.error("livros.js não foi carregado antes de escritor.js.");
+      if (erroForm) {
+        erroForm.hidden = false;
+        erroForm.textContent = "O sistema de histórias não carregou. Confira se livros.js está antes de escritor.js.";
+      }
+      return;
+    }
+
+    const escapar = valor => String(valor ?? "").replace(/[&<>"']/g, caractere => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    })[caractere]);
+
     function mostrarErro(mensagem) {
-      if (!erro) return;
-      erro.textContent = mensagem;
-      erro.hidden = false;
+      if (!erroForm) return;
+      erroForm.textContent = mensagem;
+      erroForm.hidden = false;
     }
 
     function ocultarErro() {
-      if (!erro) return;
-      erro.textContent = "";
-      erro.hidden = true;
+      if (!erroForm) return;
+      erroForm.textContent = "";
+      erroForm.hidden = true;
     }
 
-    function escapar(texto) {
-      return String(texto ?? "").replace(/[&<>"']/g, caractere => ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#39;"
-      })[caractere]);
+    function atualizarContador(id, quantidade) {
+      const elemento = document.getElementById(id);
+      if (elemento) elemento.textContent = `${quantidade} ${quantidade === 1 ? "história" : "histórias"}`;
     }
 
-    function obterTimestamp(valor) {
-      if (typeof valor === "number") {
-        return Number.isFinite(valor) ? valor : 0;
-      }
-
-      const numero = Number(valor);
-      if (valor !== "" && valor != null && Number.isFinite(numero)) {
-        return numero;
-      }
-
-      const data = Date.parse(valor);
-      return Number.isNaN(data) ? 0 : data;
-    }
-
-    function obterReaderiso() {
-      const R = window.Readeriso;
-
-      if (
-        !R ||
-        typeof R.criar !== "function" ||
-        typeof R.listar !== "function"
-      ) {
-        throw new Error("O sistema Readeriso não foi carregado corretamente.");
-      }
-
-      return R;
-    }
-
-    function atualizarContador(seletor, quantidade) {
-      const elemento = $(seletor);
-
-      if (elemento) {
-        elemento.textContent =
-          `${quantidade} ${quantidade === 1 ? "história" : "histórias"}`;
-      }
-    }
-
-    function mostrarMensagem(elemento, mensagem) {
-      if (!elemento) return;
-      elemento.innerHTML = `<p class="lista-vazia">${escapar(mensagem)}</p>`;
+    function criarCard(livro) {
+      const id = encodeURIComponent(String(livro.id));
+      const titulo = escapar(livro.titulo || "Sem título");
+      const descricao = escapar(livro.descricao || "Sem descrição.");
+      const genero = escapar(livro.genero || "Outro");
+      const quantidade = Array.isArray(livro.capitulos) ? livro.capitulos.length : 0;
+      const status = livro.publicada ? "Publicado" : "Rascunho";
+      return `
+        <a class="livro" href="editor.html?id=${id}" aria-label="Continuar ${titulo}">
+          <div class="capa" aria-hidden="true">📖</div>
+          <p class="genero-livro">${genero}</p>
+          <h3>${titulo}</h3>
+          <p class="descricao-livro">${descricao}</p>
+          <p>${status} · ${quantidade} ${quantidade === 1 ? "capítulo" : "capítulos"}</p>
+        </a>`;
     }
 
     function preencherLista(elemento, livros, mensagem) {
       if (!elemento) return;
-
-      if (livros.length === 0) {
-        mostrarMensagem(elemento, mensagem);
+      elemento.replaceChildren();
+      if (!livros.length) {
+        const paragrafo = document.createElement("p");
+        paragrafo.className = "lista-vazia";
+        paragrafo.textContent = mensagem;
+        elemento.appendChild(paragrafo);
         return;
       }
-
-      elemento.innerHTML = livros.map(livro => {
-        const titulo = escapar(livro.titulo || "Sem título");
-        const id = encodeURIComponent(String(livro.id));
-        const quantidadeCapitulos = Array.isArray(livro.capitulos)
-          ? livro.capitulos.length
-          : 0;
-        const status = livro.publicada ? "Publicado" : "Rascunho";
-
-        return `
-          <a
-            class="livro"
-            href="editor.html?id=${id}"
-            aria-label="Editar ${titulo}"
-          >
-            <div class="capa" aria-hidden="true">📖</div>
-            <h3>${titulo}</h3>
-            <p>
-              ${status} · ${quantidadeCapitulos}
-              ${quantidadeCapitulos === 1 ? "capítulo" : "capítulos"}
-            </p>
-          </a>
-        `;
-      }).join("");
+      elemento.innerHTML = livros.map(criarCard).join("");
     }
 
     function renderizar() {
       try {
-        const R = obterReaderiso();
-        const resultado = R.listar();
-
-        if (!Array.isArray(resultado)) {
-          throw new Error("A lista de histórias retornou um formato inválido.");
-        }
-
-        const livros = [...resultado].sort((a, b) =>
-          obterTimestamp(b.atualizadoEm) - obterTimestamp(a.atualizadoEm)
-        );
-
+        const livros = R.listar().sort((a, b) => (b.atualizadoEm || 0) - (a.atualizadoEm || 0));
         const rascunhos = livros.filter(livro => !livro.publicada);
         const publicados = livros.filter(livro => livro.publicada);
-
-        preencherLista(
-          listaRascunhos,
-          rascunhos,
-          "Você ainda não tem rascunhos. Crie sua primeira história!"
-        );
-
-        preencherLista(
-          listaPublicados,
-          publicados,
-          "Você ainda não publicou nenhuma história."
-        );
-
-        atualizarContador("#contadorRascunhos", rascunhos.length);
-        atualizarContador("#contadorPublicados", publicados.length);
-      } catch (erroInterno) {
-        console.error("Erro ao carregar as histórias:", erroInterno);
-
-        const msg = "Não foi possível carregar as histórias.";
-        mostrarMensagem(listaRascunhos, msg);
-        mostrarMensagem(listaPublicados, msg);
+        preencherLista(listaRascunhos, rascunhos, "Você ainda não tem rascunhos. Crie sua primeira história!");
+        preencherLista(listaPublicados, publicados, "Você ainda não publicou nenhuma história.");
+        atualizarContador("contadorRascunhos", rascunhos.length);
+        atualizarContador("contadorPublicados", publicados.length);
+      } catch (erro) {
+        console.error("Erro ao listar histórias:", erro);
+        preencherLista(listaRascunhos, [], "Não foi possível carregar os rascunhos. Confira o console do navegador.");
+        preencherLista(listaPublicados, [], "Não foi possível carregar as histórias publicadas.");
       }
     }
 
     function criarHistoria() {
       if (criando) return;
-
       ocultarErro();
-
-      if (!campoTitulo || !campoDescricao || !campoGenero) {
-        console.error("Não foi possível encontrar os campos do formulário.");
-        return;
-      }
-
-      const titulo = campoTitulo.value.trim();
-      const descricao = campoDescricao.value.trim();
-      const genero = campoGenero.value;
+      const titulo = campoTitulo?.value.trim() || "";
+      const descricao = campoDescricao?.value.trim() || "";
+      const genero = campoGenero?.value || "";
 
       if (!titulo) {
         mostrarErro("Digite um título para a história.");
-        campoTitulo.focus();
+        campoTitulo?.focus();
         return;
       }
-
       if (!genero) {
         mostrarErro("Selecione um gênero para a história.");
-        campoGenero.focus();
+        campoGenero?.focus();
         return;
       }
 
@@ -183,66 +124,48 @@
       if (botaoCriar) botaoCriar.disabled = true;
 
       let livro;
-
       try {
-        const R = obterReaderiso();
-
         livro = R.criar({ titulo, descricao, genero });
-
-        if (!livro || livro.id === undefined || livro.id === null) {
-          throw new Error("O livro foi criado sem um identificador válido.");
+        if (!livro?.id) throw new Error("A história não foi gravada no armazenamento.");
+        // Confirma que o mesmo ID e os metadados estão de fato disponíveis para o editor.
+        const conferido = R.obter(livro.id);
+        if (!conferido || conferido.titulo !== titulo || conferido.descricao !== descricao || conferido.genero !== genero) {
+          throw new Error("A história foi criada, mas os metadados não puderam ser confirmados.");
         }
-      } catch (erroInterno) {
-        console.error("Erro ao criar a história:", erroInterno);
-        mostrarErro(
-          "Não foi possível criar a história. Verifique o sistema de armazenamento."
-        );
+      } catch (erro) {
+        console.error("Falha ao criar história:", erro);
+        mostrarErro("Não foi possível salvar esta história. Abra o projeto pelo Live Server e tente novamente.");
         criando = false;
         if (botaoCriar) botaoCriar.disabled = false;
         return;
       }
 
-      window.location.href =
-        `editor.html?id=${encodeURIComponent(String(livro.id))}`;
+      window.location.href = `editor.html?id=${encodeURIComponent(String(livro.id))}`;
     }
 
-    if (formulario) {
-      formulario.addEventListener("submit", evento => {
-        evento.preventDefault();
-        criarHistoria();
-      });
-    } else {
-      console.error("Formulário #formNovaHistoria não encontrado.");
-    }
+    formulario?.addEventListener("submit", evento => {
+      evento.preventDefault();
+      criarHistoria();
+    });
 
-    if (elModal) {
-      elModal.addEventListener("shown.bs.modal", () => {
-        if (campoTitulo) campoTitulo.focus();
-      });
-
-      elModal.addEventListener("hidden.bs.modal", () => {
-        if (formulario) formulario.reset();
-        ocultarErro();
-        criando = false;
-        if (botaoCriar) botaoCriar.disabled = false;
-      });
-    }
-
-    // Volta pelo botão "voltar" (cache de navegação): reativa e atualiza a lista
-    window.addEventListener("pageshow", evento => {
-      if (!evento.persisted) return;
-
+    window.addEventListener("pageshow", () => {
       criando = false;
       if (botaoCriar) botaoCriar.disabled = false;
       renderizar();
     });
 
     renderizar();
+
+    // Mostra uma indicação de retorno depois de salvar um rascunho.
+    if (new URLSearchParams(window.location.search).get("status") === "rascunho") {
+      const aviso = document.createElement("p");
+      aviso.setAttribute("role", "status");
+      aviso.textContent = "Rascunho salvo com sucesso. Ele está na lista Meus rascunhos.";
+      aviso.style.cssText = "margin:12px 5%;padding:12px;border-left:3px solid #e50914;background:#171717;color:#fff";
+      document.querySelector("main")?.prepend(aviso);
+    }
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", iniciar);
-  } else {
-    iniciar();
-  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", iniciar);
+  else iniciar();
 })();

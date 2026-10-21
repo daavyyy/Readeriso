@@ -5,9 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Uma coleção de livros, histórias e novos mundos.">
   <title>Edgerson · Meu Perfil de Leitura</title>
-  <link rel="stylesheet" href="perfil.css">
+  <link rel="stylesheet" href="../CSS/perfil.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="../JS/perfil.js"></script>
+  <script src="../auth.js"></script>
+  <script>
+    if (typeof protegerPagina === "function") protegerPagina();
+  </script>
 </head>
 <body>
 <div class="reading-app" id="app">
@@ -53,6 +58,6 @@
     <button class="primary-btn" id="save-settings">Concluir</button>
   </section>
 </div>
-<script src="perfil.js"></script>
+
 </body>
-</html>
+</html> 

@@ -4,201 +4,69 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Crie, organize e publique suas histórias no Readeriso.">
-
   <title>Escritor | Readeriso</title>
-
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="escritor.css">
-
+  <link rel="stylesheet" href="../CSS/escritor.css">
   <script src="../auth.js"></script>
   <script>
-    if (typeof protegerPagina === "function") {
-      protegerPagina();
-    }
+    if (typeof protegerPagina === "function") protegerPagina();
   </script>
-
-  <!-- A ordem importa: readeriso.js antes de escritor.js -->
-  <script src="../readeriso.js" defer></script>
-  <script src="escritor.js" defer></script>
+  <script src="../JS/livros.js" defer></script>
+  <script src="../JS/escritor.js" defer></script>
 </head>
-
 <body>
   <header class="cabecalho-site">
     <nav class="nav-editor" aria-label="Menu principal">
-      <a href="../explorar.html" class="logo">Readeriso<span>.</span></a>
-
+      <a href="explorar.html" class="logo">Readeriso<span>.</span></a>
       <ul>
         <li><a href="sites.html">Sites</a></li>
-        <li><a href="../explorar.html">Explorar</a></li>
+        <li><a href="explorar.html">Explorar</a></li>
         <li><a href="escritor.html" aria-current="page">Escritor</a></li>
         <li><a href="biblioteca.html">Biblioteca</a></li>
       </ul>
     </nav>
   </header>
-
   <main>
     <section class="pagina-topo">
       <div>
         <h1>Minhas histórias</h1>
         <p>Crie, organize e continue escrevendo suas aventuras.</p>
       </div>
-
-      <button
-        type="button"
-        class="btn-principal"
-        data-bs-toggle="modal"
-        data-bs-target="#modalNovaHistoria">
-        <span aria-hidden="true">+</span>
-        Criar história
-      </button>
+      <button type="button" class="btn-principal" data-bs-toggle="modal" data-bs-target="#modalNovaHistoria"><span aria-hidden="true">+</span> Criar história</button>
     </section>
-
     <section class="secao-livros">
-      <div class="secao-cabecalho">
-        <h2>Meus rascunhos</h2>
-        <span class="contador" id="contadorRascunhos">0 histórias</span>
-      </div>
-
-      <div class="lista-livros" id="listaRascunhos">
-        <p class="lista-vazia">Carregando seus rascunhos...</p>
-      </div>
+      <div class="secao-cabecalho"><h2>Meus rascunhos</h2><span class="contador" id="contadorRascunhos">0 histórias</span></div>
+      <div class="lista-livros" id="listaRascunhos"><p class="lista-vazia">Carregando seus rascunhos...</p></div>
     </section>
-
     <section class="secao-livros">
-      <div class="secao-cabecalho">
-        <h2>Histórias publicadas</h2>
-        <span class="contador" id="contadorPublicados">0 histórias</span>
-      </div>
-
-      <div class="lista-livros" id="listaPublicados">
-        <p class="lista-vazia">Carregando suas histórias...</p>
-      </div>
+      <div class="secao-cabecalho"><h2>Histórias publicadas</h2><span class="contador" id="contadorPublicados">0 histórias</span></div>
+      <div class="lista-livros" id="listaPublicados"><p class="lista-vazia">Carregando suas histórias...</p></div>
     </section>
   </main>
-
-  <div
-    class="modal fade"
-    id="modalNovaHistoria"
-    tabindex="-1"
-    aria-labelledby="tituloModal"
-    aria-hidden="true">
-
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2 class="modal-title fs-5" id="tituloModal">
-            Criar nova história
-          </h2>
-
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"
-            aria-label="Fechar">
-          </button>
-        </div>
-
-        <div class="modal-body">
-          <!-- novalidate: a validação e as mensagens ficam a cargo do JS -->
-          <form id="formNovaHistoria" novalidate>
-            <div class="campo">
-              <label for="titulo" class="campo-label">
-                Título da história
-              </label>
-
-              <input
-                type="text"
-                id="titulo"
-                class="campo-formulario"
-                maxlength="120"
-                placeholder="Ex.: A jornada dos sete reinos"
-                required>
-            </div>
-
-            <div class="campo">
-              <label for="descricao" class="campo-label">
-                Descrição
-              </label>
-
-              <textarea
-                id="descricao"
-                class="campo-formulario"
-                maxlength="500"
-                placeholder="Conte um pouco sobre sua história"></textarea>
-            </div>
-
-            <div class="campo">
-              <label for="genero" class="campo-label">Gênero</label>
-
-              <select id="genero" class="campo-formulario" required>
-                <option value="">Selecione um gênero</option>
-                <option value="Fantasia">Fantasia</option>
-                <option value="Aventura">Aventura</option>
-                <option value="Romance">Romance</option>
-                <option value="Ficção científica">Ficção científica</option>
-                <option value="Terror">Terror</option>
-                <option value="Drama">Drama</option>
-                <option value="Comédia">Comédia</option>
-                <option value="Mistério">Mistério</option>
-                <option value="Outro">Outro</option>
-              </select>
-            </div>
-
-            <p id="erroForm" class="erro-form" role="alert" hidden></p>
-
-            <div class="modal-acoes">
-              <button
-                type="button"
-                class="btn-secundario"
-                data-bs-dismiss="modal">
-                Cancelar
-              </button>
-
-              <button type="submit" class="btn-principal" id="btnCriar">
-                Criar e escrever
-              </button>
-            </div>
-          </form>
-        </div>
+  <div class="modal fade" id="modalNovaHistoria" tabindex="-1" aria-labelledby="tituloModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="tituloModal">Criar nova história</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button></div>
+      <div class="modal-body">
+        <form id="formNovaHistoria" novalidate>
+          <div class="campo"><label for="titulo" class="campo-label">Título da história</label><input type="text" id="titulo" class="campo-formulario" maxlength="120" placeholder="Ex.: A jornada dos sete reinos" required></div>
+          <div class="campo"><label for="descricao" class="campo-label">Descrição</label><textarea id="descricao" class="campo-formulario" maxlength="500" placeholder="Conte um pouco sobre sua história"></textarea></div>
+          <div class="campo"><label for="genero" class="campo-label">Gênero</label><select id="genero" class="campo-formulario" required><option value="">Selecione um gênero</option><option value="Fantasia">Fantasia</option><option value="Aventura">Aventura</option><option value="Romance">Romance</option><option value="Ficção científica">Ficção científica</option><option value="Terror">Terror</option><option value="Drama">Drama</option><option value="Comédia">Comédia</option><option value="Mistério">Mistério</option><option value="Outro">Outro</option></select></div>
+          <p id="erroForm" class="erro-form" role="alert" hidden></p>
+          <div class="modal-acoes"><button type="button" class="btn-secundario" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn-principal" id="btnCriar">Criar e escrever</button></div>
+        </form>
       </div>
-    </div>
+    </div></div>
   </div>
-
+  
   <footer class="footer">
     <div class="footer-conteudo">
-      <div class="footer-marca">
-        <a href="../index.html" class="logo">Readeriso<span>.</span></a>
-        <p>Explorando a literatura!</p>
-      </div>
-
-      <div class="footer-coluna">
-        <h3>Readeriso</h3>
-        <a href="../index.html">Início</a>
-        <a href="../explorar.html">Explorar</a>
-        <a href="biblioteca.html">Biblioteca</a>
-        <a href="sites.html">Sites</a>
-      </div>
-
-      <div class="footer-coluna">
-        <h3>Escritor</h3>
-        <a href="escritor.html">Criar história</a>
-        <a href="escritor.html#listaRascunhos">Rascunhos</a>
-        <a href="perfil.html">Meu perfil</a>
-      </div>
-
-      <div class="footer-coluna">
-        <h3>Contatos</h3>
-        <a href="mailto:contato@readeriso.com">E-mail</a>
-        <a href="#" class="link-provisorio">Instagram</a>
-        <a href="../index.html#conheca">Sobre nós</a>
-      </div>
+      <div class="footer-marca"><a href="../index.html" class="logo">Readeriso<span>.</span></a><p>Explorando a literatura!</p></div>
+      <div class="footer-coluna"><h3>Readeriso</h3><a href="../index.html">Início</a><a href="explorar.html">Explorar</a><a href="biblioteca.html">Biblioteca</a><a href="sites.html">Sites</a></div>
+      <div class="footer-coluna"><h3>Escritor</h3><a href="escritor.html">Criar história</a><a href="escritor.html#listaRascunhos">Rascunhos</a><a href="perfil.html">Meu perfil</a></div>
+      <div class="footer-coluna"><h3>Contatos</h3><a href="readeriso.contato@gmail.com">E-mail</a><a href="#" class="link-provisorio">Instagram</a><a href="../index.html#conheca">Sobre nós</a></div>
     </div>
-
-    <div class="footer-bottom">
-      <p>© 2026 Readeriso. Todos os direitos reservados.</p>
-    </div>
+    <div class="footer-bottom"><p>© 2026 Readeriso. Todos os direitos reservados.</p></div>
   </footer>
-
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

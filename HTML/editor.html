@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -8,22 +7,23 @@
   <title>Editor | Readeriso</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="editor.css">
+  <link rel="stylesheet" href="../CSS/editor.css">
   <script src="../auth.js"></script>
   <script>
     if (typeof protegerPagina === "function") {
       protegerPagina();
     }
   </script>
-  <script src="editor.js" defer></script>
+  <script src="../JS/livros.js" defer></script>
+  <script src="../JS/editor.js" defer></script>
 </head>
 <body>
   <header class="cabecalho-site">
     <nav class="nav-editor page-width" aria-label="Menu do editor">
-      <a href="../explorar.html" class="logo">Readeriso<span>.</span></a>
+      <a href="explorar.html" class="logo">Readeriso<span>.</span></a>
       <ul>
         <li><a href="sites.html">Sites</a></li>
-        <li><a href="../explorar.html">Explorar</a></li>
+        <li><a href="explorar.html">Explorar</a></li>
         <li><a href="escritor.html">Escritor</a></li>
         <li><a href="biblioteca.html">Biblioteca</a></li>
       </ul>
@@ -35,21 +35,21 @@
       <div class="capa-historia" aria-hidden="true">📖</div>
       <div class="dados-historia">
         <label for="tituloHistoria" class="campo-label">Título da história</label>
-        <input id="tituloHistoria" class="campo-historia titulo-historia" type="text" maxlength="120" value="Minha grande aventura" placeholder="Título da sua história">
+        <input id="tituloHistoria" class="campo-historia titulo-historia" type="text" maxlength="120" placeholder="Título da sua história">
         <label for="descricaoHistoria" class="campo-label">Descrição</label>
-        <textarea id="descricaoHistoria" class="campo-historia descricao-historia" maxlength="500" rows="2" placeholder="Conte um pouco sobre sua história">Uma aventura cheia de mistérios e descobertas.</textarea>
+        <textarea id="descricaoHistoria" class="campo-historia descricao-historia" maxlength="500" rows="2" placeholder="Conte um pouco sobre sua história"></textarea>
         <div class="etiquetas">
           <label for="generoHistoria" class="visualmente-oculto">Gênero da história</label>
           <select id="generoHistoria" class="seletor-genero">
-            <option>Fantasia</option>
-            <option>Aventura</option>
-            <option>Romance</option>
-            <option>Ficção científica</option>
-            <option>Terror</option>
-            <option>Drama</option>
-            <option>Comédia</option>
-            <option>Mistério</option>
-            <option>Outro</option>
+            <option value="Fantasia" selected>Fantasia</option>
+            <option value="Aventura">Aventura</option>
+            <option value="Romance">Romance</option>
+            <option value="Ficção científica">Ficção científica</option>
+            <option value="Terror">Terror</option>
+            <option value="Drama">Drama</option>
+            <option value="Comédia">Comédia</option>
+            <option value="Mistério">Mistério</option>
+            <option value="Outro">Outro</option>
           </select>
           <span id="statusHistoria" class="status-historia">Rascunho</span>
         </div>
@@ -70,7 +70,7 @@
       <section class="escrita">
         <div class="cabecalho-capitulo">
           <span id="numeroCapitulo">Capítulo 1</span>
-          <input type="text" id="tituloCapitulo" maxlength="120" placeholder="Título do capítulo" value="O começo">
+          <input type="text" id="tituloCapitulo" maxlength="120" placeholder="Título do capítulo">
         </div>
 
         <div class="barra-ferramentas" role="toolbar" aria-label="Formatação do texto">
@@ -126,19 +126,19 @@
       <div class="footer-coluna">
         <h3>Readeriso</h3>
         <a href="../index.html">Início</a>
-        <a href="../exploraracao/explorar.html">Explorar</a>
-        <a href="../exploracao/biblioteca.html">Biblioteca</a>
-        <a href="../exploracao/sites.html">Sites</a>
+        <a href="explorar.html">Explorar</a>
+        <a href="biblioteca.html">Biblioteca</a>
+        <a href="sites.html">Sites</a>
       </div>
       <div class="footer-coluna">
         <h3>Escritor</h3>
         <a href="escritor.html" class="btn-escrever">Criar história</a>
         <a href="escritor.html">Minhas histórias</a>
-        <a href="../exploracao/perfil.html">Meu perfil</a>
+        <a href="perfil.html">Meu perfil</a>
       </div>
       <div class="footer-coluna">
         <h3>Contatos</h3>
-        <a href="mailto:contato@readeriso.com">E-mail</a>
+        <a href="readeriso.contato@gmail.com">E-mail</a>
         <a href="#" class="link-provisorio">Instagram</a>
         <a href="../home.html#conheca">Sobre nós</a>
       </div>

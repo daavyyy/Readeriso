@@ -16,19 +16,36 @@
   <header>
     <h1>Readeriso</h1>
   </header>
-
   <main>
     <section>
       <h2>Cadastro</h2>
       <form id="formCadastro">
-        <label for="email">Email</label>
-        <input type="email" id="email" placeholder="exemplo123@gmail.com" required>
-        <label for="usuario">Usuário</label>
-        <input type="text" id="usuario" placeholder="novo_usuario123456" required>
-        <label for="senha">Senha</label>
-        <input type="password" id="senha" placeholder="senha12345678" required>
-        <button type="submit">Entrar</button>
+        <input
+          type="text"
+          id="usuario"
+          placeholder="Nome de usuário"
+          required
+        >
+
+        <input
+          type="email"
+          id="email"
+          placeholder="E-mail"
+          required
+        >
+
+        <input
+          type="password"
+          id="senha"
+          placeholder="Senha"
+          minlength="6"
+          required
+        >
+
+        <button type="submit">Criar conta</button>
       </form>
+
+
     </section>
   </main>
 </body>

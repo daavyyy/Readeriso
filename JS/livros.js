@@ -1,98 +1,60 @@
-/* livros.js - camada de dados do Readeriso (localStorage)
-   Única fonte de verdade para escritor.html, editor.html e biblioteca.html.
-   Quando o banco de dados for ligado, basta trocar o conteúdo de ler() e gravar().
-
-   Formato de cada livro:
-   {
-     id, titulo, descricao, genero,
-     publicada: boolean,
-     capitulos: [{ id, titulo, conteudo, alinhamento }],
-     criadoEm: número (ms), atualizadoEm: número (ms)
-   }
-*/
+/* livros.js — armazenamento único das histórias do Readeriso. */
 (() => {
   "use strict";
 
   const CHAVE = "readeriso:livros";
-  const CHAVE_ANTIGA = "readerisoLivros"; // usada por versões antigas do editor/biblioteca
+  const CHAVES_ANTIGAS = ["readerisoLivros", "readeriso:livros", "readeriso:historia"];
   const ALINHAMENTOS = ["left", "center", "right"];
+  const gerarId = () => `hist-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
-  const GENEROS = {
-    fantasia: "Fantasia",
-    aventura: "Aventura",
-    romance: "Romance",
-    ficcao: "Ficção científica",
-    terror: "Terror",
-    drama: "Drama",
-    comedia: "Comédia",
-    misterio: "Mistério",
-    outro: "Outro"
-  };
-
-  const gerarId = () =>
-    Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-
-  const gerarIdCapitulo = () => `cap-${gerarId()}`;
-
-  function paraTimestamp(valor, padrao) {
+  function timestamp(valor, padrao) {
     if (typeof valor === "number" && Number.isFinite(valor)) return valor;
-
-    if (typeof valor === "string" && valor.trim() !== "") {
+    if (typeof valor === "string" && valor.trim()) {
       const numero = Number(valor);
       if (Number.isFinite(numero)) return numero;
-
       const data = Date.parse(valor);
-      if (!Number.isNaN(data)) return data;
+      if (Number.isFinite(data)) return data;
     }
-
     return padrao;
   }
 
-  /* Aceita tanto o formato novo quanto os antigos (texto/conteudo) */
-  function normalizarCapitulo(capitulo) {
+  function normalizarCapitulo(capitulo, indice = 0) {
     const c = capitulo && typeof capitulo === "object" ? capitulo : {};
-
     return {
-      id: c.id || gerarIdCapitulo(),
-      titulo: String(c.titulo ?? ""),
+      id: String(c.id || `cap-${Date.now().toString(36)}-${indice}-${Math.random().toString(36).slice(2, 5)}`),
+      titulo: String(c.titulo ?? `Capítulo ${indice + 1}`),
       conteudo: String(c.conteudo ?? c.texto ?? ""),
       alinhamento: ALINHAMENTOS.includes(c.alinhamento) ? c.alinhamento : "left"
     };
   }
 
-  /* Aceita tanto o formato novo quanto os antigos (publicada/publicado) */
   function normalizar(livro) {
     if (!livro || typeof livro !== "object") return null;
-    if (livro.id === undefined || livro.id === null) return null;
+    const id = livro.id ?? livro.ID;
+    if (id === undefined || id === null || String(id).trim() === "") return null;
 
     const agora = Date.now();
-    const atualizadoEm = paraTimestamp(livro.atualizadoEm, agora);
-    const criadoEm = paraTimestamp(livro.criadoEm, atualizadoEm);
-    const genero = String(livro.genero ?? "").trim();
-
-    const capitulos = Array.isArray(livro.capitulos)
-      ? livro.capitulos.map(normalizarCapitulo)
-      : [];
+    const capitulosOriginais = Array.isArray(livro.capitulos) ? livro.capitulos : [];
+    const capitulos = capitulosOriginais.map((capitulo, indice) => normalizarCapitulo(capitulo, indice));
 
     return {
-      id: String(livro.id),
-      titulo: String(livro.titulo ?? ""),
-      descricao: String(livro.descricao ?? ""),
-      genero: GENEROS[genero] || genero || "Outro",
-      publicada: livro.publicada === true || livro.publicado === true,
-      capitulos: capitulos.length
-        ? capitulos
-        : [normalizarCapitulo({ titulo: "Capítulo 1" })],
-      criadoEm,
-      atualizadoEm
+      id: String(id),
+      titulo: String(livro.titulo ?? livro.title ?? "").trim(),
+      descricao: String(livro.descricao ?? livro.description ?? ""),
+      genero: String(livro.genero ?? livro.gênero ?? "Outro").trim() || "Outro",
+      publicada: livro.publicada === true || livro.publicado === true || livro.published === true,
+      capitulos: capitulos.length ? capitulos : [normalizarCapitulo({ titulo: "Capítulo 1" }, 0)],
+      criadoEm: timestamp(livro.criadoEm ?? livro.criado_em, agora),
+      atualizadoEm: timestamp(livro.atualizadoEm ?? livro.atualizado_em, agora)
     };
   }
 
-  function lerBruto(chave) {
+  function lerJSON(chave) {
     try {
-      const dados = JSON.parse(localStorage.getItem(chave));
-      return Array.isArray(dados) ? dados : null;
-    } catch {
+      const valor = localStorage.getItem(chave);
+      return valor === null ? null : JSON.parse(valor);
+    } catch (erro) {
+      console.warn(`Não foi possível ler ${chave} do localStorage.`, erro);
       return null;
     }
   }
@@ -101,93 +63,111 @@
     try {
       localStorage.setItem(CHAVE, JSON.stringify(lista));
       return true;
-    } catch {
+    } catch (erro) {
+      console.error("Falha ao salvar histórias no localStorage:", erro);
       return false;
     }
   }
 
-  /* Traz para a chave nova qualquer história salva no formato antigo */
-  function migrar() {
-    const antigos = lerBruto(CHAVE_ANTIGA);
-    if (!antigos) return;
+  function lerBrutoPrincipal() {
+    const dados = lerJSON(CHAVE);
+    if (Array.isArray(dados)) return dados;
+    return [];
+  }
 
-    const atuais = lerBruto(CHAVE) || [];
-    const idsExistentes = new Set(
-      atuais.map(livro => String(livro && livro.id))
-    );
+  function migrarDadosAntigos() {
+    let atuais = lerBrutoPrincipal();
+    const ids = new Set(atuais.map(item => String(item?.id ?? "")));
+    let alterou = false;
 
-    antigos.forEach(livro => {
-      if (livro && !idsExistentes.has(String(livro.id))) {
-        atuais.push(livro);
+    for (const chave of CHAVES_ANTIGAS) {
+      if (chave === CHAVE) continue;
+      const antigos = lerJSON(chave);
+      if (Array.isArray(antigos)) {
+        for (const item of antigos) {
+          const livro = normalizar(item);
+          if (livro && !ids.has(livro.id)) {
+            atuais.push(livro);
+            ids.add(livro.id);
+            alterou = true;
+          }
+        }
+      } else if (chave === "readeriso:historia" && antigos && typeof antigos === "object") {
+        // Versões antigas guardavam um único editor em vez de uma lista de histórias.
+        const capitulos = Array.isArray(antigos.capitulos)
+          ? antigos.capitulos.map(c => ({ ...c, conteudo: c.conteudo ?? c.texto ?? "" }))
+          : [];
+        const legado = normalizar({
+          id: antigos.id || gerarId(),
+          titulo: antigos.titulo || "História recuperada",
+          descricao: antigos.descricao || "",
+          genero: antigos.genero || "Outro",
+          publicada: antigos.publicada === true || antigos.publicado === true,
+          capitulos,
+          criadoEm: antigos.criadoEm || Date.now(),
+          atualizadoEm: antigos.atualizadoEm || Date.now()
+        });
+        if (legado && !ids.has(legado.id)) {
+          atuais.push(legado);
+          ids.add(legado.id);
+          alterou = true;
+        }
       }
-    });
-
-    try {
-      const convertidos = atuais.map(normalizar).filter(Boolean);
-      localStorage.setItem(CHAVE, JSON.stringify(convertidos));
-      localStorage.removeItem(CHAVE_ANTIGA);
-    } catch {
-      /* se falhar, mantém os dados antigos intactos */
     }
+
+    if (alterou || lerJSON(CHAVE) === null) gravar(atuais.map(normalizar).filter(Boolean));
   }
 
-  function ler() {
-    return (lerBruto(CHAVE) || []).map(normalizar).filter(Boolean);
+  migrarDadosAntigos();
+
+  function listar() {
+    return lerBrutoPrincipal().map(normalizar).filter(Boolean);
   }
 
-  migrar();
+  function gerarCapitulo(titulo = "Capítulo 1", conteudo = "", alinhamento = "left") {
+    return normalizarCapitulo({ titulo, conteudo, alinhamento }, 0);
+  }
 
   window.Readeriso = {
-    GENEROS,
+    CHAVE,
     gerarId,
-
-    novoCapitulo(titulo = "", conteudo = "", alinhamento = "left") {
-      return normalizarCapitulo({ titulo, conteudo, alinhamento });
-    },
-
-    listar: ler,
+    novoCapitulo: gerarCapitulo,
+    listar,
 
     obter(id) {
-      return ler().find(livro => livro.id === String(id)) || null;
+      if (id === undefined || id === null) return null;
+      return listar().find(livro => livro.id === String(id)) || null;
     },
 
-    criar({ titulo, descricao, genero } = {}) {
+    criar({ titulo = "", descricao = "", genero = "Outro" } = {}) {
+      const agora = Date.now();
       const livro = normalizar({
-        id: gerarId(),
-        titulo: String(titulo ?? "").trim() || "Sem título",
-        descricao,
-        genero,
-        publicada: false,
-        capitulos: [{ titulo: "Capítulo 1" }]
+        id: gerarId(), titulo, descricao, genero, publicada: false,
+        capitulos: [gerarCapitulo("Capítulo 1", "")],
+        criadoEm: agora, atualizadoEm: agora
       });
-
-      const lista = ler();
+      const lista = listar();
       lista.push(livro);
-
       return gravar(lista) ? livro : null;
     },
 
-    salvar(livro) {
-      const novo = normalizar(livro);
-      if (!novo) return false;
+    salvar(dados) {
+      const livro = normalizar(dados);
+      if (!livro) return false;
 
-      novo.atualizadoEm = Date.now();
+      const lista = listar();
+      const indice = lista.findIndex(item => item.id === livro.id);
+      const existente = indice >= 0 ? lista[indice] : null;
+      livro.criadoEm = existente?.criadoEm || livro.criadoEm || Date.now();
+      livro.atualizadoEm = Date.now();
 
-      const lista = ler();
-      const indice = lista.findIndex(item => item.id === novo.id);
-
-      if (indice >= 0) {
-        novo.criadoEm = lista[indice].criadoEm;
-        lista[indice] = novo;
-      } else {
-        lista.push(novo);
-      }
-
+      if (indice >= 0) lista[indice] = livro;
+      else lista.push(livro);
       return gravar(lista);
     },
 
     excluir(id) {
-      return gravar(ler().filter(livro => livro.id !== String(id)));
+      return gravar(listar().filter(livro => livro.id !== String(id)));
     }
   };
 })();
