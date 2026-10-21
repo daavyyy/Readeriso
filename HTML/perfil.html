@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Uma coleção de livros, histórias e novos mundos.">
+  <title>Edgerson · Meu Perfil de Leitura</title>
+  <link rel="stylesheet" href="perfil.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="reading-app" id="app">
+  <header class="site-header">
+    <div class="header-inner page-width">
+      <a href="#perfil" class="brand"><span class="brand-mark">📖</span>READERISO<span class="red">.</span></a>
+      <nav class="main-nav" aria-label="Navegação principal">
+        <a href="#perfil" class="nav-link active" data-section="perfil">♙ Perfil</a>
+        <a href="#livros" class="nav-link" data-section="livros">▤ Livros</a>
+        <a href="#favoritos" class="nav-link" data-section="favoritos">♡ Favoritos</a>
+      </nav>
+      <button id="open-settings" class="outline-btn" type="button">⚙ <span class="settings-label">Configurações</span></button>
+    </div>
+  </header>
+  <main class="page-width">
+    <section id="perfil" class="profile-section">
+      <p class="eyebrow">UM NOVO MUNDO A CADA PÁGINA</p>
+      <div class="profile-layout">
+        <div class="profile-avatar">📖<span class="avatar-badge">✓</span></div>
+        <div class="profile-info"><h1 class="profile-name">alguem<span class="red">.</span></h1><p class="profile-handle">@leitor</p><p class="profile-bio">Apaixonado por livros, histórias e novos mundos.</p></div>
+        <div class="profile-stats"><div class="stat"><strong>03</strong><span>Livros</span></div><div class="stat"><strong class="red" id="favorite-count">00</strong><span>Favoritos</span></div><div class="stat"><strong>00</strong><span>Resenhas</span></div></div>
+      </div>
+    </section>
+    <section id="livros" class="books-section">
+      <div class="section-heading"><div><h2 class="section-title">▤ Meus livros</h2><p class="section-subtitle">Histórias que fazem parte de mim.</p></div><span class="section-count">▦ 3 livros na coleção</span></div>
+      <div class="book-grid" id="book-grid"></div>
+    </section>
+    <section id="favoritos" class="favorites-section">
+      <div class="section-heading"><div><h2 class="section-title">♡ Meus favoritos <span class="count-small" id="favorites-heading-count">00</span></h2><p class="section-subtitle">As histórias que ficam com a gente.</p></div></div>
+      <div id="favorites-content"></div>
+    </section>
+  </main>
+  <footer class="site-footer"><div class="footer-inner page-width"><span>© 2026 Meu Perfil de Leitura</span><span>Feito de páginas e <span class="red">♥</span> boas histórias.</span></div></footer>
+</div>
+<div class="modal-backdrop" id="settings-modal" hidden>
+  <section class="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <button class="modal-x" id="close-settings" aria-label="Fechar">×</button>
+    <h2 id="settings-title">Configurações</h2><p class="section-subtitle">Preferências de leitura</p>
+    <label for="theme-select">Tema</label>
+    <select id="theme-select" class="settings-select"><option value="escuro">Escuro</option><option value="claro">Claro</option></select>
+    <label for="font-select">Tamanho da fonte</label>
+    <select id="font-select" class="settings-select"><option value="16">Pequeno</option><option value="18">Médio</option><option value="20">Grande</option></select>
+    <button class="primary-btn" id="save-settings">Concluir</button>
+  </section>
+</div>
+<script src="perfil.js"></script>
+</body>
+</html>
