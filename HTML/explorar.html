@@ -3,23 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explorar - Readeriso</title>
+ 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="explorar.css">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="explorar.js" defer></script>
+  <link rel="stylesheet" href="style.css">
+ 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" defer></script>
+ 
+  <!-- Proteção de página: só roda se o auth.js existir e carregar -->
   <script src="../auth.js"></script>
   <script>
-    protegerPagina();
+    if (typeof protegerPagina === "function") {
+      protegerPagina();
+    }
   </script>
-  <title>Explorar - Readeriso</title>
+ 
+  <script src="script.js" defer></script>
 </head>
-
+ 
 <body>
-
+ 
   <header id="explorar">
     <nav aria-label="Menu Explorar">
       <div class="logo">Explore o Readeriso</div>
-
+ 
       <ul>
         <li><a href="perfil.html">Perfil</a></li>
         <li><a href="biblioteca.html">Biblioteca</a></li>
@@ -28,25 +35,30 @@
       </ul>
     </nav>
   </header>
-
+ 
   <main>
-
+ 
     <section class="buscar">
       <h1>Encontre sua próxima história!</h1>
-
+ 
       <input
+        id="campoBusca"
         type="search"
         placeholder="Pesquise livros aqui"
+        aria-label="Pesquisar livros"
+        autocomplete="off"
       >
+ 
+      <div id="resultadosBusca" class="resultados" aria-live="polite" hidden></div>
     </section>
-
-    <section class="historias">
+ 
+    <section class="historias" id="secaoHistorias">
       <h2>Histórias em destaque</h2>
-
+ 
       <div id="carouselHistorias" class="carousel slide" data-bs-ride="carousel">
-
+ 
         <div class="carousel-inner">
-
+ 
           <div class="carousel-item active">
             <a href="livro.teste/fantasia.txt">
               <img
@@ -55,10 +67,10 @@
                 alt="Fantasia"
               >
               <h3>Fantasia</h3>
-              <p>Autor:...</p>
+              <p>Autor: ...</p>
             </a>
           </div>
-
+ 
           <div class="carousel-item">
             <a href="livro.teste/romance.txt">
               <img
@@ -67,10 +79,10 @@
                 alt="Romance"
               >
               <h3>Romance</h3>
-              <p>Autor:...</p>
+              <p>Autor: ...</p>
             </a>
           </div>
-
+ 
           <div class="carousel-item">
             <a href="livro.teste/yaoi.txt">
               <img
@@ -79,12 +91,12 @@
                 alt="Yaoi"
               >
               <h3>Yaoi</h3>
-              <p>Autor:...</p>
+              <p>Autor: ...</p>
             </a>
           </div>
-
+ 
         </div>
-
+ 
         <button
           class="carousel-control-prev"
           type="button"
@@ -94,7 +106,7 @@
           <span class="carousel-control-prev-icon" aria-hidden="true"></span>
           <span class="visually-hidden">Anterior</span>
         </button>
-
+ 
         <button
           class="carousel-control-next"
           type="button"
@@ -104,124 +116,127 @@
           <span class="carousel-control-next-icon" aria-hidden="true"></span>
           <span class="visually-hidden">Próximo</span>
         </button>
-
+ 
       </div>
     </section>
-
-    
+ 
+ 
     <section class="sites">
       <h2>Sites para leitura em destaque</h2>
-       <div id="carouselSites" class="carousel slide" data-bs-ride="carousel">
-
-    <div class="carousel-inner">
-
-      <div class="carousel-item active">
-        <a href="https://meclivros.mec.gov.br/" target="_blank">
-          <div class="site-conteudo">
-            <img
-            src="livro.teste/site1.jpg"
-            class="d-block w-100"
-            alt="Logo do site"
-          >
-            <h3>Site de leitura</h3>
-            <p>Um site para encontrar novas histórias.</p>
+ 
+      <div id="carouselSites" class="carousel slide" data-bs-ride="carousel">
+ 
+        <div class="carousel-inner">
+ 
+          <div class="carousel-item active">
+            <a href="https://meclivros.mec.gov.br/" target="_blank" rel="noopener noreferrer">
+              <div class="site-conteudo">
+                <img
+                  src="livro.teste/site1.jpg"
+                  class="d-block w-100"
+                  alt="Logo do site"
+                >
+                <h3>Site de leitura</h3>
+                <p>Um site para encontrar novas histórias.</p>
+              </div>
+            </a>
           </div>
-        </a>
-      </div>
-
-      <div class="carousel-item">
-        <a href="https://fliptru.com.br/" target="_blank">
-          <div class="site-conteudo">
-            <img
-            src="livro.teste/site 2.png"
-            class="d-block w-100"
-            alt="Logo do site"
-          >
-            <h3>Biblioteca online</h3>
-            <p>Leia diversos livros online.</p>
+ 
+          <div class="carousel-item">
+            <a href="https://fliptru.com.br/" target="_blank" rel="noopener noreferrer">
+              <div class="site-conteudo">
+                <img
+                  src="livro.teste/site%202.png"
+                  class="d-block w-100"
+                  alt="Logo do site"
+                >
+                <h3>Biblioteca online</h3>
+                <p>Leia diversos livros online.</p>
+              </div>
+            </a>
           </div>
-        </a>
-      </div>
-
-      <div class="carousel-item">
-        <a href="https://www.kobo.com/br/pt/p/livros-gratis?srsltid=AfmBOoodNQDnV_MJO7O2SccUm6mUjwJqhJRhBsQb4ZvetJjtiFH6v4ym" target="_blank">
-          <div class="site-conteudo">
-            <img
-            src="livro.teste/site 3.jpg"
-            class="d-block w-100"
-            alt="Logo do site"
-          >
-            <h3>Clube de leitura</h3>
-            <p>Descubra histórias e novos autores.</p>
+ 
+          <div class="carousel-item">
+            <a href="https://www.kobo.com/br/pt/p/livros-gratis" target="_blank" rel="noopener noreferrer">
+              <div class="site-conteudo">
+                <img
+                  src="livro.teste/site%203.jpg"
+                  class="d-block w-100"
+                  alt="Logo do site"
+                >
+                <h3>Clube de leitura</h3>
+                <p>Descubra histórias e novos autores.</p>
+              </div>
+            </a>
           </div>
-        </a>
+ 
+        </div>
+ 
+        <button
+          class="carousel-control-prev"
+          type="button"
+          data-bs-target="#carouselSites"
+          data-bs-slide="prev"
+        >
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Anterior</span>
+        </button>
+ 
+        <button
+          class="carousel-control-next"
+          type="button"
+          data-bs-target="#carouselSites"
+          data-bs-slide="next"
+        >
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Próximo</span>
+        </button>
+ 
       </div>
-
-    </div>
-
-    <button
-      class="carousel-control-prev"
-      type="button"
-      data-bs-target="#carouselSites"
-      data-bs-slide="prev"
-    >
-      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-      <span class="visually-hidden">Anterior</span>
-    </button>
-
-    <button
-      class="carousel-control-next"
-      type="button"
-      data-bs-target="#carouselSites"
-      data-bs-slide="next"
-    >
-      <span class="carousel-control-next-icon" aria-hidden="true"></span>
-      <span class="visually-hidden">Próximo</span>
-    </button>
-
-    </div>
     </section>
-
-    <div class="m.sites">
-      <a href="explorar/sites.html" class="btn">Mais sites!</a>
+ 
+    <div class="mais-sites">
+      <a href="sites.html" class="btn">Mais sites!</a>
     </div>
   </main>
-
-  <!--footer-->>
-
+ 
+  <!-- footer -->
   <footer class="footer">
     <div class="footer-conteudo">
+ 
       <div class="footer-marca">
         <a href="../index.html" class="logo">Readeriso<span>.</span></a>
         <p>Explorando a literatura!</p>
-      </div>  <div class="footer-coluna">
-    <h3>Readeriso</h3>
-    <a href="../index.html">Início</a>
-    <a href="explorar.html">Explorar</a>
-    <a href="biblioteca.html">Biblioteca</a>
-    <a href="sites.html">Sites</a>
-  </div>
-
-  <div class="footer-coluna">
-    <h3>Escritor</h3>
-    <a href="javascript:void(0)" class="btn-escrever">Criar história</a>
-    <a href="../escritores/escritor.html">Minhas histórias</a>
-    <a href="perfil.html">Meu perfil</a>
-  </div>
-
-  <div class="footer-coluna">
-    <h3>Contatos</h3>
-    <a href="mailto:contato@readeriso.com">E-mail</a>
-    <a href="#" class="link-provisorio">Instagram</a>
-       <a href="index.html#conheca">Sobre nós</a>
-  </div>
-</div>
-
-<div class="footer-bottom">
-  <p>© 2026 Readeriso. Todos os direitos reservados.</p>
-</div>
-
+      </div>
+ 
+      <div class="footer-coluna">
+        <h3>Readeriso</h3>
+        <a href="../index.html">Início</a>
+        <a href="index.html">Explorar</a>
+        <a href="biblioteca.html">Biblioteca</a>
+        <a href="sites.html">Sites</a>
+      </div>
+ 
+      <div class="footer-coluna">
+        <h3>Escritor</h3>
+        <a href="../escritores/escritor.html" class="btn-escrever">Criar história</a>
+        <a href="../escritores/escritor.html">Minhas histórias</a>
+        <a href="perfil.html">Meu perfil</a>
+      </div>
+ 
+      <div class="footer-coluna">
+        <h3>Contatos</h3>
+        <a href="mailto:contato@readeriso.com">E-mail</a>
+        <a href="#" class="link-provisorio">Instagram</a>
+        <a href="../index.html#conheca">Sobre nós</a>
+      </div>
+ 
+    </div>
+ 
+    <div class="footer-bottom">
+      <p>© 2026 Readeriso. Todos os direitos reservados.</p>
+    </div>
   </footer>
-  
+ 
 </body>
 </html>

@@ -109,6 +109,66 @@ nav a:hover {
   color: var(--secundario);
 }
  
+/* Resultados da busca */
+.resultados {
+  width: 90%;
+  max-width: 600px;
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+}
+ 
+.resultados[hidden],
+.historias[hidden] {
+  display: none;
+}
+ 
+.resultado-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px;
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  transition: border-color 0.2s;
+}
+ 
+.resultado-item:hover {
+  border-color: var(--vermelho);
+}
+ 
+.resultado-item img {
+  width: 60px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+ 
+.resultado-item h3 {
+  font-size: 1.1rem;
+  margin-bottom: 4px;
+}
+ 
+.resultado-item p,
+.sem-resultado {
+  color: var(--secundario);
+  font-size: 0.9rem;
+}
+ 
+.sem-resultado {
+  text-align: center;
+}
+ 
+/* Capas dos carrosséis de histórias */
+#carouselHistorias .carousel-item img {
+  max-height: 420px;
+  object-fit: contain;
+  background: #000;
+}
+ 
 /* Parte 4 - Seções */
 .historias,
 .sites {
@@ -196,7 +256,7 @@ nav a:hover {
 }
  
 /* Parte 6 - Botão */
-.m\.sites {
+.mais-sites {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -204,7 +264,7 @@ nav a:hover {
   padding: 0 20px;
 }
  
-.m\.sites .btn {
+.mais-sites .btn {
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -218,7 +278,7 @@ nav a:hover {
   transition: 0.2s;
 }
  
-.m\.sites .btn:hover {
+.mais-sites .btn:hover {
   background: #bd0710;
 }
  
@@ -374,7 +434,7 @@ nav a:hover {
     margin-bottom: 15px;
   }
  
-  .m\.sites {
+  .mais-sites {
     margin-top: 20px;
     margin-bottom: 30px;
   }
@@ -391,4 +451,3 @@ nav a:hover {
     height: 95px;
   }
 }
- 
