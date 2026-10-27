@@ -370,6 +370,12 @@ header {
   );
 }
 
+.print-placeholder img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .print-numero {
   position: absolute;
   top: 16px;
@@ -886,4 +892,5 @@ select.campo {
   * {
     transition: none !important;
   }
+  
 }
