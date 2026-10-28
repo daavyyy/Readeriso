@@ -1,30 +1,5 @@
-// Histórias de demonstração (adicione novas aqui)
-const historiasDemo = [
-  {
-    titulo: "Fantasia",
-    genero: "Fantasia",
-    autor: "Autor de exemplo",
-    descricao: "Um reino à beira do fim guarda um segredo esquecido.",
-    link: "livro.teste/fantasia.txt",
-    capa: "livro.teste/1.png"
-  },
-  {
-    titulo: "Romance",
-    genero: "Romance",
-    autor: "Autora de exemplo",
-    descricao: "Duas pessoas descobrem o que nunca conseguiram dizer.",
-    link: "livro.teste/romance.txt",
-    capa: "livro.teste/2.png"
-  },
-  {
-    titulo: "Yaoi",
-    genero: "Yaoi",
-    autor: "Autor de exemplo",
-    descricao: "Um encontro inesperado muda tudo o que eles sabiam.",
-    link: "livro.teste/yaoi.txt",
-    capa: "livro.teste/3.png"
-  }
-];
+// explorar.js — busca e filtros das histórias (demonstração + publicadas de todas as contas)
+// As histórias de demonstração agora ficam em livros.js (Readeriso.livrosDemo).
 
 // Remove acentos e deixa minúsculo, para a busca ignorar maiúsculas/acentos
 function normalizar(texto) {
@@ -35,20 +10,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const R = window.Readeriso;
   const escapar = R.escaparHTML;
 
-  // Histórias publicadas pelo usuário (abrem na leitura da Biblioteca)
-  const publicadas = R.listar()
-    .filter(livro => livro.publicada && livro.titulo)
-    .map(livro => ({
-      titulo: livro.titulo,
-      genero: livro.genero,
-      autor: R.usuarioAtual().usuario,
-      descricao: livro.descricao || "Sem descrição.",
-      link: `biblioteca.html?ler=${encodeURIComponent(livro.id)}`,
-      capa: null,
-      propria: true
-    }));
-
-  const historias = [...publicadas, ...historiasDemo];
+  // Demonstração + livros publicados por qualquer conta
+  const historias = R.catalogo();
 
   const campo = document.getElementById("campoBusca");
   const form = document.getElementById("formBusca");
@@ -66,9 +29,12 @@ document.addEventListener("DOMContentLoaded", () => {
       ? `<div class="capa-historia"><img src="${escapar(h.capa)}" alt="Capa de ${escapar(h.titulo)}" loading="lazy"></div>`
       : `<div class="capa-historia sem-capa" aria-hidden="true">▧</div>`;
 
-    const selo = h.propria
-      ? `<span class="aviso-demo selo-obra">Sua obra</span>`
-      : `<span class="aviso-demo">Obra demonstrativa</span>`;
+    let selo = "";
+    if (h.demo) selo = `<span class="aviso-demo">Obra demonstrativa</span>`;
+    else if (h.propria) selo = `<span class="aviso-demo selo-obra">Sua obra</span>`;
+
+    // Só o autor vê as estatísticas do próprio livro
+    const stats = h.propria ? `<p class="stats-livro">${R.textoEstatisticas(h.id)}</p>` : "";
 
     return `
       <a class="card-historia" href="${escapar(h.link)}">
@@ -77,6 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <h3>${escapar(h.titulo)}</h3>
         <p class="descricao-historia">${escapar(h.descricao)}</p>
         <p class="autor-historia">${escapar(h.autor)}</p>
+        ${stats}
         ${selo}
       </a>
     `;

@@ -354,34 +354,42 @@ header {
 
 .print-placeholder {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+  display: block;
   aspect-ratio: 16 / 9;
-  color: var(--texto-suave);
-  background: repeating-linear-gradient(
-    45deg,
-    #111111,
-    #111111 12px,
-    #151515 12px,
-    #151515 24px
-  );
+  overflow: hidden;           /* nada passa do limite */
+  background: #0a0a0a;
 }
 
 .print-placeholder img {
+  position: absolute;         /* ocupa 100% da caixa, sem empurrar nada */
+  inset: 0;
+  display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;        /* print inteiro, sem cortar */
+  object-position: center;
 }
 
+/* sobras do placeholder: o print já está na imagem */
+.print-placeholder p,
+.print-placeholder small {
+  display: none;
+}
+
+/* Numeração bem visível (01 / 03) */
 .print-numero {
   position: absolute;
-  top: 16px;
-  left: 20px;
-  font-size: 0.85rem;
-  color: var(--vermelho);
+  top: 14px;
+  left: 14px;
+  z-index: 2;
+  padding: 6px 14px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #ffffff;
+  background-color: rgba(10, 10, 10, 0.85);
+  border: 1px solid var(--vermelho);
+  border-radius: 6px;
 }
 
 .icone-print {
@@ -806,6 +814,13 @@ select.campo {
 }
 
 @media (max-width: 600px) {
+    .print-numero {
+    top: 8px;
+    left: 8px;
+    padding: 4px 10px;
+    font-size: 0.9rem;
+  }
+  
   :root {
     --margem: 5%;
   }
@@ -893,4 +908,11 @@ select.campo {
     transition: none !important;
   }
   
+}
+
+/* Estatísticas do livro (visualizações e favoritos) */
+.stats-livro {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: #888888;
 }

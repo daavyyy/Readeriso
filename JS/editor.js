@@ -10,7 +10,7 @@
     const descricao = $("descricaoHistoria");
     const genero = $("generoHistoria");
     const tituloCapitulo = $("tituloCapitulo");
-    const textoCapitulo = $("textoCapitulo");
+    const textoCapitulo = $("textoCapitulo"); // agora é uma <div contenteditable>
     const listaCapitulos = $("listaCapitulos");
     const numeroCapitulo = $("numeroCapitulo");
     const contadorPalavras = $("contadorPalavras");
@@ -26,6 +26,9 @@
     let publicada = false;
     let alteracoesSalvas = true;
     let temporizador = null;
+
+    // Enter cria parágrafos <p> (e não <div>), o que simplifica a conversão
+    document.execCommand("defaultParagraphSeparator", false, "p");
 
     // ===== Estado na tela =====
 
@@ -48,9 +51,15 @@
     }
 
     function contarPalavras() {
-      const conteudo = textoCapitulo.value.trim();
+      const conteudo = textoCapitulo.innerText.trim();
       const quantidade = conteudo ? conteudo.split(/\s+/).length : 0;
       contadorPalavras.textContent = `${quantidade} ${quantidade === 1 ? "palavra" : "palavras"}`;
+    }
+
+    // Mostra o placeholder só quando não há texto nem lista/citação
+    function atualizarPlaceholder() {
+      const vazio = !textoCapitulo.innerText.trim() && !textoCapitulo.querySelector("ul, blockquote, h2");
+      textoCapitulo.classList.toggle("vazio", vazio);
     }
 
     // Destaca o botão de alinhamento ativo
@@ -61,6 +70,105 @@
       });
     }
 
+    // Deixa os botões B / I / U marcados conforme o trecho onde está o cursor
+    function atualizarBotoesAtivos() {
+      ["bold", "italic", "underline"].forEach(formato => {
+        const botao = document.querySelector(`[data-format="${formato}"]`);
+        if (botao) botao.setAttribute("aria-pressed", String(document.queryCommandState(formato)));
+      });
+    }
+
+    // ===== Conversão: texto salvo <-> editor =====
+    // O formato salvo continua o mesmo de antes: **negrito**, *itálico*,
+    // __sublinhado__, "## " subtítulo, "- " lista, "> " citação.
+
+    // Texto salvo -> HTML mostrado no editor
+    function textoParaHtml(texto) {
+      const inline = t => R.escaparHTML(t)
+        .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+        .replace(/__(.+?)__/g, "<u>$1</u>")
+        .replace(/\*(.+?)\*/g, "<em>$1</em>");
+
+      let html = "";
+      let emLista = false;
+
+      String(texto).split("\n").forEach(linha => {
+        const item = linha.startsWith("- ");
+        if (item && !emLista) html += "<ul>";
+        if (!item && emLista) html += "</ul>";
+        emLista = item;
+
+        if (item) html += `<li>${inline(linha.slice(2))}</li>`;
+        else if (linha.startsWith("## ")) html += `<h2>${inline(linha.slice(3))}</h2>`;
+        else if (linha.startsWith("> ")) html += `<blockquote>${inline(linha.slice(2))}</blockquote>`;
+        else html += `<p>${linha ? inline(linha) : "<br>"}</p>`;
+      });
+
+      return html + (emLista ? "</ul>" : "");
+    }
+
+    // HTML do editor -> texto salvo
+    function htmlParaTexto(raiz) {
+      const BLOCOS = new Set(["P", "DIV", "H1", "H2", "H3", "H4", "H5", "H6", "UL", "OL", "LI", "BLOCKQUOTE"]);
+      const linhas = [];
+      const comPrefixo = (prefixo, texto) => (texto ? prefixo + texto : "");
+
+      const inline = no => {
+        if (no.nodeType === 3) return no.nodeValue.replace(/\u00a0/g, " ");
+        if (no.nodeType !== 1 || no.tagName === "BR") return "";
+
+        const dentro = [...no.childNodes].map(inline).join("");
+        if (!dentro) return "";
+
+        switch (no.tagName) {
+          case "STRONG": case "B": return `**${dentro}**`;
+          case "EM": case "I": return `*${dentro}*`;
+          case "U": return `__${dentro}__`;
+          default: return dentro;
+        }
+      };
+
+      const bloco = no => {
+        const tag = no.tagName;
+
+        if (tag === "UL" || tag === "OL") {
+          no.querySelectorAll(":scope > li").forEach(li => linhas.push(comPrefixo("- ", inline(li))));
+        } else if (/^H[1-6]$/.test(tag)) {
+          linhas.push(comPrefixo("## ", inline(no)));
+        } else if (tag === "BLOCKQUOTE") {
+          linhas.push(comPrefixo("> ", inline(no)));
+        } else if ([...no.children].some(filho => BLOCOS.has(filho.tagName))) {
+          percorrer(no);
+        } else {
+          linhas.push(inline(no));
+        }
+      };
+
+      const percorrer = pai => {
+        let atual = null;
+        const fechar = () => {
+          if (atual !== null) linhas.push(atual);
+          atual = null;
+        };
+
+        pai.childNodes.forEach(no => {
+          if (no.nodeType === 1 && BLOCOS.has(no.tagName)) {
+            fechar();
+            bloco(no);
+          } else if (no.nodeType === 1 && no.tagName === "BR") {
+            if (atual === null) atual = "";
+            fechar();
+          } else {
+            atual = (atual ?? "") + inline(no);
+          }
+        });
+        fechar();
+      };
+
+      percorrer(raiz);
+      return linhas.join("\n");
+    }
+
     // ===== Capítulos =====
 
     // Copia o que está na tela para o capítulo atual
@@ -68,7 +176,7 @@
       const capitulo = capitulos[indiceAtual];
       if (!capitulo) return;
       capitulo.titulo = tituloCapitulo.value.trim() || `Capítulo ${indiceAtual + 1}`;
-      capitulo.conteudo = textoCapitulo.value;
+      capitulo.conteudo = htmlParaTexto(textoCapitulo);
       capitulo.alinhamento = textoCapitulo.style.textAlign || "left";
     }
 
@@ -102,10 +210,11 @@
 
       indiceAtual = indice;
       tituloCapitulo.value = capitulos[indice].titulo || `Capítulo ${indice + 1}`;
-      textoCapitulo.value = capitulos[indice].conteudo || "";
+      textoCapitulo.innerHTML = textoParaHtml(capitulos[indice].conteudo || "");
       numeroCapitulo.textContent = `CAPÍTULO ${indice + 1}`;
       marcarAlinhamento(capitulos[indice].alinhamento || "left");
       contarPalavras();
+      atualizarPlaceholder();
       atualizarListaCapitulos();
     }
 
@@ -206,67 +315,10 @@
 
     // ===== Formatação =====
 
-    // Substitui um trecho do texto mantendo o Ctrl+Z funcionando
-    function substituirTrecho(inicio, fim, texto) {
-      textoCapitulo.focus();
-      textoCapitulo.setSelectionRange(inicio, fim);
-      if (!document.execCommand("insertText", false, texto)) {
-        textoCapitulo.setRangeText(texto, inicio, fim, "end");
-      }
-    }
-
-    // Negrito, itálico e sublinhado: envolve a seleção (ou remove se já tiver)
-    function alternarEnvolvimento(marcador) {
-      const valor = textoCapitulo.value;
-      const inicio = textoCapitulo.selectionStart;
-      const fim = textoCapitulo.selectionEnd;
-      const selecionado = valor.slice(inicio, fim);
-      const tam = marcador.length;
-
-      const antes = valor.slice(inicio - tam, inicio);
-      const depois = valor.slice(fim, fim + tam);
-      // No itálico (*), ignora quando o asterisco faz parte de um negrito (**)
-      const vizinhosLivres = marcador !== "*" || (valor[inicio - tam - 1] !== "*" && valor[fim + tam] !== "*");
-
-      // Marcação ao redor da seleção: **[texto]**
-      if (antes === marcador && depois === marcador && vizinhosLivres) {
-        substituirTrecho(inicio - tam, fim + tam, selecionado);
-        textoCapitulo.setSelectionRange(inicio - tam, fim - tam);
-        return;
-      }
-
-      // Marcação dentro da seleção: [**texto**]
-      if (selecionado.length > tam * 2 && selecionado.startsWith(marcador) && selecionado.endsWith(marcador)) {
-        const limpo = selecionado.slice(tam, -tam);
-        substituirTrecho(inicio, fim, limpo);
-        textoCapitulo.setSelectionRange(inicio, inicio + limpo.length);
-        return;
-      }
-
-      // Aplica a marcação; sem seleção, deixa o cursor no meio para digitar
-      substituirTrecho(inicio, fim, marcador + selecionado + marcador);
-      textoCapitulo.setSelectionRange(inicio + tam, fim + tam);
-    }
-
-    // Subtítulo, lista e citação: prefixo no começo de cada linha selecionada
-    function alternarPrefixo(prefixo) {
-      const valor = textoCapitulo.value;
-      const inicioLinha = valor.lastIndexOf("\n", textoCapitulo.selectionStart - 1) + 1;
-      let fimLinha = valor.indexOf("\n", textoCapitulo.selectionEnd);
-      if (fimLinha === -1) fimLinha = valor.length;
-
-      const linhas = valor.slice(inicioLinha, fimLinha).split("\n");
-      const todasTem = linhas.every(linha => linha.startsWith(prefixo));
-      const outrosPrefixos = /^(## |- |> )/;
-
-      // Se todas já têm o prefixo, remove; senão troca qualquer outro prefixo por este
-      const novas = linhas.map(linha => todasTem
-        ? linha.slice(prefixo.length)
-        : prefixo + linha.replace(outrosPrefixos, ""));
-
-      const novoTexto = novas.join("\n");
-      substituirTrecho(inicioLinha, fimLinha, novoTexto);
-      textoCapitulo.setSelectionRange(inicioLinha, inicioLinha + novoTexto.length);
+    // Subtítulo e citação: liga e desliga o bloco
+    function alternarBloco(tag) {
+      const atual = (document.queryCommandValue("formatBlock") || "").toLowerCase();
+      document.execCommand("formatBlock", false, atual === tag ? "p" : tag);
     }
 
     function aplicarFormato(formato) {
@@ -274,14 +326,23 @@
         marcarAlinhamento(formato);
         textoCapitulo.focus();
       } else {
-        const envolver = { bold: "**", italic: "*", underline: "__" }[formato];
-        const prefixo = { heading: "## ", list: "- ", quote: "> " }[formato];
+        textoCapitulo.focus();
 
-        if (envolver) alternarEnvolvimento(envolver);
-        else if (prefixo) alternarPrefixo(prefixo);
+        const comando = {
+          bold: "bold",
+          italic: "italic",
+          underline: "underline",
+          list: "insertUnorderedList"
+        }[formato];
+
+        if (comando) document.execCommand(comando);
+        else if (formato === "heading") alternarBloco("h2");
+        else if (formato === "quote") alternarBloco("blockquote");
         else return;
 
         contarPalavras();
+        atualizarPlaceholder();
+        atualizarBotoesAtivos();
       }
 
       guardarCapituloAtual();
@@ -302,6 +363,18 @@
         evento.preventDefault();
         aplicarFormato(formato);
       }
+    });
+
+    // Colar sempre como texto puro (evita trazer estilos de outros sites)
+    textoCapitulo.addEventListener("paste", evento => {
+      evento.preventDefault();
+      const texto = evento.clipboardData.getData("text/plain");
+      document.execCommand("insertText", false, texto);
+    });
+
+    // Atualiza B / I / U conforme o cursor se move
+    document.addEventListener("selectionchange", () => {
+      if (document.activeElement === textoCapitulo) atualizarBotoesAtivos();
     });
 
     // ===== Prévia =====
@@ -342,6 +415,7 @@
 
     textoCapitulo.addEventListener("input", () => {
       contarPalavras();
+      atualizarPlaceholder();
       marcarAlteracoes();
     });
 
