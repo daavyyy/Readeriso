@@ -74,6 +74,14 @@
         <span>Palavras escritas</span>
       </div>
       <div class="estatistica">
+        <strong id="totalVisualizacoes">0</strong>
+        <span>Visualizações</span>
+      </div>
+      <div class="estatistica">
+        <strong id="totalFavoritosRecebidos">0</strong>
+        <span>Favoritaram suas obras</span>
+      </div>
+      <div class="estatistica">
         <strong id="totalFavoritos">00</strong>
         <span>Favoritos</span>
       </div>
@@ -122,6 +130,17 @@
 
         <div class="modal-body">
           <form id="formPerfil">
+            <div class="campo-foto">
+              <div class="avatar avatar-previa" id="previaFoto" aria-hidden="true">R</div>
+
+              <div class="campo-foto-acoes">
+                <label for="campoFoto" class="btn-secundario">Escolher foto</label>
+                <input type="file" id="campoFoto" accept="image/*" hidden>
+                <button type="button" class="btn-secundario" id="btnRemoverFoto" hidden>Remover foto</button>
+              </div>
+
+              <p class="erro-foto" id="erroFoto" role="alert"></p>
+            </div>
             <div>
               <label for="campoNome" class="rotulo">NOME</label>
               <input type="text" id="campoNome" class="campo" maxlength="40" required>
@@ -167,7 +186,7 @@
 
       <div class="footer-coluna">
         <h3>Contatos</h3>
-        <a href="mailto:readeriso.contato@gmail.com">E-mail</a>
+        <a href="https://mail.google.com/mail/?view=cm&fs=1&to=readeriso.contato@gmail.com" target="_blank" rel="noopener noreferrer">E-mail</a>
         <a href="../index.html#conheca">Sobre nós</a>
       </div>
 

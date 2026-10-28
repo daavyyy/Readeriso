@@ -1,106 +1,21 @@
-const SUPABASE_URL = "https://pcsjhrayvxxyhphdzjlv.supabase.co";
-const SUPABASE_KEY = "sb_publishable_oirhV7wk9tB9JNBuLuzCCQ_SomAepLe";
-
-const supabase = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
+*correção do email de contato
+*readme
+*print index
+*modificadores
+*no localStorage, ao escrever e trocar de conta, o livro escrito na conta A pode ser lido e favoritado na conta B (e vise  versa), 
+e mostrar para a conta A quantas visualizações e favoritismo tiveram no livro, alem de mostrar o nome da conta que fez o livro,
+isso será um texto para quando tiver ligado o banco de dados
+*opção de por foto nos perfil
+*adicionar mais site
 
 
 git pull --no-rebase origin main
 
+-aba nova nos sites, para apps
+-por imagens no livro (capa e no livro)
+-livros demonstrativo igual livros publicados (em progresso)
+
+
+
+
 https://www.iloveimg.com/pt
-
-
-
-
-app-
-
-https://www.sukimangas.com/
-Lezhin Comics
-Tappytoon
-Comikey Brasil
-INKR Comics
-Comic Walker
-Kodansha
-
-
-Livros e ebook:
-
-https://infolivros.org/
-https://livrariapublica.com.br/
-https://www.amazon.com.br/s?bbn=6311441011&rh=n%3A5308307011%2Cn%3A6311441011%2Cn%3A5475882011%2Cn%3A5559904011&dc&linkCode=sl2&linkId=befc25db19b7908996cc4910d4751c6e&qid=1776986763&rnid=18726358011&tag=livrariapubli-20&ref=as_li_ss_tl
-https://books.scielo.org/fiocruz/
-https://infolivros.org/
-https://literamundo.com.br/
-https://biblion.org.br/
-https://biblioclube.com.br/
-https://elivros.info/
-https://www.baixelivros.com.br/
-https://dlivros.com/livro/mais-obrigado-pelos-peixes-guia-mochileiro-galaxias-4-douglas-adams
-
-
-MAnga, webtoons e hq:
-
-https://www.mangazona.com/pt/
-https://gomangas.com/
-https://auratoons.com/
-https://manhq.com.br/home
-https://mangastop.net/
-https://blitztoons.com/
-https://leitordemangas.com/
-https://www.rebmanga.com/pt/
-https://www.webcomicsapp.com/pt/
-https://nexustoons.com/
-https://hqzone.com.br/
-https://www.marvel.com/comics/guides/2421/get_started_with_free_issues
-https://tavernadequadrinhos.com.br/
-https://www.hq-now.com/
-https://zonafantasmanet.wordpress.com/
-https://hqqisso.com.br/
-https://www.mikanhq.com.br/
-https://novelmania.com.br/
-https://centralnovel.com/
-https://www.webnovel.com/pt/
-https://mahoureader.com/novel
-
-
-Noticias:
-
-https://www.pressreader.com/pt-br/newspapers?free=true
-https://www.cnnbrasil.com.br/
-https://iclnoticias.com.br/
-https://www.hubejornais.com.br/
-
-
-fanfic:
-
-https://fanfy.studio/pt/read
-https://fanficia.com/pt/browse
-https://www.fanficando.com/
-
-
-APP (nova aba)
-
-
-
-opção de por foto nos livros,
-corrigir  bug dos modificadores de texto 
-livros demonstrativo igual livros publicados
-corrigir o espaçamento dos prints
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

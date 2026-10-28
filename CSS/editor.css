@@ -241,7 +241,7 @@
   border-color: #555555;
 }
 
-/* Alinhamento selecionado */
+/* Botão ativo (alinhamento e negrito/itálico/sublinhado) */
 .barra-ferramentas button[aria-pressed="true"] {
   color: #ffffff;
   background-color: var(--vermelho);
@@ -255,11 +255,17 @@
   background-color: var(--borda);
 }
 
+/* ===== Área de escrita (contenteditable) ===== */
+
 #textoCapitulo {
+  position: relative;
   display: block;
   width: 100%;
   min-height: 460px;
   padding: 24px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
   font-family: Georgia, "Times New Roman", serif;
   font-size: 1.1rem;
   line-height: 1.9;
@@ -267,11 +273,42 @@
   background: transparent;
   border: 0;
   outline: none;
-  resize: vertical;
 }
 
-#textoCapitulo::placeholder {
+/* Placeholder: aparece só quando o texto está vazio (classe "vazio" vem do JS) */
+#textoCapitulo.vazio::before {
+  content: attr(data-placeholder);
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  right: 24px;
   color: #666666;
+  pointer-events: none;
+}
+
+#textoCapitulo p {
+  margin: 0;
+  min-height: 1.9em;
+}
+
+#textoCapitulo h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+#textoCapitulo ul {
+  margin: 0;
+  padding-left: 1.6em;
+  list-style: disc;
+}
+
+#textoCapitulo blockquote {
+  margin: 0;
+  padding-left: 14px;
+  color: var(--texto-suave);
+  border-left: 3px solid var(--vermelho);
 }
 
 .informacoes-editor {
@@ -373,6 +410,12 @@
   #textoCapitulo {
     min-height: 360px;
     padding: 18px;
+  }
+
+  #textoCapitulo.vazio::before {
+    top: 18px;
+    left: 18px;
+    right: 18px;
   }
 
   .controles,

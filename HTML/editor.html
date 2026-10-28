@@ -112,8 +112,15 @@
           <button type="button" data-format="right" title="Alinhar à direita" aria-label="Alinhar à direita">⇥</button>
         </div>
 
-        <label for="textoCapitulo" class="visually-hidden">Texto do capítulo</label>
-        <textarea id="textoCapitulo" placeholder="Comece a escrever sua história..." spellcheck="true"></textarea>
+        <span id="rotuloTexto" class="visually-hidden">Texto do capítulo</span>
+        <div
+          id="textoCapitulo"
+          contenteditable="true"
+          role="textbox"
+          aria-multiline="true"
+          aria-labelledby="rotuloTexto"
+          data-placeholder="Comece a escrever sua história..."
+          spellcheck="true"></div>
 
         <div class="informacoes-editor">
           <span id="contadorPalavras">0 palavras</span>
@@ -209,7 +216,7 @@
 
       <div class="footer-coluna">
         <h3>Contatos</h3>
-        <a href="mailto:readeriso.contato@gmail.com">E-mail</a>
+        <a href="https://mail.google.com/mail/?view=cm&fs=1&to=readeriso.contato@gmail.com" target="_blank" rel="noopener noreferrer">E-mail</a>
         <a href="../index.html#conheca">Sobre nós</a>
       </div>
 

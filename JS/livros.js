@@ -1,11 +1,32 @@
-/* livros.js — armazenamento único das histórias do Readeriso. */
+/* livros.js — armazenamento único do Readeriso (localStorage).
+   TODA a leitura/escrita de dados passa por window.Readeriso.
+   Quando o banco de dados for ligado, troque só o corpo das funções daqui
+   (viram fetch/Supabase) e as páginas continuam iguais.
+
+   Tabelas simuladas:
+   - readeriso:livros          -> livros (agora com autorId / autorNome)
+   - readeriso:favoritos       -> { idUsuario: [idLivro, ...] }
+   - readeriso:visualizacoes   -> { idLivro: [idUsuario, ...] }  (1 por conta)
+   - readerisoPerfil           -> { idUsuario: { nome, bio, foto } }
+*/
 (() => {
   "use strict";
 
   const CHAVE = "readeriso:livros";
+  const CHAVE_FAVORITOS = "readeriso:favoritos";
+  const CHAVE_VISUALIZACOES = "readeriso:visualizacoes";
+  const CHAVE_PERFIL = "readerisoPerfil";
+  const CHAVE_USUARIO = "readerisoUsuarioAtual";
   const CHAVES_ANTIGAS = ["readerisoLivros", "readeriso:livros", "readeriso:historia"];
   const ALINHAMENTOS = ["left", "center", "right"];
   const gerarId = () => `hist-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+
+  // Livros de demonstração (aparecem para todas as contas)
+  const livrosDemo = [
+    { id: "fantasia", titulo: "Fantasia", genero: "Fantasia", autor: "Autor de exemplo", descricao: "Um reino à beira do fim guarda um segredo esquecido.", link: "livro.teste/fantasia.txt", capa: "livro.teste/1.png", demo: true },
+    { id: "romance", titulo: "Romance", genero: "Romance", autor: "Autora de exemplo", descricao: "Duas pessoas descobrem o que nunca conseguiram dizer.", link: "livro.teste/romance.txt", capa: "livro.teste/2.png", demo: true },
+    { id: "yaoi", titulo: "Yaoi", genero: "Yaoi", autor: "Autor de exemplo", descricao: "Um encontro inesperado muda tudo o que eles sabiam.", link: "livro.teste/yaoi.txt", capa: "livro.teste/3.png", demo: true }
+  ];
 
   function timestamp(valor, padrao) {
     if (typeof valor === "number" && Number.isFinite(valor)) return valor;
@@ -44,6 +65,8 @@
       genero: String(livro.genero ?? livro.gênero ?? "Outro").trim() || "Outro",
       publicada: livro.publicada === true || livro.publicado === true || livro.published === true,
       capitulos: capitulos.length ? capitulos : [normalizarCapitulo({ titulo: "Capítulo 1" }, 0)],
+      autorId: String(livro.autorId ?? ""),
+      autorNome: String(livro.autorNome ?? ""),
       criadoEm: timestamp(livro.criadoEm ?? livro.criado_em, agora),
       atualizadoEm: timestamp(livro.atualizadoEm ?? livro.atualizado_em, agora)
     };
@@ -59,24 +82,44 @@
     }
   }
 
-  function gravar(lista) {
+  function lerObjeto(chave) {
+    const dados = lerJSON(chave);
+    return dados && typeof dados === "object" && !Array.isArray(dados) ? dados : {};
+  }
+
+  function gravarChave(chave, valor) {
     try {
-      localStorage.setItem(CHAVE, JSON.stringify(lista));
+      localStorage.setItem(chave, JSON.stringify(valor));
       return true;
     } catch (erro) {
-      console.error("Falha ao salvar histórias no localStorage:", erro);
+      console.error(`Falha ao salvar ${chave} no localStorage:`, erro);
       return false;
     }
   }
 
+  function gravar(lista) {
+    return gravarChave(CHAVE, lista);
+  }
+
+  // ===== Conta logada (gravada pelo login.js) =====
+  function usuarioAtual() {
+    const dados = lerJSON(CHAVE_USUARIO);
+    return dados && typeof dados === "object" ? dados : { usuario: "Leitor", email: "" };
+  }
+
+  // Identificador da conta. No banco de dados vira o id do usuário.
+  function idUsuario() {
+    const dados = lerJSON(CHAVE_USUARIO);
+    return dados && typeof dados === "object" ? String(dados.email || dados.usuario || "") : "";
+  }
+
   function lerBrutoPrincipal() {
     const dados = lerJSON(CHAVE);
-    if (Array.isArray(dados)) return dados;
-    return [];
+    return Array.isArray(dados) ? dados : [];
   }
 
   function migrarDadosAntigos() {
-    let atuais = lerBrutoPrincipal();
+    const atuais = lerBrutoPrincipal();
     const ids = new Set(atuais.map(item => String(item?.id ?? "")));
     let alterou = false;
 
@@ -115,17 +158,168 @@
       }
     }
 
-    if (alterou || lerJSON(CHAVE) === null) gravar(atuais.map(normalizar).filter(Boolean));
+    const todos = atuais.map(normalizar).filter(Boolean);
+
+    // Livros antigos, criados antes de existir "autor", ficam com a conta que abrir primeiro
+    const dono = idUsuario();
+    if (dono) {
+      const nome = usuarioAtual().usuario;
+      for (const livro of todos) {
+        if (!livro.autorId) {
+          livro.autorId = dono;
+          livro.autorNome = nome;
+          alterou = true;
+        }
+      }
+    }
+
+    if (alterou || lerJSON(CHAVE) === null) gravar(todos);
+  }
+
+  // Favoritos antigos eram globais (uma lista só). Passam para a conta atual, uma única vez.
+  function migrarFavoritosAntigos() {
+    const dono = idUsuario();
+    if (!dono) return;
+    const antigos = lerJSON("readerisoFavoritos") ?? lerJSON("crimsonReaderFavorites");
+    if (!Array.isArray(antigos)) return;
+
+    const mapa = lerObjeto(CHAVE_FAVORITOS);
+    mapa[dono] = [...new Set([...(Array.isArray(mapa[dono]) ? mapa[dono] : []), ...antigos.map(String)])];
+    if (gravarChave(CHAVE_FAVORITOS, mapa)) {
+      localStorage.removeItem("readerisoFavoritos");
+      localStorage.removeItem("crimsonReaderFavorites");
+    }
   }
 
   migrarDadosAntigos();
+  migrarFavoritosAntigos();
 
-  function listar() {
+  // ===== Livros =====
+
+  // Todos os livros de todas as contas (uso interno)
+  function listarTodos() {
     return lerBrutoPrincipal().map(normalizar).filter(Boolean);
+  }
+
+  // Só os livros da conta logada (escritor, biblioteca e estatísticas usam este)
+  function listar() {
+    const dono = idUsuario();
+    return listarTodos().filter(livro => livro.autorId === dono);
+  }
+
+  // Livros publicados por qualquer conta (Explorar, leitura e favoritos)
+  function listarPublicadas() {
+    return listarTodos().filter(livro => livro.publicada);
+  }
+
+  function obter(id) {
+    if (id === undefined || id === null) return null;
+    return listarTodos().find(livro => livro.id === String(id)) || null;
   }
 
   function gerarCapitulo(titulo = "Capítulo 1", conteudo = "", alinhamento = "left") {
     return normalizarCapitulo({ titulo, conteudo, alinhamento }, 0);
+  }
+
+  // ===== Perfil (nome, bio e foto) =====
+  function obterPerfil(id = idUsuario()) {
+    const perfil = lerObjeto(CHAVE_PERFIL)[id];
+    return perfil && typeof perfil === "object" ? perfil : {};
+  }
+
+  function salvarPerfil(dados, id = idUsuario()) {
+    const mapa = lerObjeto(CHAVE_PERFIL);
+    mapa[id] = { ...(mapa[id] || {}), ...dados };
+    return gravarChave(CHAVE_PERFIL, mapa);
+  }
+
+  // Nome e foto atuais da conta que escreveu o livro
+  function autorDe(livro) {
+    const perfil = obterPerfil(livro.autorId);
+    return {
+      nome: perfil.nome || livro.autorNome || "Autor desconhecido",
+      foto: perfil.foto || ""
+    };
+  }
+
+  // ===== Favoritos =====
+  function favoritosDe(usuario = idUsuario()) {
+    const lista = lerObjeto(CHAVE_FAVORITOS)[usuario];
+    return Array.isArray(lista) ? lista : [];
+  }
+
+  function ehFavorito(idLivro) {
+    return favoritosDe().includes(String(idLivro));
+  }
+
+  // Adiciona ou remove. Devolve true se o livro ficou favoritado.
+  function alternarFavorito(idLivro) {
+    const dono = idUsuario();
+    if (!dono) return false;
+
+    const id = String(idLivro);
+    const mapa = lerObjeto(CHAVE_FAVORITOS);
+    const atuais = new Set(favoritosDe(dono));
+
+    if (atuais.has(id)) atuais.delete(id);
+    else atuais.add(id);
+
+    mapa[dono] = [...atuais];
+    gravarChave(CHAVE_FAVORITOS, mapa);
+    return atuais.has(id);
+  }
+
+  function contarFavoritos(idLivro) {
+    const id = String(idLivro);
+    return Object.values(lerObjeto(CHAVE_FAVORITOS))
+      .filter(lista => Array.isArray(lista) && lista.includes(id)).length;
+  }
+
+  // ===== Visualizações (1 por conta; o autor não conta) =====
+  function registrarVisualizacao(idLivro) {
+    const dono = idUsuario();
+    const livro = obter(idLivro);
+    if (!dono || !livro || livro.autorId === dono) return;
+
+    const id = String(idLivro);
+    const mapa = lerObjeto(CHAVE_VISUALIZACOES);
+    const lista = Array.isArray(mapa[id]) ? mapa[id] : [];
+    if (lista.includes(dono)) return;
+
+    mapa[id] = [...lista, dono];
+    gravarChave(CHAVE_VISUALIZACOES, mapa);
+  }
+
+  function contarVisualizacoes(idLivro) {
+    const lista = lerObjeto(CHAVE_VISUALIZACOES)[String(idLivro)];
+    return Array.isArray(lista) ? lista.length : 0;
+  }
+
+  // Texto de estatísticas mostrado ao autor
+  function textoEstatisticas(idLivro) {
+    const v = contarVisualizacoes(idLivro);
+    const f = contarFavoritos(idLivro);
+    return `👁 ${v} ${v === 1 ? "visualização" : "visualizações"} · ♥ ${f} ${f === 1 ? "favorito" : "favoritos"}`;
+  }
+
+  // Demonstração + publicadas de todas as contas, no mesmo formato de card
+  function catalogo() {
+    const dono = idUsuario();
+    const publicadas = listarPublicadas()
+      .filter(livro => livro.titulo)
+      .map(livro => ({
+        id: livro.id,
+        titulo: livro.titulo,
+        genero: livro.genero,
+        descricao: livro.descricao || "Sem descrição.",
+        autor: autorDe(livro).nome,
+        capa: null,
+        link: `biblioteca.html?ler=${encodeURIComponent(livro.id)}`,
+        demo: false,
+        propria: livro.autorId === dono
+      }));
+
+    return [...publicadas, ...livrosDemo.map(livro => ({ ...livro, propria: false }))];
   }
 
   // Evita que textos digitados pelo usuário virem HTML
@@ -133,6 +327,12 @@
     return String(texto ?? "").replace(/[&<>"']/g, caractere => ({
       "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
     })[caractere]);
+  }
+
+  // Foto (se houver) ou inicial do nome, para os círculos de avatar
+  function avatarHTML(nome, foto) {
+    if (foto) return `<img src="${escaparHTML(foto)}" alt="">`;
+    return escaparHTML((String(nome || "R").charAt(0) || "R").toUpperCase());
   }
 
   // Converte as marcações do editor (**negrito**, *itálico*, __sublinhado__,
@@ -170,34 +370,43 @@
     return html.join("");
   }
 
-  // Dados da conta logada (gravados pelo login.js)
-  function usuarioAtual() {
-    const dados = lerJSON("readerisoUsuarioAtual");
-    return dados && typeof dados === "object" ? dados : { usuario: "Leitor", email: "" };
-  }
-
   window.Readeriso = {
     CHAVE,
     gerarId,
     novoCapitulo: gerarCapitulo,
     listar,
+    listarPublicadas,
+    catalogo,
+    livrosDemo,
     escaparHTML,
+    avatarHTML,
     formatarTexto,
     usuarioAtual,
-
-    obter(id) {
-      if (id === undefined || id === null) return null;
-      return listar().find(livro => livro.id === String(id)) || null;
-    },
+    idUsuario,
+    obter,
+    obterPerfil,
+    salvarPerfil,
+    autorDe,
+    ehFavorito,
+    favoritosDe,
+    alternarFavorito,
+    contarFavoritos,
+    registrarVisualizacao,
+    contarVisualizacoes,
+    textoEstatisticas,
 
     criar({ titulo = "", descricao = "", genero = "Outro" } = {}) {
+      const dono = idUsuario();
+      if (!dono) return null;
+
       const agora = Date.now();
       const livro = normalizar({
         id: gerarId(), titulo, descricao, genero, publicada: false,
+        autorId: dono, autorNome: usuarioAtual().usuario,
         capitulos: [gerarCapitulo("Capítulo 1", "")],
         criadoEm: agora, atualizadoEm: agora
       });
-      const lista = listar();
+      const lista = listarTodos();
       lista.push(livro);
       return gravar(lista) ? livro : null;
     },
@@ -206,9 +415,16 @@
       const livro = normalizar(dados);
       if (!livro) return false;
 
-      const lista = listar();
+      const dono = idUsuario();
+      const lista = listarTodos();
       const indice = lista.findIndex(item => item.id === livro.id);
       const existente = indice >= 0 ? lista[indice] : null;
+
+      // Só o autor pode editar o próprio livro
+      if (existente && existente.autorId && existente.autorId !== dono) return false;
+
+      livro.autorId = existente?.autorId || dono;
+      livro.autorNome = existente?.autorNome || usuarioAtual().usuario;
       livro.criadoEm = existente?.criadoEm || livro.criadoEm || Date.now();
       livro.atualizadoEm = Date.now();
 
@@ -218,7 +434,21 @@
     },
 
     excluir(id) {
-      return gravar(listar().filter(livro => livro.id !== String(id)));
+      const livro = obter(id);
+      if (!livro || livro.autorId !== idUsuario()) return false;
+
+      // Apaga também favoritos e visualizações desse livro
+      const favoritos = lerObjeto(CHAVE_FAVORITOS);
+      for (const usuario of Object.keys(favoritos)) {
+        if (Array.isArray(favoritos[usuario])) favoritos[usuario] = favoritos[usuario].filter(item => item !== livro.id);
+      }
+      gravarChave(CHAVE_FAVORITOS, favoritos);
+
+      const visualizacoes = lerObjeto(CHAVE_VISUALIZACOES);
+      delete visualizacoes[livro.id];
+      gravarChave(CHAVE_VISUALIZACOES, visualizacoes);
+
+      return gravar(listarTodos().filter(item => item.id !== livro.id));
     }
   };
 })();

@@ -93,3 +93,61 @@
   background-color: var(--vermelho);
   border-color: var(--vermelho);
 }
+
+/* ===== Foto de perfil ===== */
+
+.avatar {
+  overflow: hidden;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.avatar-previa {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 0;
+  font-size: 2rem;
+}
+
+.campo-foto {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.campo-foto-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.campo-foto-acoes .btn-secundario {
+  min-width: 0;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.erro-foto {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 0.85rem;
+  color: #ff6b6b;
+}
+
+.erro-foto:empty {
+  display: none;
+}
+
+/* Capa sem imagem (livros de outros leitores) no perfil */
+.capa-historia.sem-capa {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
