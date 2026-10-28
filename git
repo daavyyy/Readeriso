@@ -1,0 +1,797 @@
+livro.js ---
+
+/* livros.js — armazenamento único do Readeriso (localStorage).
+   TODA a leitura/escrita de dados passa por window.Readeriso.
+   Quando o banco de dados for ligado, troque só o corpo das funções daqui
+   (viram fetch/Supabase) e as páginas continuam iguais.
+
+   Tabelas simuladas:
+   - readeriso:livros          -> livros (agora com autorId / autorNome)
+   - readeriso:favoritos       -> { idUsuario: [idLivro, ...] }
+   - readeriso:visualizacoes   -> { idLivro: [idUsuario, ...] }  (1 por conta)
+   - readerisoPerfil           -> { idUsuario: { nome, bio, foto } }
+*/
+(() => {
+  "use strict";
+
+  const CHAVE = "readeriso:livros";
+  const CHAVE_FAVORITOS = "readeriso:favoritos";
+  const CHAVE_VISUALIZACOES = "readeriso:visualizacoes";
+  const CHAVE_PERFIL = "readerisoPerfil";
+  const CHAVE_USUARIO = "readerisoUsuarioAtual";
+  const CHAVES_ANTIGAS = ["readerisoLivros", "readeriso:livros", "readeriso:historia"];
+  const ALINHAMENTOS = ["left", "center", "right"];
+  const gerarId = () => `hist-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+
+  // Livros de demonstração (aparecem para todas as contas)
+  const livrosDemo = [
+    { id: "fantasia", titulo: "Fantasia", genero: "Fantasia", autor: "Autor de exemplo", descricao: "Um reino à beira do fim guarda um segredo esquecido.", link: "livro.teste/fantasia.txt", capa: "livro.teste/1.png", demo: true },
+    { id: "romance", titulo: "Romance", genero: "Romance", autor: "Autora de exemplo", descricao: "Duas pessoas descobrem o que nunca conseguiram dizer.", link: "livro.teste/romance.txt", capa: "livro.teste/2.png", demo: true },
+    { id: "yaoi", titulo: "Yaoi", genero: "Yaoi", autor: "Autor de exemplo", descricao: "Um encontro inesperado muda tudo o que eles sabiam.", link: "livro.teste/yaoi.txt", capa: "livro.teste/3.png", demo: true }
+  ];
+
+  function timestamp(valor, padrao) {
+    if (typeof valor === "number" && Number.isFinite(valor)) return valor;
+    if (typeof valor === "string" && valor.trim()) {
+      const numero = Number(valor);
+      if (Number.isFinite(numero)) return numero;
+      const data = Date.parse(valor);
+      if (Number.isFinite(data)) return data;
+    }
+    return padrao;
+  }
+
+  function normalizarCapitulo(capitulo, indice = 0) {
+    const c = capitulo && typeof capitulo === "object" ? capitulo : {};
+    return {
+      id: String(c.id || `cap-${Date.now().toString(36)}-${indice}-${Math.random().toString(36).slice(2, 5)}`),
+      titulo: String(c.titulo ?? `Capítulo ${indice + 1}`),
+      conteudo: String(c.conteudo ?? c.texto ?? ""),
+      alinhamento: ALINHAMENTOS.includes(c.alinhamento) ? c.alinhamento : "left"
+    };
+  }
+
+  function normalizar(livro) {
+    if (!livro || typeof livro !== "object") return null;
+    const id = livro.id ?? livro.ID;
+    if (id === undefined || id === null || String(id).trim() === "") return null;
+
+    const agora = Date.now();
+    const capitulosOriginais = Array.isArray(livro.capitulos) ? livro.capitulos : [];
+    const capitulos = capitulosOriginais.map((capitulo, indice) => normalizarCapitulo(capitulo, indice));
+
+    return {
+      id: String(id),
+      titulo: String(livro.titulo ?? livro.title ?? "").trim(),
+      descricao: String(livro.descricao ?? livro.description ?? ""),
+      genero: String(livro.genero ?? livro.gênero ?? "Outro").trim() || "Outro",
+      publicada: livro.publicada === true || livro.publicado === true || livro.published === true,
+      capitulos: capitulos.length ? capitulos : [normalizarCapitulo({ titulo: "Capítulo 1" }, 0)],
+      autorId: String(livro.autorId ?? ""),
+      autorNome: String(livro.autorNome ?? ""),
+      capa: typeof livro.capa === "string" && livro.capa.startsWith("data:image/") ? livro.capa : "",
+      criadoEm: timestamp(livro.criadoEm ?? livro.criado_em, agora),
+      atualizadoEm: timestamp(livro.atualizadoEm ?? livro.atualizado_em, agora)
+    };
+  }
+
+  function lerJSON(chave) {
+    try {
+      const valor = localStorage.getItem(chave);
+      return valor === null ? null : JSON.parse(valor);
+    } catch (erro) {
+      console.warn(`Não foi possível ler ${chave} do localStorage.`, erro);
+      return null;
+    }
+  }
+
+  function lerObjeto(chave) {
+    const dados = lerJSON(chave);
+    return dados && typeof dados === "object" && !Array.isArray(dados) ? dados : {};
+  }
+
+  function gravarChave(chave, valor) {
+    try {
+      localStorage.setItem(chave, JSON.stringify(valor));
+      return true;
+    } catch (erro) {
+      console.error(`Falha ao salvar ${chave} no localStorage:`, erro);
+      return false;
+    }
+  }
+
+  function gravar(lista) {
+    return gravarChave(CHAVE, lista);
+  }
+
+  // ===== Conta logada (gravada pelo login.js) =====
+  function usuarioAtual() {
+    const dados = lerJSON(CHAVE_USUARIO);
+    return dados && typeof dados === "object" ? dados : { usuario: "Leitor", email: "" };
+  }
+
+  // Identificador da conta. No banco de dados vira o id do usuário.
+  function idUsuario() {
+    const dados = lerJSON(CHAVE_USUARIO);
+    return dados && typeof dados === "object" ? String(dados.email || dados.usuario || "") : "";
+  }
+
+  function lerBrutoPrincipal() {
+    const dados = lerJSON(CHAVE);
+    return Array.isArray(dados) ? dados : [];
+  }
+
+  function migrarDadosAntigos() {
+    const atuais = lerBrutoPrincipal();
+    const ids = new Set(atuais.map(item => String(item?.id ?? "")));
+    let alterou = false;
+
+    for (const chave of CHAVES_ANTIGAS) {
+      if (chave === CHAVE) continue;
+      const antigos = lerJSON(chave);
+      if (Array.isArray(antigos)) {
+        for (const item of antigos) {
+          const livro = normalizar(item);
+          if (livro && !ids.has(livro.id)) {
+            atuais.push(livro);
+            ids.add(livro.id);
+            alterou = true;
+          }
+        }
+      } else if (chave === "readeriso:historia" && antigos && typeof antigos === "object") {
+        // Versões antigas guardavam um único editor em vez de uma lista de histórias.
+        const capitulos = Array.isArray(antigos.capitulos)
+          ? antigos.capitulos.map(c => ({ ...c, conteudo: c.conteudo ?? c.texto ?? "" }))
+          : [];
+        const legado = normalizar({
+          id: antigos.id || gerarId(),
+          titulo: antigos.titulo || "História recuperada",
+          descricao: antigos.descricao || "",
+          genero: antigos.genero || "Outro",
+          publicada: antigos.publicada === true || antigos.publicado === true,
+          capitulos,
+          criadoEm: antigos.criadoEm || Date.now(),
+          atualizadoEm: antigos.atualizadoEm || Date.now()
+        });
+        if (legado && !ids.has(legado.id)) {
+          atuais.push(legado);
+          ids.add(legado.id);
+          alterou = true;
+        }
+      }
+    }
+
+    const todos = atuais.map(normalizar).filter(Boolean);
+
+    // Livros antigos, criados antes de existir "autor", ficam com a conta que abrir primeiro
+    const dono = idUsuario();
+    if (dono) {
+      const nome = usuarioAtual().usuario;
+      for (const livro of todos) {
+        if (!livro.autorId) {
+          livro.autorId = dono;
+          livro.autorNome = nome;
+          alterou = true;
+        }
+      }
+    }
+
+    if (alterou || lerJSON(CHAVE) === null) gravar(todos);
+  }
+
+  // Favoritos antigos eram globais (uma lista só). Passam para a conta atual, uma única vez.
+  function migrarFavoritosAntigos() {
+    const dono = idUsuario();
+    if (!dono) return;
+    const antigos = lerJSON("readerisoFavoritos") ?? lerJSON("crimsonReaderFavorites");
+    if (!Array.isArray(antigos)) return;
+
+    const mapa = lerObjeto(CHAVE_FAVORITOS);
+    mapa[dono] = [...new Set([...(Array.isArray(mapa[dono]) ? mapa[dono] : []), ...antigos.map(String)])];
+    if (gravarChave(CHAVE_FAVORITOS, mapa)) {
+      localStorage.removeItem("readerisoFavoritos");
+      localStorage.removeItem("crimsonReaderFavorites");
+    }
+  }
+
+  migrarDadosAntigos();
+  migrarFavoritosAntigos();
+
+  // ===== Livros =====
+
+  // Todos os livros de todas as contas (uso interno)
+  function listarTodos() {
+    return lerBrutoPrincipal().map(normalizar).filter(Boolean);
+  }
+
+  // Só os livros da conta logada (escritor, biblioteca e estatísticas usam este)
+  function listar() {
+    const dono = idUsuario();
+    return listarTodos().filter(livro => livro.autorId === dono);
+  }
+
+  // Livros publicados por qualquer conta (Explorar, leitura e favoritos)
+  function listarPublicadas() {
+    return listarTodos().filter(livro => livro.publicada);
+  }
+
+  function obter(id) {
+    if (id === undefined || id === null) return null;
+    return listarTodos().find(livro => livro.id === String(id)) || null;
+  }
+
+  function gerarCapitulo(titulo = "Capítulo 1", conteudo = "", alinhamento = "left") {
+    return normalizarCapitulo({ titulo, conteudo, alinhamento }, 0);
+  }
+
+  // ===== Perfil (nome, bio e foto) =====
+  function obterPerfil(id = idUsuario()) {
+    const perfil = lerObjeto(CHAVE_PERFIL)[id];
+    return perfil && typeof perfil === "object" ? perfil : {};
+  }
+
+  function salvarPerfil(dados, id = idUsuario()) {
+    const mapa = lerObjeto(CHAVE_PERFIL);
+    mapa[id] = { ...(mapa[id] || {}), ...dados };
+    return gravarChave(CHAVE_PERFIL, mapa);
+  }
+
+  // Nome e foto atuais da conta que escreveu o livro
+  function autorDe(livro) {
+    const perfil = obterPerfil(livro.autorId);
+    return {
+      nome: perfil.nome || livro.autorNome || "Autor desconhecido",
+      foto: perfil.foto || ""
+    };
+  }
+
+  // ===== Favoritos =====
+  function favoritosDe(usuario = idUsuario()) {
+    const lista = lerObjeto(CHAVE_FAVORITOS)[usuario];
+    return Array.isArray(lista) ? lista : [];
+  }
+
+  function ehFavorito(idLivro) {
+    return favoritosDe().includes(String(idLivro));
+  }
+
+  // Adiciona ou remove. Devolve true se o livro ficou favoritado.
+  function alternarFavorito(idLivro) {
+    const dono = idUsuario();
+    if (!dono) return false;
+
+    const id = String(idLivro);
+    const mapa = lerObjeto(CHAVE_FAVORITOS);
+    const atuais = new Set(favoritosDe(dono));
+
+    if (atuais.has(id)) atuais.delete(id);
+    else atuais.add(id);
+
+    mapa[dono] = [...atuais];
+    gravarChave(CHAVE_FAVORITOS, mapa);
+    return atuais.has(id);
+  }
+
+  function contarFavoritos(idLivro) {
+    const id = String(idLivro);
+    return Object.values(lerObjeto(CHAVE_FAVORITOS))
+      .filter(lista => Array.isArray(lista) && lista.includes(id)).length;
+  }
+
+  // ===== Visualizações (1 por conta; o autor não conta) =====
+  function registrarVisualizacao(idLivro) {
+    const dono = idUsuario();
+    const livro = obter(idLivro);
+    if (!dono || !livro || livro.autorId === dono) return;
+
+    const id = String(idLivro);
+    const mapa = lerObjeto(CHAVE_VISUALIZACOES);
+    const lista = Array.isArray(mapa[id]) ? mapa[id] : [];
+    if (lista.includes(dono)) return;
+
+    mapa[id] = [...lista, dono];
+    gravarChave(CHAVE_VISUALIZACOES, mapa);
+  }
+
+  function contarVisualizacoes(idLivro) {
+    const lista = lerObjeto(CHAVE_VISUALIZACOES)[String(idLivro)];
+    return Array.isArray(lista) ? lista.length : 0;
+  }
+
+  // Texto de estatísticas mostrado ao autor
+  function textoEstatisticas(idLivro) {
+    const v = contarVisualizacoes(idLivro);
+    const f = contarFavoritos(idLivro);
+    return `👁 ${v} ${v === 1 ? "visualização" : "visualizações"} · ♥ ${f} ${f === 1 ? "favorito" : "favoritos"}`;
+  }
+
+  // Demonstração + publicadas de todas as contas, no mesmo formato de card
+  function catalogo() {
+    const dono = idUsuario();
+    const publicadas = listarPublicadas()
+      .filter(livro => livro.titulo)
+      .map(livro => ({
+        id: livro.id,
+        titulo: livro.titulo,
+        genero: livro.genero,
+        descricao: livro.descricao || "Sem descrição.",
+        autor: autorDe(livro).nome,
+        capa: livro.capa || null,
+        link: `biblioteca.html?ler=${encodeURIComponent(livro.id)}`,
+        demo: false,
+        propria: livro.autorId === dono
+      }));
+
+    return [...publicadas, ...livrosDemo.map(livro => ({ ...livro, propria: false }))];
+  }
+
+    // Reduz uma imagem e devolve um texto (data URL) para guardar no localStorage
+  function prepararImagem(arquivo, { larguraMax = 800 } = {}) {
+    return new Promise((resolver, rejeitar) => {
+      if (!arquivo || !arquivo.type.startsWith("image/")) return rejeitar(new Error("tipo"));
+
+      const leitor = new FileReader();
+      leitor.onerror = () => rejeitar(new Error("leitura"));
+      leitor.onload = () => {
+        const imagem = new Image();
+        imagem.onerror = () => rejeitar(new Error("imagem"));
+        imagem.onload = () => {
+          if (!imagem.width || !imagem.height) return rejeitar(new Error("imagem"));
+          const escala = Math.min(1, larguraMax / imagem.width);
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.round(imagem.width * escala);
+          canvas.height = Math.round(imagem.height * escala);
+          const ctx = canvas.getContext("2d");
+          ctx.fillStyle = "#ffffff"; // PNG transparente não vira preto
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(imagem, 0, 0, canvas.width, canvas.height);
+          resolver(canvas.toDataURL("image/jpeg", 0.8));
+        };
+        imagem.src = leitor.result;
+      };
+      leitor.readAsDataURL(arquivo);
+    });
+  }
+
+  // Só aceita imagens no formato que o próprio editor gera (seguro contra HTML injetado)
+  const REGEX_IMAGEM = /!\[img\]\((data:image\/(?:jpeg|png|webp|gif);base64,[A-Za-z0-9+\/=]+)\)/g;
+  // Evita que textos digitados pelo usuário virem HTML
+  function escaparHTML(texto) {
+    return String(texto ?? "").replace(/[&<>"']/g, caractere => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    })[caractere]);
+  }
+
+  // Foto (se houver) ou inicial do nome, para os círculos de avatar
+  function avatarHTML(nome, foto) {
+    if (foto) return `<img src="${escaparHTML(foto)}" alt="">`;
+    return escaparHTML((String(nome || "R").charAt(0) || "R").toUpperCase());
+  }
+
+  // Converte as marcações do editor (**negrito**, *itálico*, __sublinhado__,
+  // ## título, - lista, > citação) em HTML para leitura
+  function formatarTexto(texto) {
+    const inline = linha => linha
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/\*(.+?)\*/g, "<em>$1</em>")
+      .replace(/__(.+?)__/g, "<u>$1</u>")
+      .replace(REGEX_IMAGEM, '<img src="$1" alt="Imagem do capítulo">');
+
+    const html = [];
+    let lista = [];
+
+    // Fecha a lista aberta antes de outro tipo de linha
+    const fecharLista = () => {
+      if (lista.length) html.push(`<ul>${lista.join("")}</ul>`);
+      lista = [];
+    };
+
+    escaparHTML(texto).split("\n").forEach(linha => {
+      if (/^- /.test(linha)) {
+        lista.push(`<li>${inline(linha.slice(2))}</li>`);
+        return;
+      }
+
+      fecharLista();
+
+      if (/^## /.test(linha)) html.push(`<h4>${inline(linha.slice(3))}</h4>`);
+      else if (/^&gt; /.test(linha)) html.push(`<blockquote>${inline(linha.slice(5))}</blockquote>`);
+      else if (linha.trim()) html.push(`<p>${inline(linha)}</p>`);
+      else html.push("<br>");
+    });
+
+    fecharLista();
+    return html.join("");
+  }
+
+  window.Readeriso = {
+    CHAVE,
+    gerarId,
+    novoCapitulo: gerarCapitulo,
+    listar,
+    listarPublicadas,
+    catalogo,
+    livrosDemo,
+    escaparHTML,
+    avatarHTML,
+    formatarTexto,
+    usuarioAtual,
+    idUsuario,
+    obter,
+    obterPerfil,
+    salvarPerfil,
+    autorDe,
+    ehFavorito,
+    favoritosDe,
+    alternarFavorito,
+    contarFavoritos,
+    registrarVisualizacao,
+    contarVisualizacoes,
+    textoEstatisticas,
+    prepararImagem,
+
+    criar({ titulo = "", descricao = "", genero = "Outro" } = {}) {
+      const dono = idUsuario();
+      if (!dono) return null;
+
+      const agora = Date.now();
+      const livro = normalizar({
+        id: gerarId(), titulo, descricao, genero, publicada: false,
+        autorId: dono, autorNome: usuarioAtual().usuario,
+        capitulos: [gerarCapitulo("Capítulo 1", "")],
+        criadoEm: agora, atualizadoEm: agora
+      });
+      const lista = listarTodos();
+      lista.push(livro);
+      return gravar(lista) ? livro : null;
+    },
+
+    salvar(dados) {
+      const livro = normalizar(dados);
+      if (!livro) return false;
+
+      const dono = idUsuario();
+      const lista = listarTodos();
+      const indice = lista.findIndex(item => item.id === livro.id);
+      const existente = indice >= 0 ? lista[indice] : null;
+
+      // Só o autor pode editar o próprio livro
+      if (existente && existente.autorId && existente.autorId !== dono) return false;
+
+      livro.autorId = existente?.autorId || dono;
+      livro.autorNome = existente?.autorNome || usuarioAtual().usuario;
+      livro.criadoEm = existente?.criadoEm || livro.criadoEm || Date.now();
+      livro.atualizadoEm = Date.now();
+
+      if (indice >= 0) lista[indice] = livro;
+      else lista.push(livro);
+      return gravar(lista);
+    },
+
+    excluir(id) {
+      const livro = obter(id);
+      if (!livro || livro.autorId !== idUsuario()) return false;
+
+      // Apaga também favoritos e visualizações desse livro
+      const favoritos = lerObjeto(CHAVE_FAVORITOS);
+      for (const usuario of Object.keys(favoritos)) {
+        if (Array.isArray(favoritos[usuario])) favoritos[usuario] = favoritos[usuario].filter(item => item !== livro.id);
+      }
+      gravarChave(CHAVE_FAVORITOS, favoritos);
+
+      const visualizacoes = lerObjeto(CHAVE_VISUALIZACOES);
+      delete visualizacoes[livro.id];
+      gravarChave(CHAVE_VISUALIZACOES, visualizacoes);
+
+      return gravar(listarTodos().filter(item => item.id !== livro.id));
+    }
+  };
+})();
+
+explorar js ---
+
+// explorar.js — busca e filtros das histórias (demonstração + publicadas de todas as contas)
+// As histórias de demonstração agora ficam em livros.js (Readeriso.livrosDemo).
+
+// Remove acentos e deixa minúsculo, para a busca ignorar maiúsculas/acentos
+function normalizar(texto) {
+  return String(texto).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const R = window.Readeriso;
+  const escapar = R.escaparHTML;
+
+  // Demonstração + livros publicados por qualquer conta
+  const historias = R.catalogo();
+
+  const campo = document.getElementById("campoBusca");
+  const form = document.getElementById("formBusca");
+  const filtros = document.getElementById("filtrosGenero");
+  const lista = document.getElementById("listaHistorias");
+  const semResultado = document.getElementById("semResultado");
+  const titulo = document.getElementById("tituloHistorias");
+  const descricao = document.getElementById("descricaoHistorias");
+
+  let generoAtivo = "Todos";
+
+  // Monta o HTML de um card de história
+  function criarCard(h) {
+    const capa = h.capa
+      ? `<div class="capa-historia"><img src="${escapar(h.capa)}" alt="Capa de ${escapar(h.titulo)}" loading="lazy"></div>`
+      : `<div class="capa-historia sem-capa" aria-hidden="true">▧</div>`;
+
+    let selo = "";
+    if (h.demo) selo = `<span class="aviso-demo">Obra demonstrativa</span>`;
+    else if (h.propria) selo = `<span class="aviso-demo selo-obra">Sua obra</span>`;
+
+    // Só o autor vê as estatísticas do próprio livro
+    const stats = h.propria ? `<p class="stats-livro">${R.textoEstatisticas(h.id)}</p>` : "";
+
+    return `
+      <a class="card-historia" href="${escapar(h.link)}">
+        ${capa}
+        <p class="genero">${escapar(h.genero.toUpperCase())}</p>
+        <h3>${escapar(h.titulo)}</h3>
+        <p class="descricao-historia">${escapar(h.descricao)}</p>
+        <p class="autor-historia">${escapar(h.autor)}</p>
+        ${stats}
+        ${selo}
+      </a>
+    `;
+  }
+
+  // ===== Filtros de gênero =====
+  const generos = ["Todos", ...new Set(historias.map(h => h.genero))];
+
+  filtros.innerHTML = generos.map(g => `
+    <button type="button" class="filtro${g === generoAtivo ? " ativo" : ""}" data-genero="${escapar(g)}">
+      ${escapar(g)}
+    </button>
+  `).join("");
+
+  filtros.addEventListener("click", e => {
+    const botao = e.target.closest(".filtro");
+    if (!botao) return;
+
+    generoAtivo = botao.dataset.genero;
+    filtros.querySelectorAll(".filtro").forEach(b => {
+      b.classList.toggle("ativo", b === botao);
+    });
+    renderizar();
+  });
+
+  // ===== Busca =====
+  function renderizar() {
+    const termo = normalizar(campo.value);
+
+    const encontradas = historias.filter(h => {
+      const doGenero = generoAtivo === "Todos" || h.genero === generoAtivo;
+      const doTermo = !termo ||
+        normalizar(h.titulo).includes(termo) ||
+        normalizar(h.genero).includes(termo) ||
+        normalizar(h.autor).includes(termo);
+      return doGenero && doTermo;
+    });
+
+    lista.innerHTML = encontradas.map(criarCard).join("");
+    semResultado.hidden = encontradas.length > 0;
+
+    // Troca o título da seção quando há busca ou filtro ativo
+    if (termo || generoAtivo !== "Todos") {
+      titulo.innerHTML = "Resultados<span>.</span>";
+      descricao.textContent = `${encontradas.length} história(s) encontrada(s).`;
+    } else {
+      titulo.innerHTML = "Histórias em destaque<span>.</span>";
+      descricao.textContent = "Uma seleção de histórias para sua próxima leitura.";
+    }
+  }
+
+  campo.addEventListener("input", renderizar);
+
+  // Enter no campo leva até os resultados
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    document.getElementById("historias").scrollIntoView();
+  });
+
+  renderizar();
+});
+
+perfil ---
+
+// perfil.js — dados do usuário, foto, estatísticas e favoritos
+(() => {
+  "use strict";
+
+  const TAMANHO_FOTO = 256; // a foto é reduzida para 256x256 para caber no localStorage
+
+  // Corta a imagem em quadrado, reduz e devolve um texto (data URL) para guardar
+  function prepararFoto(arquivo) {
+    return new Promise((resolver, rejeitar) => {
+      const leitor = new FileReader();
+      leitor.onerror = () => rejeitar(new Error("leitura"));
+      leitor.onload = () => {
+        const imagem = new Image();
+        imagem.onerror = () => rejeitar(new Error("imagem"));
+        imagem.onload = () => {
+          const lado = Math.min(imagem.width, imagem.height);
+          const canvas = document.createElement("canvas");
+          canvas.width = TAMANHO_FOTO;
+          canvas.height = TAMANHO_FOTO;
+          canvas.getContext("2d").drawImage(
+            imagem,
+            (imagem.width - lado) / 2, (imagem.height - lado) / 2, lado, lado,
+            0, 0, TAMANHO_FOTO, TAMANHO_FOTO
+          );
+          resolver(canvas.toDataURL("image/jpeg", 0.85));
+        };
+        imagem.src = leitor.result;
+      };
+      leitor.readAsDataURL(arquivo);
+    });
+  }
+
+  function iniciar() {
+    const R = window.Readeriso;
+    const escapar = R.escaparHTML;
+    const doisDigitos = numero => String(numero).padStart(2, "0");
+
+    // ===== Dados do usuário (guardados por conta) =====
+    const usuario = R.usuarioAtual();
+    const perfil = {
+      nome: usuario.usuario,
+      bio: "Apaixonado por livros, histórias e novos mundos.",
+      foto: "",
+      ...R.obterPerfil()
+    };
+
+    function mostrarPerfil() {
+      document.getElementById("nomeUsuario").textContent = perfil.nome;
+      document.getElementById("avatar").innerHTML = R.avatarHTML(perfil.nome, perfil.foto);
+      document.getElementById("emailUsuario").textContent = usuario.email;
+      document.getElementById("bioUsuario").textContent = perfil.bio;
+    }
+
+    // ===== Estatísticas =====
+    function mostrarEstatisticas(totalFavoritos) {
+      const historias = R.listar(); // só as desta conta
+      const publicadas = historias.filter(livro => livro.publicada);
+      const palavras = historias
+        .flatMap(livro => livro.capitulos)
+        .reduce((soma, capitulo) => soma + (capitulo.conteudo.trim() ? capitulo.conteudo.trim().split(/\s+/).length : 0), 0);
+
+      const visualizacoes = publicadas.reduce((soma, livro) => soma + R.contarVisualizacoes(livro.id), 0);
+      const favoritosRecebidos = publicadas.reduce((soma, livro) => soma + R.contarFavoritos(livro.id), 0);
+
+      document.getElementById("totalHistorias").textContent = doisDigitos(historias.length);
+      document.getElementById("totalPublicadas").textContent = doisDigitos(publicadas.length);
+      document.getElementById("totalPalavras").textContent = palavras.toLocaleString("pt-BR");
+      document.getElementById("totalVisualizacoes").textContent = visualizacoes.toLocaleString("pt-BR");
+      document.getElementById("totalFavoritosRecebidos").textContent = favoritosRecebidos.toLocaleString("pt-BR");
+      document.getElementById("totalFavoritos").textContent = doisDigitos(totalFavoritos);
+    }
+
+    // ===== Cards e favoritos =====
+    function criarCard(livro) {
+      const favorito = R.ehFavorito(livro.id);
+
+      return `
+        <article class="card-historia">
+          <div class="capa-historia${livro.capa ? "" : " sem-capa"}">
+            ${livro.capa
+              ? `<img src="${escapar(livro.capa)}" alt="Capa de ${escapar(livro.titulo)}" loading="lazy">`
+              : `<span aria-hidden="true">▧</span>`}
+            <button type="button" class="btn-favorito" data-favorito="${escapar(livro.id)}"
+              aria-pressed="${favorito}" aria-label="${favorito ? "Remover dos" : "Adicionar aos"} favoritos">
+              ${favorito ? "♥" : "♡"}
+            </button>
+          </div>
+          <p class="genero">${escapar(livro.genero.toUpperCase())}</p>
+          <h3>${escapar(livro.titulo)}</h3>
+          <p class="descricao-historia">${escapar(livro.descricao)}</p>
+          <p class="autor-historia">${escapar(livro.autor)}</p>
+          <a href="${escapar(livro.link)}" class="link-ver-todas">Ler ↗</a>
+        </article>
+      `;
+    }
+
+    function mostrarLivros() {
+      const catalogo = R.catalogo();
+      const sugestoes = catalogo.filter(livro => !livro.propria); // não favorita o próprio livro
+      const escolhidos = catalogo.filter(livro => R.ehFavorito(livro.id));
+
+      document.getElementById("gradeLivros").innerHTML = sugestoes.map(criarCard).join("");
+      document.getElementById("gradeFavoritos").innerHTML = escolhidos.map(criarCard).join("");
+      document.getElementById("semFavoritos").hidden = escolhidos.length > 0;
+      mostrarEstatisticas(escolhidos.length);
+    }
+
+    // Coração: adiciona/remove dos favoritos desta conta
+    document.addEventListener("click", evento => {
+      const botao = evento.target.closest("[data-favorito]");
+      if (!botao) return;
+
+      R.alternarFavorito(botao.dataset.favorito);
+      mostrarLivros();
+    });
+
+    // ===== Editar perfil =====
+    const modal = document.getElementById("modalPerfil");
+    const campoNome = document.getElementById("campoNome");
+    const campoBio = document.getElementById("campoBio");
+    const campoFoto = document.getElementById("campoFoto");
+    const previaFoto = document.getElementById("previaFoto");
+    const btnRemoverFoto = document.getElementById("btnRemoverFoto");
+    const erroFoto = document.getElementById("erroFoto");
+
+    let fotoTemporaria = ""; // só vira definitiva ao clicar em Salvar
+
+    function mostrarPrevia() {
+      previaFoto.innerHTML = R.avatarHTML(campoNome.value || perfil.nome, fotoTemporaria);
+      btnRemoverFoto.hidden = !fotoTemporaria;
+    }
+
+    // Preenche o formulário ao abrir o modal
+    modal.addEventListener("show.bs.modal", () => {
+      campoNome.value = perfil.nome;
+      campoBio.value = perfil.bio;
+      fotoTemporaria = perfil.foto;
+      erroFoto.textContent = "";
+      mostrarPrevia();
+    });
+
+    campoNome.addEventListener("input", mostrarPrevia);
+
+    campoFoto.addEventListener("change", async () => {
+      const arquivo = campoFoto.files[0];
+      if (!arquivo) return;
+
+      erroFoto.textContent = "";
+      if (!arquivo.type.startsWith("image/")) {
+        erroFoto.textContent = "Escolha um arquivo de imagem.";
+      } else {
+        try {
+          fotoTemporaria = await prepararFoto(arquivo);
+          mostrarPrevia();
+        } catch {
+          erroFoto.textContent = "Não foi possível ler essa imagem.";
+        }
+      }
+      campoFoto.value = "";
+    });
+
+    btnRemoverFoto.addEventListener("click", () => {
+      fotoTemporaria = "";
+      mostrarPrevia();
+    });
+
+    document.getElementById("formPerfil").addEventListener("submit", evento => {
+      evento.preventDefault();
+
+      const novo = {
+        nome: campoNome.value.trim() || usuario.usuario,
+        bio: campoBio.value.trim(),
+        foto: fotoTemporaria
+      };
+
+      if (!R.salvarPerfil(novo)) {
+        erroFoto.textContent = "Não foi possível salvar. Tente uma foto menor.";
+        return;
+      }
+
+      Object.assign(perfil, novo);
+      mostrarPerfil();
+      bootstrap.Modal.getInstance(modal).hide();
+    });
+
+    // Sair da conta (função do auth.js)
+    document.getElementById("btnSair").addEventListener("click", sairDaConta);
+
+    mostrarPerfil();
+    mostrarLivros();
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", iniciar);
+  else iniciar();
+})();

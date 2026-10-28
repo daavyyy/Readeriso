@@ -1,10 +1,13 @@
 git pull --no-rebase origin main
 
-(-aba nova nos sites, para apps)
+-aba nova nos sites, para apps (pode esperar)
+-mostrar no perfil o que cada usuario escreveu
 -livros demonstrativo igual livros publicados (em progresso)
+-por imagens no livro (capa e no livro) = corrigir, aba biblioteca e escrever nao mostrar a imagem
+
+
+-imagem de capa
+- separar a biblioteca em duas, uma para os publicados da conta e outra para mostrar todos os livros publicados
 
 
 https://www.iloveimg.com/pt
-
-
--por imagens no livro (capa e no livro)

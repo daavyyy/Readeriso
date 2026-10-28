@@ -19,14 +19,20 @@
     const btnExcluirCapitulo = $("btnExcluirCapitulo");
     const btnExcluirHistoria = $("btnExcluirHistoria");
     const botoesAlinhamento = document.querySelectorAll('[data-format="left"], [data-format="center"], [data-format="right"]');
-
+    const capaPrevia = $("capaPrevia");
+    const campoCapa = $("campoCapa");
+    const btnRemoverCapa = $("btnRemoverCapa");
+    const erroCapa = $("erroCapa");
+    const campoImagem = $("campoImagem");
+    const REGEX_IMAGEM = /!\[img\]\((data:image\/(?:jpeg|png|webp|gif);base64,[A-Za-z0-9+\/=]+)\)/g;
     let historiaId = new URLSearchParams(window.location.search).get("id");
     let capitulos = [];
     let indiceAtual = 0;
     let publicada = false;
     let alteracoesSalvas = true;
     let temporizador = null;
-
+    let capa = "";
+    let faixaSalva = null; // posição do cursor ao clicar em "Inserir imagem"
     // Enter cria parágrafos <p> (e não <div>), o que simplifica a conversão
     document.execCommand("defaultParagraphSeparator", false, "p");
 
@@ -58,7 +64,7 @@
 
     // Mostra o placeholder só quando não há texto nem lista/citação
     function atualizarPlaceholder() {
-      const vazio = !textoCapitulo.innerText.trim() && !textoCapitulo.querySelector("ul, blockquote, h2");
+      const vazio = !textoCapitulo.innerText.trim() && !textoCapitulo.querySelector("ul, blockquote, h2, img");
       textoCapitulo.classList.toggle("vazio", vazio);
     }
 
@@ -87,7 +93,9 @@
       const inline = t => R.escaparHTML(t)
         .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
         .replace(/__(.+?)__/g, "<u>$1</u>")
-        .replace(/\*(.+?)\*/g, "<em>$1</em>");
+        .replace(/\*(.+?)\*/g, "<em>$1</em>")
+        .replace(/\*(.+?)\*/g, "<em>$1</em>")
+        .replace(REGEX_IMAGEM, '<img src="$1" alt="Imagem do capítulo">');
 
       let html = "";
       let emLista = false;
@@ -115,6 +123,10 @@
 
       const inline = no => {
         if (no.nodeType === 3) return no.nodeValue.replace(/\u00a0/g, " ");
+        if (no.nodeType === 1 && no.tagName === "IMG") {
+          const src = no.getAttribute("src") || "";
+          return src.startsWith("data:image/") ? `![img](${src})` : "";
+        }
         if (no.nodeType !== 1 || no.tagName === "BR") return "";
 
         const dentro = [...no.childNodes].map(inline).join("");
@@ -250,6 +262,7 @@
         titulo: titulo.value.trim(),
         descricao: descricao.value.trim(),
         genero: genero.value || "Outro",
+        capa,
         publicada: publicar,
         capitulos: capitulos.map(capitulo => ({ ...capitulo }))
       });
@@ -298,6 +311,8 @@
       historiaId = historia.id;
       titulo.value = historia.titulo;
       descricao.value = historia.descricao;
+      capa = historia.capa || "";
+      mostrarCapa();    
 
       // Mantém gêneros antigos que não estão na lista
       if (![...genero.options].some(opcao => opcao.value === historia.genero)) {
@@ -481,7 +496,82 @@
     window.addEventListener("beforeunload", () => {
       if (!alteracoesSalvas) salvarHistoria({ silencioso: true });
     });
+    // ===== Capa e imagens =====
 
+    function mostrarCapa() {
+      capaPrevia.innerHTML = capa ? `<img src="${R.escaparHTML(capa)}" alt="Capa da história">` : "▧";
+      btnRemoverCapa.hidden = !capa;
+    }
+
+    campoCapa.addEventListener("change", async () => {
+      const arquivo = campoCapa.files[0];
+      campoCapa.value = "";
+      erroCapa.textContent = "";
+      if (!arquivo) return;
+
+      try {
+        capa = await R.prepararImagem(arquivo, { larguraMax: 400 });
+        mostrarCapa();
+        marcarAlteracoes();
+      } catch {
+        erroCapa.textContent = "Não foi possível ler essa imagem.";
+      }
+    });
+
+    btnRemoverCapa.addEventListener("click", () => {
+      capa = "";
+      mostrarCapa();
+      marcarAlteracoes();
+    });
+
+    // Imagem dentro do capítulo: sempre em um parágrafo próprio, logo após o cursor
+    function inserirImagem(src) {
+      const imagem = document.createElement("img");
+      imagem.src = src;
+      imagem.alt = "Imagem do capítulo";
+
+      const paragrafo = document.createElement("p");
+      paragrafo.appendChild(imagem);
+
+      let bloco = faixaSalva ? faixaSalva.startContainer : null;
+      while (bloco && bloco.parentNode !== textoCapitulo) bloco = bloco.parentNode;
+
+      if (bloco) bloco.after(paragrafo);
+      else textoCapitulo.appendChild(paragrafo);
+
+      // Deixa uma linha vazia depois para continuar escrevendo
+      if (!paragrafo.nextSibling) {
+        const proximo = document.createElement("p");
+        proximo.appendChild(document.createElement("br"));
+        textoCapitulo.appendChild(proximo);
+      }
+
+      contarPalavras();
+      atualizarPlaceholder();
+      guardarCapituloAtual();
+      marcarAlteracoes();
+    }
+
+    $("btnImagem").addEventListener("mousedown", evento => evento.preventDefault());
+    $("btnImagem").addEventListener("click", () => {
+      const selecao = window.getSelection();
+      faixaSalva = selecao.rangeCount && textoCapitulo.contains(selecao.anchorNode)
+        ? selecao.getRangeAt(0).cloneRange()
+        : null;
+      campoImagem.click();
+    });
+
+    campoImagem.addEventListener("change", async () => {
+      const arquivo = campoImagem.files[0];
+      campoImagem.value = "";
+      if (!arquivo) return;
+
+      try {
+        inserirImagem(await R.prepararImagem(arquivo, { larguraMax: 800 }));
+      } catch {
+        alert("Não foi possível ler essa imagem.");
+      }
+    });
     carregarHistoria();
   }
 

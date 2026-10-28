@@ -67,6 +67,7 @@
       capitulos: capitulos.length ? capitulos : [normalizarCapitulo({ titulo: "Capítulo 1" }, 0)],
       autorId: String(livro.autorId ?? ""),
       autorNome: String(livro.autorNome ?? ""),
+      capa: typeof livro.capa === "string" && livro.capa.startsWith("data:image/") ? livro.capa : "",
       criadoEm: timestamp(livro.criadoEm ?? livro.criado_em, agora),
       atualizadoEm: timestamp(livro.atualizadoEm ?? livro.atualizado_em, agora)
     };
@@ -313,7 +314,7 @@
         genero: livro.genero,
         descricao: livro.descricao || "Sem descrição.",
         autor: autorDe(livro).nome,
-        capa: null,
+        capa: livro.capa || null,
         link: `biblioteca.html?ler=${encodeURIComponent(livro.id)}`,
         demo: false,
         propria: livro.autorId === dono
@@ -322,6 +323,36 @@
     return [...publicadas, ...livrosDemo.map(livro => ({ ...livro, propria: false }))];
   }
 
+    // Reduz uma imagem e devolve um texto (data URL) para guardar no localStorage
+  function prepararImagem(arquivo, { larguraMax = 800 } = {}) {
+    return new Promise((resolver, rejeitar) => {
+      if (!arquivo || !arquivo.type.startsWith("image/")) return rejeitar(new Error("tipo"));
+
+      const leitor = new FileReader();
+      leitor.onerror = () => rejeitar(new Error("leitura"));
+      leitor.onload = () => {
+        const imagem = new Image();
+        imagem.onerror = () => rejeitar(new Error("imagem"));
+        imagem.onload = () => {
+          if (!imagem.width || !imagem.height) return rejeitar(new Error("imagem"));
+          const escala = Math.min(1, larguraMax / imagem.width);
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.round(imagem.width * escala);
+          canvas.height = Math.round(imagem.height * escala);
+          const ctx = canvas.getContext("2d");
+          ctx.fillStyle = "#ffffff"; // PNG transparente não vira preto
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(imagem, 0, 0, canvas.width, canvas.height);
+          resolver(canvas.toDataURL("image/jpeg", 0.8));
+        };
+        imagem.src = leitor.result;
+      };
+      leitor.readAsDataURL(arquivo);
+    });
+  }
+
+  // Só aceita imagens no formato que o próprio editor gera (seguro contra HTML injetado)
+  const REGEX_IMAGEM = /!\[img\]\((data:image\/(?:jpeg|png|webp|gif);base64,[A-Za-z0-9+\/=]+)\)/g;
   // Evita que textos digitados pelo usuário virem HTML
   function escaparHTML(texto) {
     return String(texto ?? "").replace(/[&<>"']/g, caractere => ({
@@ -341,7 +372,8 @@
     const inline = linha => linha
       .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
       .replace(/\*(.+?)\*/g, "<em>$1</em>")
-      .replace(/__(.+?)__/g, "<u>$1</u>");
+      .replace(/__(.+?)__/g, "<u>$1</u>")
+      .replace(REGEX_IMAGEM, '<img src="$1" alt="Imagem do capítulo">');
 
     const html = [];
     let lista = [];
@@ -394,6 +426,7 @@
     registrarVisualizacao,
     contarVisualizacoes,
     textoEstatisticas,
+    prepararImagem,
 
     criar({ titulo = "", descricao = "", genero = "Outro" } = {}) {
       const dono = idUsuario();

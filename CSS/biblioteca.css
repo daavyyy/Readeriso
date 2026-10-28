@@ -131,3 +131,10 @@
   background-color: var(--vermelho);
   border-color: var(--vermelho);
 }
+
+/* Imagens dentro do capítulo (leitura e prévia) */
+.texto-capitulo img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+}

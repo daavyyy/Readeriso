@@ -19,15 +19,28 @@
 
     let tipoAtual = "publicados";
     let livroAberto = null;
+    const TITULOS = {
+      publicados: "Minhas publicadas",
+      todos: "Todas as publicadas",
+      rascunhos: "Rascunhos"
+    };
 
-    // Card de uma história com botões Ler / Editar (R.listar() = só as histórias desta conta)
+    // Card de uma história com botões Ler / Editar
     function criarCard(livro) {
       const id = encodeURIComponent(livro.id);
       const capitulos = livro.capitulos.length;
+      const meu = livro.autorId === R.idUsuario();
+
       const botaoLer = livro.publicada
         ? `<button type="button" class="btn-principal" data-ler="${escapar(livro.id)}">Ler</button>`
         : "";
-      const stats = livro.publicada ? `<p class="stats-livro">${R.textoEstatisticas(livro.id)}</p>` : "";
+      // Só o autor edita o livro e vê as estatísticas
+      const botaoEditar = meu
+        ? `<a href="editor.html?id=${id}" class="btn-secundario">${livro.publicada ? "Editar" : "Continuar escrevendo"}</a>`
+        : "";
+      const stats = livro.publicada && meu ? `<p class="stats-livro">${R.textoEstatisticas(livro.id)}</p>` : "";
+      // Na aba "Todas" mostra quem escreveu
+      const autor = tipoAtual === "todos" ? `<p class="autor-historia">${escapar(R.autorDe(livro).nome)}</p>` : "";
 
       return `
         <article class="card-historia">
@@ -35,13 +48,12 @@
           <p class="genero">${escapar(livro.genero.toUpperCase())}</p>
           <h3>${escapar(livro.titulo || "História sem título")}</h3>
           <p class="descricao-historia">${escapar(livro.descricao || "Sem descrição.")}</p>
+          ${autor}
           <p class="info-livro">${livro.publicada ? "Publicada" : "Rascunho"} · ${capitulos} ${capitulos === 1 ? "capítulo" : "capítulos"}</p>
           ${stats}
           <div class="card-acoes">
             ${botaoLer}
-            <a href="editor.html?id=${id}" class="btn-secundario">
-              ${livro.publicada ? "Editar" : "Continuar escrevendo"}
-            </a>
+            ${botaoEditar}
           </div>
         </article>
       `;
@@ -49,13 +61,22 @@
 
     // Lista as histórias da aba atual
     function carregarBiblioteca() {
-      const filtrados = R.listar()
-        .filter(livro => tipoAtual === "publicados" ? livro.publicada : !livro.publicada)
+      // "todos" = publicadas de qualquer conta; as outras abas = só desta conta
+      const fonte = tipoAtual === "todos" ? R.listarPublicadas() : R.listar();
+
+      const filtrados = fonte
+        .filter(livro => tipoAtual === "rascunhos" ? !livro.publicada : livro.publicada)
         .sort((a, b) => b.atualizadoEm - a.atualizadoEm);
 
-      tituloLista.innerHTML = `${tipoAtual === "publicados" ? "Publicadas" : "Rascunhos"}<span>.</span>`;
+      tituloLista.innerHTML = `${TITULOS[tipoAtual]}<span>.</span>`;
       contadorLivros.textContent = `${filtrados.length} ${filtrados.length === 1 ? "história" : "histórias"}`;
       listaLivros.innerHTML = filtrados.map(criarCard).join("");
+
+      // Mensagem de "vazio" muda conforme a aba
+      mensagemVazia.querySelector("p").textContent = tipoAtual === "todos"
+        ? "Ainda não há histórias publicadas por nenhuma conta."
+        : "Sua estante está esperando. Crie sua primeira história e ela aparecerá aqui.";
+      mensagemVazia.querySelector("a").hidden = tipoAtual === "todos";
       mensagemVazia.hidden = filtrados.length > 0;
     }
 

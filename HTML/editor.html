@@ -57,7 +57,17 @@
           <label for="descricaoHistoria" class="rotulo">DESCRIÇÃO</label>
           <textarea id="descricaoHistoria" class="campo" maxlength="500" rows="2" placeholder="Conte um pouco sobre sua história"></textarea>
         </div>
+              <div class="editor-capa">
+        <div class="capa-previa" id="capaPrevia" aria-hidden="true">▧</div>
 
+        <div class="editor-capa-acoes">
+          <span class="rotulo">CAPA</span>
+          <label for="campoCapa" class="btn-secundario">Escolher capa</label>
+          <input type="file" id="campoCapa" accept="image/*" hidden>
+          <button type="button" class="btn-secundario" id="btnRemoverCapa" hidden>Remover capa</button>
+          <p class="erro-imagem" id="erroCapa" role="alert"></p>
+        </div>
+      </div>
         <div>
           <label for="generoHistoria" class="rotulo">GÊNERO</label>
           <select id="generoHistoria" class="campo">
@@ -110,6 +120,9 @@
           <button type="button" data-format="left" title="Alinhar à esquerda" aria-label="Alinhar à esquerda">⇤</button>
           <button type="button" data-format="center" title="Centralizar" aria-label="Centralizar">↔</button>
           <button type="button" data-format="right" title="Alinhar à direita" aria-label="Alinhar à direita">⇥</button>
+          <span class="separador"></span>
+          <button type="button" id="btnImagem" title="Inserir imagem" aria-label="Inserir imagem">🖼</button>
+          <input type="file" id="campoImagem" accept="image/*" hidden>
         </div>
 
         <span id="rotuloTexto" class="visually-hidden">Texto do capítulo</span>
