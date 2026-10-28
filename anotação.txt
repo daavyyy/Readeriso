@@ -1,21 +1,10 @@
-*correção do email de contato
-*readme
-*print index
-*modificadores
-*no localStorage, ao escrever e trocar de conta, o livro escrito na conta A pode ser lido e favoritado na conta B (e vise  versa), 
-e mostrar para a conta A quantas visualizações e favoritismo tiveram no livro, alem de mostrar o nome da conta que fez o livro,
-isso será um texto para quando tiver ligado o banco de dados
-*opção de por foto nos perfil
-*adicionar mais site
-
-
 git pull --no-rebase origin main
 
--aba nova nos sites, para apps
--por imagens no livro (capa e no livro)
+(-aba nova nos sites, para apps)
 -livros demonstrativo igual livros publicados (em progresso)
 
 
-
-
 https://www.iloveimg.com/pt
+
+
+-por imagens no livro (capa e no livro)
