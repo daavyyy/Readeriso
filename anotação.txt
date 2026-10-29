@@ -1,13 +1,10 @@
 git pull --no-rebase origin main
+   copy(JSON.stringify(Readeriso.listar().filter(l => l.publicada), null, 2))
 
+   
 -aba nova nos sites, para apps (pode esperar)
 -mostrar no perfil o que cada usuario escreveu
--livros demonstrativo igual livros publicados (em progresso)
--por imagens no livro (capa e no livro) = corrigir, aba biblioteca e escrever nao mostrar a imagem
 
-
--imagem de capa
-- separar a biblioteca em duas, uma para os publicados da conta e outra para mostrar todos os livros publicados
 
 
 https://www.iloveimg.com/pt

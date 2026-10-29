@@ -1,16 +1,22 @@
-// explorar.js — busca e filtros das histórias (demonstração + publicadas de todas as contas)
-// As histórias de demonstração agora ficam em livros.js (Readeriso.livrosDemo).
+// explorar.js — busca e filtros das histórias (livros fixos + publicadas de todas as contas)
+// Os livros fixos ficam em livros-padrao.js; o catálogo vem de livros.js (Readeriso.catalogo).
+
+// Mesmos gêneros do editor (sem "Yaoi")
+const GENEROS = [
+  "Fantasia", "Aventura", "Romance", "Ficção científica",
+  "Terror", "Drama", "Comédia", "Mistério", "Outro"
+];
 
 // Remove acentos e deixa minúsculo, para a busca ignorar maiúsculas/acentos
 function normalizar(texto) {
-  return String(texto).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
+  return String(texto).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   const R = window.Readeriso;
   const escapar = R.escaparHTML;
 
-  // Demonstração + livros publicados por qualquer conta
+  // Livros publicados por qualquer conta (inclui os fixos)
   const historias = R.catalogo();
 
   const campo = document.getElementById("campoBusca");
@@ -50,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ===== Filtros de gênero =====
-  const generos = ["Todos", ...new Set(historias.map(h => h.genero))];
+  const generos = ["Todos", ...GENEROS];
 
   filtros.innerHTML = generos.map(g => `
     <button type="button" class="filtro${g === generoAtivo ? " ativo" : ""}" data-genero="${escapar(g)}">

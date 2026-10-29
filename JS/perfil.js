@@ -99,7 +99,9 @@
       const sugestoes = catalogo.filter(livro => !livro.propria); // não favorita o próprio livro
       const escolhidos = catalogo.filter(livro => R.ehFavorito(livro.id));
 
-      document.getElementById("gradeLivros").innerHTML = sugestoes.map(criarCard).join("");
+      document.getElementById("gradeLivros").innerHTML = sugestoes.length
+        ? sugestoes.map(criarCard).join("")
+        : `<p class="sem-resultado">Nenhuma história de outros autores por aqui ainda.</p>`;
       document.getElementById("gradeFavoritos").innerHTML = escolhidos.map(criarCard).join("");
       document.getElementById("semFavoritos").hidden = escolhidos.length > 0;
       mostrarEstatisticas(escolhidos.length);

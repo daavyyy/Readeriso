@@ -30,13 +30,16 @@
     function criarCard(livro) {
       const id = encodeURIComponent(livro.id);
       const capitulos = plural(livro.capitulos.length, "capítulo", "capítulos");
+            const capa = livro.capa
+        ? `<div class="capa-historia"><img src="${escapar(livro.capa)}" alt="Capa de ${escapar(livro.titulo)}" loading="lazy"></div>`
+        : `<div class="capa-historia sem-capa" aria-hidden="true">▧</div>`;
       const botaoLer = livro.publicada
         ? `<a href="biblioteca.html?ler=${id}" class="btn-secundario">Ler</a>`
         : "";
 
       return `
         <article class="card-historia">
-          <div class="capa-historia sem-capa" aria-hidden="true">▧</div>
+          ${capa}
           <p class="genero">${escapar(livro.genero.toUpperCase())}</p>
           <h3>${escapar(livro.titulo || "Sem título")}</h3>
           <p class="descricao-historia">${escapar(livro.descricao || "Sem descrição.")}</p>

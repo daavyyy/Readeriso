@@ -510,7 +510,7 @@
       if (!arquivo) return;
 
       try {
-        capa = await R.prepararImagem(arquivo, { larguraMax: 400 });
+        capa = await R.prepararImagem(arquivo, { larguraMax: 1200 });
         mostrarCapa();
         marcarAlteracoes();
       } catch {

@@ -30,6 +30,9 @@
       const id = encodeURIComponent(livro.id);
       const capitulos = livro.capitulos.length;
       const meu = livro.autorId === R.idUsuario();
+      const capa = livro.capa
+        ? `<div class="capa-historia"><img src="${escapar(livro.capa)}" alt="Capa de ${escapar(livro.titulo)}" loading="lazy"></div>`
+        : `<div class="capa-historia sem-capa" aria-hidden="true">▧</div>`;
 
       const botaoLer = livro.publicada
         ? `<button type="button" class="btn-principal" data-ler="${escapar(livro.id)}">Ler</button>`
@@ -44,7 +47,7 @@
 
       return `
         <article class="card-historia">
-          <div class="capa-historia sem-capa" aria-hidden="true">▧</div>
+           ${capa}
           <p class="genero">${escapar(livro.genero.toUpperCase())}</p>
           <h3>${escapar(livro.titulo || "História sem título")}</h3>
           <p class="descricao-historia">${escapar(livro.descricao || "Sem descrição.")}</p>

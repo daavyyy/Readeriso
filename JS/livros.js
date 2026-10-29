@@ -21,12 +21,10 @@
   const ALINHAMENTOS = ["left", "center", "right"];
   const gerarId = () => `hist-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
-  // Livros de demonstração (aparecem para todas as contas)
-  const livrosDemo = [
-    { id: "fantasia", titulo: "Fantasia", genero: "Fantasia", autor: "Autor de exemplo", descricao: "Um reino à beira do fim guarda um segredo esquecido.", link: "livro.teste/fantasia.txt", capa: "livro.teste/1.png", demo: true },
-    { id: "romance", titulo: "Romance", genero: "Romance", autor: "Autora de exemplo", descricao: "Duas pessoas descobrem o que nunca conseguiram dizer.", link: "livro.teste/romance.txt", capa: "livro.teste/2.png", demo: true },
-    { id: "yaoi", titulo: "Yaoi", genero: "Yaoi", autor: "Autor de exemplo", descricao: "Um encontro inesperado muda tudo o que eles sabiam.", link: "livro.teste/yaoi.txt", capa: "livro.teste/3.png", demo: true }
-  ];
+  // Os livros de demonstração (.txt) foram removidos. A lista fica vazia para não
+  // quebrar páginas que ainda usam Readeriso.livrosDemo. Os livros fixos agora vêm
+  // de livros-padrao.js (window.LIVROS_PADRAO).
+  const livrosDemo = [];
 
   function timestamp(valor, padrao) {
     if (typeof valor === "number" && Number.isFinite(valor)) return valor;
@@ -192,8 +190,36 @@
     }
   }
 
+  // Livros fixos (livros-padrao.js): se algum não estiver no localStorage, é recriado
+  // exatamente como foi exportado. Nunca sobrescreve um livro que já existe.
+  function garantirLivrosPadrao() {
+    const padrao = Array.isArray(window.LIVROS_PADRAO) ? window.LIVROS_PADRAO : [];
+    if (!padrao.length) return;
+
+    const todos = lerBrutoPrincipal().map(normalizar).filter(Boolean);
+    const ids = new Set(todos.map(livro => livro.id));
+    let alterou = false;
+
+    for (const item of padrao) {
+      const livro = normalizar({
+        ...item,
+        publicada: true,
+        autorId: item?.autorId || "readeriso",
+        autorNome: item?.autorNome || "Readeriso"
+      });
+      if (livro && !ids.has(livro.id)) {
+        todos.push(livro);
+        ids.add(livro.id);
+        alterou = true;
+      }
+    }
+
+    if (alterou) gravar(todos);
+  }
+
   migrarDadosAntigos();
   migrarFavoritosAntigos();
+  garantirLivrosPadrao();
 
   // ===== Livros =====
 
@@ -324,7 +350,7 @@
   }
 
     // Reduz uma imagem e devolve um texto (data URL) para guardar no localStorage
-  function prepararImagem(arquivo, { larguraMax = 800 } = {}) {
+  function prepararImagem(arquivo, { larguraMax = 1200, qualidade = 0.9 } = {}) {
     return new Promise((resolver, rejeitar) => {
       if (!arquivo || !arquivo.type.startsWith("image/")) return rejeitar(new Error("tipo"));
 
@@ -340,10 +366,11 @@
           canvas.width = Math.round(imagem.width * escala);
           canvas.height = Math.round(imagem.height * escala);
           const ctx = canvas.getContext("2d");
+          ctx.imageSmoothingQuality = "high";
           ctx.fillStyle = "#ffffff"; // PNG transparente não vira preto
           ctx.fillRect(0, 0, canvas.width, canvas.height);
           ctx.drawImage(imagem, 0, 0, canvas.width, canvas.height);
-          resolver(canvas.toDataURL("image/jpeg", 0.8));
+          resolver(canvas.toDataURL("image/jpeg", qualidade));
         };
         imagem.src = leitor.result;
       };
